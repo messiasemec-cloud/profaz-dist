@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROFAZ — Distribuição</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f3f0;color:#0b0b0b;min-height:100vh}
+.header{background:#1a3a5c;color:#fff;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo{background:#fff;color:#1a3a5c;font-size:11px;font-weight:700;padding:4px 8px;border-radius:4px;letter-spacing:.05em}
+.header-title{font-size:15px;font-weight:500}
+.header-sub{font-size:11px;opacity:.7}
+.header-user{font-size:13px;opacity:.85}
+.main{max-width:960px;margin:0 auto;padding:24px 16px}
+.card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.card-body{padding:20px}
+.card-title{font-size:14px;font-weight:500;margin-bottom:14px}
+.btn-grid{display:flex;gap:10px;flex-wrap:wrap}
+.btn-sel{padding:10px 20px;border:0.5px solid #c3c2b7;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;transition:all .15s}
+.btn-sel:hover{border-color:#1a3a5c;background:#e8eef5;color:#1a3a5c}
+.alerta{border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:13px;display:flex;align-items:center;gap:10px}
+.a-warn{background:#faeeda;border:0.5px solid #FAC775;color:#633806}
+.a-ok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.d-warn{background:#eda100}.d-ok{background:#1baf7a}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;padding:14px 16px}
+.kpi-label{font-size:11px;color:#898781;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.kpi-val{font-size:24px;font-weight:500}
+.kpi-sub{font-size:11px;color:#898781;margin-top:2px}
+.card-header{padding:14px 20px;border-bottom:0.5px solid rgba(0,0,0,.08);display:flex;align-items:center;justify-content:space-between}
+.ch-title{font-size:14px;font-weight:500}
+.ch-sub{font-size:12px;color:#898781}
+.btn-sm{font-size:12px;padding:5px 12px;border:0.5px solid #c3c2b7;border-radius:6px;background:#fff;cursor:pointer}
+.btn-sm:hover{background:#f4f3f0}
+.tbl-head{display:grid;grid-template-columns:1fr 80px 110px 110px 90px 120px;padding:8px 20px;border-bottom:0.5px solid rgba(0,0,0,.08)}
+.tbl-head span{font-size:11px;color:#898781;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.tbl-head span:not(:first-child){text-align:center}
+.proc-row{display:grid;grid-template-columns:1fr 80px 110px 110px 90px 120px;padding:12px 20px;border-bottom:0.5px solid rgba(0,0,0,.06);align-items:center;cursor:pointer;transition:background .1s}
+.proc-row:last-child{border-bottom:none}
+.proc-row:hover{background:#f8f7f5}
+.proc-row.prox{background:#e1f5ee}
+.proc-row.prox:hover{background:#c8eddf}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.pinfo{display:flex;align-items:center;gap:10px}
+.pnome{font-size:14px;font-weight:500}
+.pdet{font-size:11px;color:#898781;margin-top:2px}
+.cel{text-align:center;font-size:14px;font-weight:500}
+.cel-s{text-align:center;font-size:13px;color:#52514e}
+.badge{display:inline-block;font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
+.b-ok{background:#e1f5ee;color:#085041}
+.b-alto{background:#fcebeb;color:#791f1f}
+.b-baixo{background:#faeeda;color:#633806}
+.b-prox{background:#1baf7a;color:#fff}
+.barra{display:flex;align-items:center;gap:5px}
+.barra-bg{width:70px;height:5px;border-radius:3px;background:#e1e0d9;overflow:hidden}
+.barra-fill{height:100%;border-radius:3px}
+.sel-btn{padding:5px 10px;border:0.5px solid #c3c2b7;border-radius:6px;background:#fff;cursor:pointer;font-size:12px;transition:all .1s}
+.sel-btn:hover{border-color:#1baf7a;color:#085041}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:12px;color:#898781;font-weight:500}
+.fg input,.fg select{padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:14px;color:#0b0b0b;background:#fff;outline:none;width:100%}
+.fg input:focus,.fg select:focus{border-color:#1a3a5c}
+.full{grid-column:1/-1}
+.proc-opcoes{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-top:6px}
+.proc-op{padding:10px 12px;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;cursor:pointer;transition:all .12s}
+.proc-op:hover{border-color:#1a3a5c;background:#e8eef5}
+.proc-op.sel{border-color:#1baf7a;background:#e1f5ee}
+.proc-op-nome{font-size:13px;font-weight:500;line-height:1.3}
+.proc-op-ac{font-size:11px;color:#898781;margin-top:3px}
+.btn-dist{width:100%;padding:12px;background:#1baf7a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;margin-top:16px;transition:background .15s}
+.btn-dist:hover{background:#0F6E56}
+.btn-dist:disabled{background:#888;cursor:not-allowed}
+.fb{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none}
+.fb-ok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
+.fb-err{background:#fcebeb;border:0.5px solid #F09595;color:#791f1f}
+.loading{text-align:center;padding:40px;color:#898781;font-size:14px}
+.spin{display:inline-block;width:18px;height:18px;border:2px solid #e1e0d9;border-top-color:#1a3a5c;border-radius:50%;animation:spin .8s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:640px){
+  .tbl-head,.proc-row{grid-template-columns:1fr 70px 90px 110px}
+  .col-ef,.col-gav{display:none}
+  .form-grid{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">PGM</div>
+    <div>
+      <div class="header-title">PROFAZ — Distribuição de Processos</div>
+      <div class="header-sub">Procuradoria Geral do Município de Fortaleza</div>
+    </div>
+  </div>
+  <div class="header-user" id="huser"></div>
+</div>
+
+<div class="main">
+
+  <!-- LOGIN -->
+  <div id="tela-login" class="card">
+    <div class="card-body">
+      <div class="card-title">Quem está distribuindo agora?</div>
+      <div class="btn-grid">
+        <button class="btn-sel" onclick="login('Distribuidor 1')">Distribuidor 1</button>
+        <button class="btn-sel" onclick="login('Distribuidor 2')">Distribuidor 2</button>
+        <button class="btn-sel" onclick="login('Distribuidor 3')">Distribuidor 3</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINCIPAL -->
+  <div id="tela-principal" style="display:none">
+
+    <div id="alerta" class="alerta a-warn">
+      <div class="dot d-warn" id="adot"></div>
+      <span id="atxt">Carregando...</span>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-label">Total acervo</div><div class="kpi-val" id="k-total">—</div></div>
+      <div class="kpi"><div class="kpi-label">Média por procurador</div><div class="kpi-val" id="k-media">—</div></div>
+      <div class="kpi"><div class="kpi-label">Maior acervo</div><div class="kpi-val" id="k-max">—</div><div class="kpi-sub" id="k-max-n"></div></div>
+      <div class="kpi"><div class="kpi-label">Menor acervo</div><div class="kpi-val" id="k-min">—</div><div class="kpi-sub" id="k-min-n"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="ch-title">Acervo por procurador</div>
+          <div class="ch-sub">Ordenado do menor para o maior — quem recebe o próximo processo está no topo</div>
+        </div>
+        <button class="btn-sm" onclick="carregar()">↻ Atualizar</button>
+      </div>
+      <div class="tbl-head">
+        <span>Procurador</span>
+        <span>Acervo</span>
+        <span>Exec. Fiscal</span>
+        <span class="col-ef">Conhecimento</span>
+        <span class="col-gav">Situação</span>
+        <span style="text-align:left">Ação</span>
+      </div>
+      <div id="lista"><div class="loading"><span class="spin"></span>Carregando...</div></div>
+    </div>
+
+    <!-- FORMULÁRIO -->
+    <div class="card">
+      <div class="card-header">
+        <div class="ch-title">Registrar distribuição</div>
+      </div>
+      <div class="card-body">
+        <div id="fb" class="fb"></div>
+        <div class="form-grid">
+
+          <div class="fg">
+            <label>Número do processo *</label>
+            <input id="inp-num" type="text" placeholder="ex: 0001234-55.2024.8.06.0001">
+          </div>
+
+          <div class="fg">
+            <label>Fluxo do processo *</label>
+            <select id="inp-fluxo">
+              <option value="">Selecione...</option>
+              <option>Execução Fiscal</option>
+              <option>Execução Fiscal - GAV</option>
+              <option>Conhecimento Fiscal</option>
+              <option>Conhecimento Fiscal - GAV</option>
+              <option>Juizado Especial</option>
+            </select>
+          </div>
+
+          <div class="fg">
+            <label>Tipo de distribuição *</label>
+            <select id="inp-tipo" onchange="toggleMotivo()">
+              <option>Primeira distribuição</option>
+              <option>Redistribuição</option>
+              <option>Tramitação temporária</option>
+              <option>Compartilhamento</option>
+            </select>
+          </div>
+
+          <div class="fg" id="fg-motivo" style="display:none">
+            <label>Motivo da redistribuição</label>
+            <select id="inp-motivo">
+              <option value="">Selecione...</option>
+              <option>Aposentadoria do(a) Procurador(a) anterior</option>
+              <option>Licença Prêmio do(a) Procurador(a) anterior</option>
+              <option>Decisão do(a) Procurador(a) Chefe</option>
+              <option>Decisão do(a) Subprocurador(a) Geral</option>
+              <option>Foro íntimo do procurador(a) designado(a)</option>
+            </select>
+          </div>
+
+          <div class="fg">
+            <label>Titular?</label>
+            <select id="inp-titular">
+              <option value="Sim">Sim</option>
+              <option value="Não">Não</option>
+            </select>
+          </div>
+
+          <div class="fg full">
+            <label>Procurador(a) designado(a) *</label>
+            <div class="proc-opcoes" id="proc-opcoes">
+              <div style="font-size:13px;color:#898781;padding:8px 0">Carregando...</div>
+            </div>
+          </div>
+
+        </div>
+        <button class="btn-dist" id="btn-dist" onclick="distribuir()" disabled>Confirmar distribuição</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const URL_AS = 'https://script.google.com/macros/s/AKfycbzt186mHh_LrKKI1gg5hofoQl_mwj5rRxkgZCjiCIcId2UVDtlbWHwdo05lSU9_hNCP/exec';
+let dist = '', procs = [], procSel = null, mediaAtual = 0;
+
+function login(nome) {
+  dist = nome;
+  document.getElementById('huser').textContent = 'Distribuidor: ' + nome;
+  document.getElementById('tela-login').style.display = 'none';
+  document.getElementById('tela-principal').style.display = 'block';
+  carregar();
+}
+
+async function carregar() {
+  document.getElementById('lista').innerHTML = '<div class="loading"><span class="spin"></span>Carregando...</div>';
+  try {
+    const r = await fetch(URL_AS + '?acao=dashboard');
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+    procs = d.procuradores;
+    mediaAtual = d.media;
+    renderKPIs(d);
+    renderTabela(d);
+    renderOpcoes(d.procuradores, d.media);
+    renderAlerta(d);
+  } catch(e) {
+    document.getElementById('lista').innerHTML = '<div class="loading">Erro ao carregar: ' + e.message + '</div>';
+  }
+}
+
+function renderAlerta(d) {
+  const diff = d.maximo - d.minimo;
+  const al = document.getElementById('alerta');
+  const dot = document.getElementById('adot');
+  const txt = document.getElementById('atxt');
+  if (diff > 50) {
+    al.className = 'alerta a-warn'; dot.className = 'dot d-warn';
+    txt.innerHTML = `Acervo desequilibrado — diferença de <strong>${diff}</strong> processos entre o maior e o menor`;
+  } else {
+    al.className = 'alerta a-ok'; dot.className = 'dot d-ok';
+    txt.innerHTML = `Acervo equilibrado — variação de apenas <strong>${diff}</strong> processos`;
+  }
+}
+
+function renderKPIs(d) {
+  document.getElementById('k-total').textContent = d.total.toLocaleString('pt-BR');
+  document.getElementById('k-media').textContent = d.media;
+  document.getElementById('k-max').textContent = d.maximo;
+  document.getElementById('k-min').textContent = d.minimo;
+  const pMax = d.procuradores.find(p => p.acervo_atual === d.maximo);
+  const pMin = d.procuradores.find(p => p.acervo_atual === d.minimo);
+  document.getElementById('k-max-n').textContent = pMax ? pMax.nome.split(' ')[0] : '';
+  document.getElementById('k-min-n').textContent = pMin ? pMin.nome.split(' ')[0] : '';
+}
+
+function renderTabela(d) {
+  const sorted = [...d.procuradores].sort((a,b) => a.acervo_atual - b.acervo_atual);
+  const maxAc = d.maximo || 1;
+  document.getElementById('lista').innerHTML = sorted.map((p,i) => {
+    const pct = Math.round(p.acervo_atual / maxAc * 100);
+    const ratio = mediaAtual > 0 ? p.acervo_atual / mediaAtual : 1;
+    let badge, bcls;
+    if (i === 0)          { badge = '← próximo'; bcls = 'b-prox'; }
+    else if (ratio > 1.2) { badge = 'Acima';     bcls = 'b-alto'; }
+    else if (ratio < 0.8) { badge = 'Abaixo';    bcls = 'b-baixo'; }
+    else                  { badge = 'OK';         bcls = 'b-ok'; }
+    const cor = cor7(p.nome);
+    return `<div class="proc-row ${i===0?'prox':''}" onclick="selecionarDaTabela('${esc(p.nome)}')">
+      <div class="pinfo">
+        <div class="av" style="background:${cor}22;color:${cor}">${ini(p.nome)}</div>
+        <div>
+          <div class="pnome">${p.nome}</div>
+          <div class="pdet"><div class="barra"><div class="barra-bg"><div class="barra-fill" style="width:${pct}%;background:${cor}"></div></div><span style="font-size:10px;color:#898781">${pct}% do máximo</span></div></div>
+        </div>
+      </div>
+      <div class="cel">${p.acervo_atual}</div>
+      <div class="cel-s">${p.ef || 0}</div>
+      <div class="cel-s col-ef">${p.con || 0}</div>
+      <div class="col-gav cel-s"><span class="badge ${bcls}">${badge}</span></div>
+      <div><button class="sel-btn" onclick="event.stopPropagation();selecionarDaTabela('${esc(p.nome)}')">Selecionar</button></div>
+    </div>`;
+  }).join('');
+}
+
+function renderOpcoes(lista, med) {
+  const sorted = [...lista].sort((a,b) => a.acervo_atual - b.acervo_atual);
+  document.getElementById('proc-opcoes').innerHTML = sorted.map((p,i) => {
+    const ratio = med > 0 ? p.acervo_atual / med : 1;
+    let bcls = 'b-ok', btxt = 'OK';
+    if (i === 0)          { bcls = 'b-prox'; btxt = '← próximo'; }
+    else if (ratio > 1.2) { bcls = 'b-alto'; btxt = 'Acima'; }
+    else if (ratio < 0.8) { bcls = 'b-baixo'; btxt = 'Abaixo'; }
+    return `<div class="proc-op" id="op-${esc(p.nome)}" onclick="selProc('${esc(p.nome)}')">
+      <div class="proc-op-nome">${p.nome}</div>
+      <div class="proc-op-ac">${p.acervo_atual} processos ativos</div>
+      <span class="badge ${bcls}" style="margin-top:4px;font-size:10px">${btxt}</span>
+    </div>`;
+  }).join('');
+}
+
+function selecionarDaTabela(nome) {
+  selProc(nome);
+  document.querySelector('#tela-principal .card:last-child').scrollIntoView({behavior:'smooth'});
+}
+
+function selProc(nome) {
+  procSel = nome;
+  document.querySelectorAll('.proc-op').forEach(e => e.classList.remove('sel'));
+  const el = document.getElementById('op-' + nome);
+  if (el) el.classList.add('sel');
+  document.getElementById('btn-dist').disabled = false;
+}
+
+function toggleMotivo() {
+  const t = document.getElementById('inp-tipo').value;
+  document.getElementById('fg-motivo').style.display = t === 'Redistribuição' ? 'flex' : 'none';
+}
+
+async function distribuir() {
+  const num     = document.getElementById('inp-num').value.trim();
+  const fluxo   = document.getElementById('inp-fluxo').value;
+  const tipo    = document.getElementById('inp-tipo').value;
+  const motivo  = document.getElementById('inp-motivo').value;
+  const titular = document.getElementById('inp-titular').value;
+
+  if (!num)    { showFb('Informe o número do processo.', 'err'); return; }
+  if (!fluxo)  { showFb('Selecione o fluxo do processo.', 'err'); return; }
+  if (!procSel){ showFb('Selecione um procurador(a).', 'err'); return; }
+
+  const btn = document.getElementById('btn-dist');
+  btn.disabled = true; btn.textContent = 'Registrando...';
+
+  try {
+    const params = new URLSearchParams({
+      acao:'distribuir', num_processo:num, fluxo, tipo,
+      motivo, nome_proc:procSel, titular, distribuidor:dist
+    });
+    const r = await fetch(URL_AS + '?' + params);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+    showFb('✓ ' + d.mensagem, 'ok');
+    document.getElementById('inp-num').value = '';
+    document.getElementById('inp-fluxo').value = '';
+    document.getElementById('inp-tipo').value = 'Primeira distribuição';
+    document.getElementById('inp-motivo').value = '';
+    document.getElementById('fg-motivo').style.display = 'none';
+    procSel = null;
+    document.querySelectorAll('.proc-op').forEach(e => e.classList.remove('sel'));
+    document.getElementById('btn-dist').disabled = true;
+    await carregar();
+  } catch(e) {
+    showFb('Erro: ' + e.message, 'err');
+  }
+  btn.disabled = false; btn.textContent = 'Confirmar distribuição';
+}
+
+function showFb(msg, tipo) {
+  const el = document.getElementById('fb');
+  el.textContent = msg;
+  el.className = 'fb fb-' + tipo;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 5000);
+}
+
+function ini(n) { return n.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+function esc(s) { return String(s).replace(/'/g,"\\'"); }
+function cor7(s) {
+  const cs=['#2a78d6','#1baf7a','#eda100','#4a3aa7','#e34948','#e87ba4','#eb6834'];
+  let h=0; for(const c of String(s)) h=(h*31+c.charCodeAt(0))%cs.length; return cs[h];
+}
+</script>
+</body>
+</html>
