@@ -385,7 +385,73 @@ function setStatusIdx(idx, novoStatus) {
   const nome = procs[idx]?.nome;
   if (!nome) return;
   document.getElementById('menu-' + idx).classList.remove('open');
-  setStatus(nome, novoStatus);
+
+  if (novoStatus === 'Ativo') {
+    // modal de confirmação
+    const antigo = document.getElementById('modal-ativar');
+    if (antigo) antigo.remove();
+    const modal = document.createElement('div');
+    modal.id = 'modal-ativar';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:999';
+    modal.innerHTML = `
+      <div style="background:#fff;border-radius:12px;width:280px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden">
+        <div style="background:#1a3a5c;padding:14px 18px">
+          <div style="color:#fff;font-size:14px;font-weight:500">✓ Reativar procurador</div>
+          <div style="color:rgba(255,255,255,.7);font-size:12px;margin-top:2px">${nome}</div>
+        </div>
+        <div style="padding:18px">
+          <div style="font-size:13px;color:#52514e;margin-bottom:16px;line-height:1.5">
+            Confirma o retorno de <strong>${nome}</strong> para a esteira de distribuição?
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onclick="document.getElementById('modal-ativar').remove()"
+              style="flex:1;padding:9px;border:0.5px solid #c3c2b7;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#52514e">
+              Cancelar
+            </button>
+            <button onclick="document.getElementById('modal-ativar').remove();setStatus('${nome.replace(/'/g,"\'")}','Ativo')"
+              style="flex:1;padding:9px;border:none;border-radius:8px;background:#1baf7a;color:#fff;cursor:pointer;font-size:13px;font-weight:500">
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  } else if (novoStatus === 'Licença') {
+    // modal de confirmação para licença
+    const antigo = document.getElementById('modal-licenca');
+    if (antigo) antigo.remove();
+    const modal = document.createElement('div');
+    modal.id = 'modal-licenca';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:999';
+    modal.innerHTML = `
+      <div style="background:#fff;border-radius:12px;width:280px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden">
+        <div style="background:#4a3aa7;padding:14px 18px">
+          <div style="color:#fff;font-size:14px;font-weight:500">📋 Licença</div>
+          <div style="color:rgba(255,255,255,.7);font-size:12px;margin-top:2px">${nome}</div>
+        </div>
+        <div style="padding:18px">
+          <div style="font-size:13px;color:#52514e;margin-bottom:16px;line-height:1.5">
+            <strong>${nome}</strong> será removido(a) da esteira.<br>
+            O retorno será manual (licença sem prazo definido).
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onclick="document.getElementById('modal-licenca').remove()"
+              style="flex:1;padding:9px;border:0.5px solid #c3c2b7;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#52514e">
+              Cancelar
+            </button>
+            <button onclick="document.getElementById('modal-licenca').remove();setStatus('${nome.replace(/'/g,"\'")}','Licença')"
+              style="flex:1;padding:9px;border:none;border-radius:8px;background:#4a3aa7;color:#fff;cursor:pointer;font-size:13px;font-weight:500">
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  } else {
+    setStatus(nome, novoStatus);
+  }
 }
 
 function pedirRetornoIdx(idx) {
