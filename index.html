@@ -314,8 +314,9 @@ function renderTabela(d) {
 
     const cor = cor7(p.nome);
     const statusCls = p.status === 'Férias' ? 'status-ferias' : p.status === 'Licença' ? 'status-licenca' : 'status-ativo';
+    const idx = i; // usa índice numérico para IDs — evita problemas com acentos e apóstrofos
 
-    return `<div class="pr ${i===0&&p.ativo?'prox':''} ${!p.ativo?'inativo':''}" onclick="${p.ativo?`selTabela('${esc(p.nome)}')`:''}">
+    return `<div class="pr ${i===0&&p.ativo?'prox':''} ${!p.ativo?'inativo':''}" onclick="${p.ativo?`selTabela(${idx})`:''}">
       <div class="pi">
         <div class="av" style="background:${cor}22;color:${cor}">${ini(p.nome)}</div>
         <div>
@@ -331,12 +332,12 @@ function renderTabela(d) {
       <div class="cels col-sem">${p.semana}</div>
       <div class="cels"><span class="badge ${bcls}">${badge}</span></div>
       <div onclick="event.stopPropagation()">
-        <div class="status-dropdown" id="dd-${esc(p.nome)}">
-          <button class="status-btn ${statusCls}" onclick="toggleDd('${esc(p.nome)}')">${p.status} ▾</button>
-          <div class="status-menu" id="menu-${esc(p.nome)}">
-            <div class="status-opt" onclick="setStatus('${esc(p.nome)}','Ativo')">✓ Ativo</div>
-            <div class="status-opt" onclick="pedirRetorno('${esc(p.nome)}')">🏖 Férias</div>
-            <div class="status-opt" onclick="setStatus('${esc(p.nome)}','Licença')">📋 Licença</div>
+        <div class="status-dropdown" id="dd-${idx}">
+          <button class="status-btn ${statusCls}" onclick="toggleDd(${idx})">${p.status} ▾</button>
+          <div class="status-menu" id="menu-${idx}">
+            <div class="status-opt" onclick="setStatusIdx(${idx},'Ativo')">✓ Ativo</div>
+            <div class="status-opt" onclick="pedirRetornoIdx(${idx})">🏖 Férias</div>
+            <div class="status-opt" onclick="setStatusIdx(${idx},'Licença')">📋 Licença</div>
           </div>
         </div>
       </div>
@@ -347,6 +348,7 @@ function renderTabela(d) {
 function renderOps(lista, media) {
   const ativos = lista.filter(p => p.ativo);
   document.getElementById('proc-ops').innerHTML = lista.map((p, i) => {
+    const idx2 = i; // índice global para IDs
     if (!p.ativo) {
       const scls = p.status === 'Férias' ? 'bferias' : 'blicenca';
       const retorno = p.retorno ? `Retorno: ${formatDate(p.retorno)}` : '';
@@ -357,13 +359,13 @@ function renderOps(lista, media) {
         ${retorno ? `<div style="font-size:10px;color:#898781;margin-top:4px">${retorno}</div>` : ''}
       </div>`;
     }
-    const idx = ativos.indexOf(p);
+    const idxAtivo = ativos.indexOf(p);
     const ratio = media > 0 ? p.acervo / media : 1;
     let bcls = 'bok', btxt = 'OK';
-    if (idx === 0)        { bcls = 'bprox'; btxt = '← próximo'; }
+    if (idxAtivo === 0)   { bcls = 'bprox'; btxt = '← próximo'; }
     else if (ratio > 1.2) { bcls = 'balto'; btxt = 'Acima'; }
     else if (ratio < 0.8) { bcls = 'bbaixo'; btxt = 'Abaixo'; }
-    return `<div class="pop" id="op-${esc(p.nome)}" onclick="selProc('${esc(p.nome)}')">
+    return `<div class="pop" id="op-${idx2}" onclick="selProcIdx(${idx2})">
       <div class="pop-nome">${p.nome}</div>
       <div class="pop-ac">${p.acervo} processos ativos</div>
       <span class="badge ${bcls}" style="margin-top:4px;font-size:10px">${btxt}</span>
@@ -371,11 +373,36 @@ function renderOps(lista, media) {
   }).join('');
 }
 
-function toggleDd(nome) {
+function toggleDd(idx) {
   document.querySelectorAll('.status-menu').forEach(m => {
-    if (m.id !== 'menu-' + nome) m.classList.remove('open');
+    if (m.id !== 'menu-' + idx) m.classList.remove('open');
   });
-  document.getElementById('menu-' + nome).classList.toggle('open');
+  document.getElementById('menu-' + idx).classList.toggle('open');
+}
+
+function setStatusIdx(idx, novoStatus) {
+  const nome = procs[idx]?.nome;
+  if (!nome) return;
+  document.getElementById('menu-' + idx).classList.remove('open');
+  setStatus(nome, novoStatus);
+}
+
+function pedirRetornoIdx(idx) {
+  const nome = procs[idx]?.nome;
+  if (nome) pedirRetorno(nome);
+}
+
+function selProcIdx(idx) {
+  const nome = procs[idx]?.nome;
+  if (nome) selProc(nome);
+}
+
+function selTabela(idx) {
+  const nome = procs[idx]?.nome;
+  if (nome) {
+    selProc(nome);
+    document.querySelector('.card:last-child').scrollIntoView({behavior:'smooth'});
+  }
 }
 
 function pedirRetorno(nome) {
