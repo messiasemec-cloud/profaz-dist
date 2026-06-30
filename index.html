@@ -8,82 +8,100 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f3f0;color:#0b0b0b;min-height:100vh}
 .header{background:#1a3a5c;color:#fff;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
-.header-left{display:flex;align-items:center;gap:12px}
-.logo{background:#fff;color:#1a3a5c;font-size:11px;font-weight:700;padding:4px 8px;border-radius:4px;letter-spacing:.05em}
-.header-title{font-size:15px;font-weight:500}
-.header-sub{font-size:11px;opacity:.7}
-.header-user{font-size:13px;opacity:.85}
-.main{max-width:960px;margin:0 auto;padding:24px 16px}
+.hl{display:flex;align-items:center;gap:12px}
+.logo{background:#fff;color:#1a3a5c;font-size:11px;font-weight:700;padding:4px 8px;border-radius:4px}
+.htitle{font-size:15px;font-weight:500}
+.hsub{font-size:11px;opacity:.7}
+.huser{font-size:13px;opacity:.85}
+.main{max-width:1000px;margin:0 auto;padding:24px 16px}
 .card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;overflow:hidden;margin-bottom:20px}
-.card-body{padding:20px}
-.card-title{font-size:14px;font-weight:500;margin-bottom:14px}
+.cb{padding:20px}
+.ctitle{font-size:14px;font-weight:500;margin-bottom:14px}
 .btn-grid{display:flex;gap:10px;flex-wrap:wrap}
-.btn-sel{padding:10px 20px;border:0.5px solid #c3c2b7;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;transition:all .15s}
-.btn-sel:hover{border-color:#1a3a5c;background:#e8eef5;color:#1a3a5c}
+.bsel{padding:10px 20px;border:0.5px solid #c3c2b7;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;transition:all .15s}
+.bsel:hover{border-color:#1a3a5c;background:#e8eef5;color:#1a3a5c}
 .alerta{border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:13px;display:flex;align-items:center;gap:10px}
-.a-warn{background:#faeeda;border:0.5px solid #FAC775;color:#633806}
-.a-ok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
+.aw{background:#faeeda;border:0.5px solid #FAC775;color:#633806}
+.aok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.d-warn{background:#eda100}.d-ok{background:#1baf7a}
+.dw{background:#eda100}.dok{background:#1baf7a}
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
 .kpi{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;padding:14px 16px}
-.kpi-label{font-size:11px;color:#898781;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
-.kpi-val{font-size:24px;font-weight:500}
-.kpi-sub{font-size:11px;color:#898781;margin-top:2px}
-.card-header{padding:14px 20px;border-bottom:0.5px solid rgba(0,0,0,.08);display:flex;align-items:center;justify-content:space-between}
-.ch-title{font-size:14px;font-weight:500}
-.ch-sub{font-size:12px;color:#898781}
-.btn-sm{font-size:12px;padding:5px 12px;border:0.5px solid #c3c2b7;border-radius:6px;background:#fff;cursor:pointer}
-.btn-sm:hover{background:#f4f3f0}
-.tbl-head{display:grid;grid-template-columns:1fr 80px 110px 110px 90px 120px;padding:8px 20px;border-bottom:0.5px solid rgba(0,0,0,.08)}
-.tbl-head span{font-size:11px;color:#898781;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
-.tbl-head span:not(:first-child){text-align:center}
-.proc-row{display:grid;grid-template-columns:1fr 80px 110px 110px 90px 120px;padding:12px 20px;border-bottom:0.5px solid rgba(0,0,0,.06);align-items:center;cursor:pointer;transition:background .1s}
-.proc-row:last-child{border-bottom:none}
-.proc-row:hover{background:#f8f7f5}
-.proc-row.prox{background:#e1f5ee}
-.proc-row.prox:hover{background:#c8eddf}
-.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
-.pinfo{display:flex;align-items:center;gap:10px}
-.pnome{font-size:14px;font-weight:500}
-.pdet{font-size:11px;color:#898781;margin-top:2px}
+.klabel{font-size:11px;color:#898781;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.kval{font-size:24px;font-weight:500}
+.ksub{font-size:11px;color:#898781;margin-top:2px}
+.ch{padding:14px 20px;border-bottom:0.5px solid rgba(0,0,0,.08);display:flex;align-items:center;justify-content:space-between}
+.cht{font-size:14px;font-weight:500}
+.chs{font-size:12px;color:#898781}
+.bsm{font-size:12px;padding:5px 12px;border:0.5px solid #c3c2b7;border-radius:6px;background:#fff;cursor:pointer}
+.bsm:hover{background:#f4f3f0}
+/* TABELA */
+.th{display:grid;grid-template-columns:1fr 80px 80px 80px 90px 100px 110px;padding:8px 20px;border-bottom:0.5px solid rgba(0,0,0,.08)}
+.th span{font-size:11px;color:#898781;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.th span:not(:first-child){text-align:center}
+.pr{display:grid;grid-template-columns:1fr 80px 80px 80px 90px 100px 110px;padding:11px 20px;border-bottom:0.5px solid rgba(0,0,0,.06);align-items:center;transition:background .1s}
+.pr:last-child{border-bottom:none}
+.pr:not(.inativo):hover{background:#f8f7f5;cursor:pointer}
+.pr.prox{background:#e1f5ee}
+.pr.prox:hover{background:#c8eddf}
+.pr.inativo{opacity:.5}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.pi{display:flex;align-items:center;gap:10px}
+.pn{font-size:13px;font-weight:500;line-height:1.3}
+.pd{font-size:11px;color:#898781;margin-top:2px;display:flex;align-items:center;gap:6px}
 .cel{text-align:center;font-size:14px;font-weight:500}
-.cel-s{text-align:center;font-size:13px;color:#52514e}
-.badge{display:inline-block;font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
-.b-ok{background:#e1f5ee;color:#085041}
-.b-alto{background:#fcebeb;color:#791f1f}
-.b-baixo{background:#faeeda;color:#633806}
-.b-prox{background:#1baf7a;color:#fff}
+.cels{text-align:center;font-size:13px;color:#52514e}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.bok{background:#e1f5ee;color:#085041}
+.balto{background:#fcebeb;color:#791f1f}
+.bbaixo{background:#faeeda;color:#633806}
+.bprox{background:#1baf7a;color:#fff}
+.bferias{background:#e8eef5;color:#1a3a5c}
+.blicenca{background:#f3eef9;color:#4a3aa7}
 .barra{display:flex;align-items:center;gap:5px}
-.barra-bg{width:70px;height:5px;border-radius:3px;background:#e1e0d9;overflow:hidden}
-.barra-fill{height:100%;border-radius:3px}
-.sel-btn{padding:5px 10px;border:0.5px solid #c3c2b7;border-radius:6px;background:#fff;cursor:pointer;font-size:12px;transition:all .1s}
-.sel-btn:hover{border-color:#1baf7a;color:#085041}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.fg{display:flex;flex-direction:column;gap:5px}
+.bbg{width:60px;height:4px;border-radius:3px;background:#e1e0d9;overflow:hidden}
+.bfill{height:100%;border-radius:3px}
+/* STATUS BTN */
+.status-btn{font-size:11px;padding:3px 8px;border-radius:20px;border:0.5px solid;cursor:pointer;font-weight:500;transition:all .15s}
+.status-ativo{background:#e1f5ee;color:#085041;border-color:#9FE1CB}
+.status-ferias{background:#e8eef5;color:#1a3a5c;border-color:#a8c0de}
+.status-licenca{background:#f3eef9;color:#4a3aa7;border-color:#c5b8e8}
+.status-btn:hover{filter:brightness(.92)}
+/* DROPDOWN STATUS */
+.status-dropdown{position:relative;display:inline-block}
+.status-menu{position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:100;min-width:140px;display:none}
+.status-menu.open{display:block}
+.status-opt{padding:8px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.status-opt:hover{background:#f4f3f0}
+/* FORMULÁRIO */
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
 .fg label{font-size:12px;color:#898781;font-weight:500}
 .fg input,.fg select{padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:14px;color:#0b0b0b;background:#fff;outline:none;width:100%}
 .fg input:focus,.fg select:focus{border-color:#1a3a5c}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 .full{grid-column:1/-1}
-.proc-opcoes{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-top:6px}
-.proc-op{padding:10px 12px;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;cursor:pointer;transition:all .12s}
-.proc-op:hover{border-color:#1a3a5c;background:#e8eef5}
-.proc-op.sel{border-color:#1baf7a;background:#e1f5ee}
-.proc-op-nome{font-size:13px;font-weight:500;line-height:1.3}
-.proc-op-ac{font-size:11px;color:#898781;margin-top:3px}
+.proc-ops{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:6px}
+.pop{padding:10px 12px;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;cursor:pointer;transition:all .12s}
+.pop:hover{border-color:#1a3a5c;background:#e8eef5}
+.pop.sel{border-color:#1baf7a;background:#e1f5ee}
+.pop-nome{font-size:13px;font-weight:500;line-height:1.3}
+.pop-ac{font-size:11px;color:#898781;margin-top:3px}
 .btn-dist{width:100%;padding:12px;background:#1baf7a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;margin-top:16px;transition:background .15s}
 .btn-dist:hover{background:#0F6E56}
 .btn-dist:disabled{background:#888;cursor:not-allowed}
 .fb{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none}
-.fb-ok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
-.fb-err{background:#fcebeb;border:0.5px solid #F09595;color:#791f1f}
+.fbok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
+.fberr{background:#fcebeb;border:0.5px solid #F09595;color:#791f1f}
 .loading{text-align:center;padding:40px;color:#898781;font-size:14px}
 .spin{display:inline-block;width:18px;height:18px;border:2px solid #e1e0d9;border-top-color:#1a3a5c;border-radius:50%;animation:spin .8s linear infinite;margin-right:6px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:640px){
-  .tbl-head,.proc-row{grid-template-columns:1fr 70px 90px 110px}
-  .col-ef,.col-gav{display:none}
-  .form-grid{grid-template-columns:1fr}
+.analistas-box{background:#f8f7f5;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;padding:12px 14px;margin-top:8px;font-size:13px;color:#52514e}
+.analistas-box strong{color:#0b0b0b}
+.sep{border:none;border-top:0.5px solid rgba(0,0,0,.08);margin:16px 0}
+@media(max-width:700px){
+  .th,.pr{grid-template-columns:1fr 70px 80px 100px}
+  .col-ef,.col-con,.col-sem{display:none}
+  .fgrid{grid-template-columns:1fr}
   .kpi-row{grid-template-columns:1fr 1fr}
 }
 </style>
@@ -91,26 +109,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <body>
 
 <div class="header">
-  <div class="header-left">
+  <div class="hl">
     <div class="logo">PGM</div>
     <div>
-      <div class="header-title">PROFAZ — Distribuição de Processos</div>
-      <div class="header-sub">Procuradoria Geral do Município de Fortaleza</div>
+      <div class="htitle">PROFAZ — Distribuição de Processos</div>
+      <div class="hsub">Procuradoria Geral do Município de Fortaleza</div>
     </div>
   </div>
-  <div class="header-user" id="huser"></div>
+  <div class="huser" id="huser"></div>
 </div>
 
 <div class="main">
 
   <!-- LOGIN -->
   <div id="tela-login" class="card">
-    <div class="card-body">
-      <div class="card-title">Quem está distribuindo agora?</div>
+    <div class="cb">
+      <div class="ctitle">Quem está distribuindo agora?</div>
       <div class="btn-grid">
-        <button class="btn-sel" onclick="login('Distribuidor 1')">Distribuidor 1</button>
-        <button class="btn-sel" onclick="login('Distribuidor 2')">Distribuidor 2</button>
-        <button class="btn-sel" onclick="login('Distribuidor 3')">Distribuidor 3</button>
+        <button class="bsel" onclick="login('Distribuidor 1')">Distribuidor 1</button>
+        <button class="bsel" onclick="login('Distribuidor 2')">Distribuidor 2</button>
+        <button class="bsel" onclick="login('Distribuidor 3')">Distribuidor 3</button>
       </div>
     </div>
   </div>
@@ -118,73 +136,81 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- PRINCIPAL -->
   <div id="tela-principal" style="display:none">
 
-    <div id="alerta" class="alerta a-warn">
-      <div class="dot d-warn" id="adot"></div>
+    <div id="alerta" class="alerta aw">
+      <div class="dot dw" id="adot"></div>
       <span id="atxt">Carregando...</span>
     </div>
 
     <div class="kpi-row">
-      <div class="kpi"><div class="kpi-label">Total acervo</div><div class="kpi-val" id="k-total">—</div></div>
-      <div class="kpi"><div class="kpi-label">Média por procurador</div><div class="kpi-val" id="k-media">—</div></div>
-      <div class="kpi"><div class="kpi-label">Maior acervo</div><div class="kpi-val" id="k-max">—</div><div class="kpi-sub" id="k-max-n"></div></div>
-      <div class="kpi"><div class="kpi-label">Menor acervo</div><div class="kpi-val" id="k-min">—</div><div class="kpi-sub" id="k-min-n"></div></div>
+      <div class="kpi"><div class="klabel">Total acervo</div><div class="kval" id="k-total">—</div><div class="ksub">procuradores ativos</div></div>
+      <div class="kpi"><div class="klabel">Média por procurador</div><div class="kval" id="k-media">—</div></div>
+      <div class="kpi"><div class="klabel">Maior acervo</div><div class="kval" id="k-max">—</div><div class="ksub" id="k-max-n"></div></div>
+      <div class="kpi"><div class="klabel">Menor acervo</div><div class="kval" id="k-min">—</div><div class="ksub" id="k-min-n"></div></div>
     </div>
 
+    <!-- TABELA -->
     <div class="card">
-      <div class="card-header">
+      <div class="ch">
         <div>
-          <div class="ch-title">Acervo por procurador</div>
-          <div class="ch-sub">Ordenado do menor para o maior — quem recebe o próximo processo está no topo</div>
+          <div class="cht">Acervo por procurador</div>
+          <div class="chs">Ordenado do menor para o maior — próximo a receber está no topo</div>
         </div>
-        <button class="btn-sm" onclick="carregar()">↻ Atualizar</button>
+        <button class="bsm" onclick="carregar()">↻ Atualizar</button>
       </div>
-      <div class="tbl-head">
-        <span>Procurador</span>
+      <div class="th">
+        <span>Procurador(a)</span>
         <span>Acervo</span>
-        <span>Exec. Fiscal</span>
-        <span class="col-ef">Conhecimento</span>
-        <span class="col-gav">Situação</span>
-        <span style="text-align:left">Ação</span>
+        <span class="col-ef">Exec.F</span>
+        <span class="col-con">Con.F</span>
+        <span class="col-sem">Semana</span>
+        <span>Situação</span>
+        <span style="text-align:left">Status</span>
       </div>
       <div id="lista"><div class="loading"><span class="spin"></span>Carregando...</div></div>
     </div>
 
     <!-- FORMULÁRIO -->
     <div class="card">
-      <div class="card-header">
-        <div class="ch-title">Registrar distribuição</div>
-      </div>
-      <div class="card-body">
+      <div class="ch"><div class="cht">Registrar distribuição</div></div>
+      <div class="cb">
         <div id="fb" class="fb"></div>
-        <div class="form-grid">
 
+        <div class="analistas-box">
+          <strong>Analistas:</strong> David Bruno e João Pedro — processos novos com valor &lt; 50k, de 2025/2026 ou cadastro novo passam por eles antes do procurador titular.
+        </div>
+        <div class="sep"></div>
+
+        <div class="fgrid">
           <div class="fg">
             <label>Número do processo *</label>
             <input id="inp-num" type="text" placeholder="ex: 0001234-55.2024.8.06.0001">
           </div>
-
           <div class="fg">
             <label>Fluxo do processo *</label>
             <select id="inp-fluxo">
               <option value="">Selecione...</option>
-              <option>Execução Fiscal</option>
-              <option>Execução Fiscal - GAV</option>
-              <option>Conhecimento Fiscal</option>
-              <option>Conhecimento Fiscal - GAV</option>
-              <option>Juizado Especial</option>
+              <option>Execução fiscal</option>
+              <option>Execução fiscal - GAV</option>
+              <option>Processo de conhecimento fiscal</option>
+              <option>Processo administrativo - PROFAZ</option>
+              <option>Processo administrativo - PROGER</option>
+              <option>Ofício judicial</option>
+              <option>Solicitação de cancelamento e suspensão de crédito</option>
+              <option>Análise de parcelamento em atraso</option>
+              <option>Análise de requerimento para inscrição</option>
+              <option>Solicitar extrato ou atualização de cálculo</option>
             </select>
           </div>
-
           <div class="fg">
             <label>Tipo de distribuição *</label>
             <select id="inp-tipo" onchange="toggleMotivo()">
               <option>Primeira distribuição</option>
+              <option>Juntada</option>
               <option>Redistribuição</option>
               <option>Tramitação temporária</option>
               <option>Compartilhamento</option>
             </select>
           </div>
-
           <div class="fg" id="fg-motivo" style="display:none">
             <label>Motivo da redistribuição</label>
             <select id="inp-motivo">
@@ -196,7 +222,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <option>Foro íntimo do procurador(a) designado(a)</option>
             </select>
           </div>
-
           <div class="fg">
             <label>Titular?</label>
             <select id="inp-titular">
@@ -204,14 +229,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <option value="Não">Não</option>
             </select>
           </div>
-
           <div class="fg full">
             <label>Procurador(a) designado(a) *</label>
-            <div class="proc-opcoes" id="proc-opcoes">
+            <div class="proc-ops" id="proc-ops">
               <div style="font-size:13px;color:#898781;padding:8px 0">Carregando...</div>
             </div>
           </div>
-
         </div>
         <button class="btn-dist" id="btn-dist" onclick="distribuir()" disabled>Confirmar distribuição</button>
       </div>
@@ -222,7 +245,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <script>
 const URL_AS = 'https://script.google.com/macros/s/AKfycbzt186mHh_LrKKI1gg5hofoQl_mwj5rRxkgZCjiCIcId2UVDtlbWHwdo05lSU9_hNCP/exec';
-let dist = '', procs = [], procSel = null, mediaAtual = 0;
+let dist = '', procs = [], procSel = null, med = 0;
 
 function login(nome) {
   dist = nome;
@@ -239,13 +262,13 @@ async function carregar() {
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
     procs = d.procuradores;
-    mediaAtual = d.media;
+    med = d.media;
     renderKPIs(d);
     renderTabela(d);
-    renderOpcoes(d.procuradores, d.media);
+    renderOps(d.procuradores, d.media);
     renderAlerta(d);
   } catch(e) {
-    document.getElementById('lista').innerHTML = '<div class="loading">Erro ao carregar: ' + e.message + '</div>';
+    document.getElementById('lista').innerHTML = '<div class="loading">Erro: ' + e.message + '</div>';
   }
 }
 
@@ -255,10 +278,10 @@ function renderAlerta(d) {
   const dot = document.getElementById('adot');
   const txt = document.getElementById('atxt');
   if (diff > 50) {
-    al.className = 'alerta a-warn'; dot.className = 'dot d-warn';
+    al.className = 'alerta aw'; dot.className = 'dot dw';
     txt.innerHTML = `Acervo desequilibrado — diferença de <strong>${diff}</strong> processos entre o maior e o menor`;
   } else {
-    al.className = 'alerta a-ok'; dot.className = 'dot d-ok';
+    al.className = 'alerta aok'; dot.className = 'dot dok';
     txt.innerHTML = `Acervo equilibrado — variação de apenas <strong>${diff}</strong> processos`;
   }
 }
@@ -268,65 +291,106 @@ function renderKPIs(d) {
   document.getElementById('k-media').textContent = d.media;
   document.getElementById('k-max').textContent = d.maximo;
   document.getElementById('k-min').textContent = d.minimo;
-  const pMax = d.procuradores.find(p => p.acervo_atual === d.maximo);
-  const pMin = d.procuradores.find(p => p.acervo_atual === d.minimo);
+  const pMax = procs.find(p => p.acervo === d.maximo && p.ativo);
+  const pMin = procs.find(p => p.acervo === d.minimo && p.ativo);
   document.getElementById('k-max-n').textContent = pMax ? pMax.nome.split(' ')[0] : '';
   document.getElementById('k-min-n').textContent = pMin ? pMin.nome.split(' ')[0] : '';
 }
 
 function renderTabela(d) {
-  const sorted = [...d.procuradores].sort((a,b) => a.acervo_atual - b.acervo_atual);
   const maxAc = d.maximo || 1;
-  document.getElementById('lista').innerHTML = sorted.map((p,i) => {
-    const pct = Math.round(p.acervo_atual / maxAc * 100);
-    const ratio = mediaAtual > 0 ? p.acervo_atual / mediaAtual : 1;
+  document.getElementById('lista').innerHTML = d.procuradores.map((p, i) => {
+    const pct   = Math.round(p.acervo / maxAc * 100);
+    const ratio = med > 0 ? p.acervo / med : 1;
     let badge, bcls;
-    if (i === 0)          { badge = '← próximo'; bcls = 'b-prox'; }
-    else if (ratio > 1.2) { badge = 'Acima';     bcls = 'b-alto'; }
-    else if (ratio < 0.8) { badge = 'Abaixo';    bcls = 'b-baixo'; }
-    else                  { badge = 'OK';         bcls = 'b-ok'; }
+    if (!p.ativo) {
+      badge = p.status; bcls = p.status === 'Férias' ? 'bferias' : 'blicenca';
+    } else if (i === 0) { badge = '← próximo'; bcls = 'bprox'; }
+    else if (ratio > 1.2) { badge = 'Acima'; bcls = 'balto'; }
+    else if (ratio < 0.8) { badge = 'Abaixo'; bcls = 'bbaixo'; }
+    else { badge = 'OK'; bcls = 'bok'; }
+
     const cor = cor7(p.nome);
-    return `<div class="proc-row ${i===0?'prox':''}" onclick="selecionarDaTabela('${esc(p.nome)}')">
-      <div class="pinfo">
+    const statusCls = p.status === 'Férias' ? 'status-ferias' : p.status === 'Licença' ? 'status-licenca' : 'status-ativo';
+
+    return `<div class="pr ${i===0&&p.ativo?'prox':''} ${!p.ativo?'inativo':''}" onclick="${p.ativo?`selTabela('${esc(p.nome)}')`:''}">
+      <div class="pi">
         <div class="av" style="background:${cor}22;color:${cor}">${ini(p.nome)}</div>
         <div>
-          <div class="pnome">${p.nome}</div>
-          <div class="pdet"><div class="barra"><div class="barra-bg"><div class="barra-fill" style="width:${pct}%;background:${cor}"></div></div><span style="font-size:10px;color:#898781">${pct}% do máximo</span></div></div>
+          <div class="pn">${p.nome}</div>
+          <div class="pd">
+            <div class="barra"><div class="bbg"><div class="bfill" style="width:${pct}%;background:${cor}"></div></div><span style="font-size:10px">${pct}%</span></div>
+          </div>
         </div>
       </div>
-      <div class="cel">${p.acervo_atual}</div>
-      <div class="cel-s">${p.ef || 0}</div>
-      <div class="cel-s col-ef">${p.con || 0}</div>
-      <div class="col-gav cel-s"><span class="badge ${bcls}">${badge}</span></div>
-      <div><button class="sel-btn" onclick="event.stopPropagation();selecionarDaTabela('${esc(p.nome)}')">Selecionar</button></div>
+      <div class="cel">${p.acervo}</div>
+      <div class="cels col-ef">${p.ef}</div>
+      <div class="cels col-con">${p.con}</div>
+      <div class="cels col-sem">${p.semana}</div>
+      <div class="cels"><span class="badge ${bcls}">${badge}</span></div>
+      <div onclick="event.stopPropagation()">
+        <div class="status-dropdown" id="dd-${esc(p.nome)}">
+          <button class="status-btn ${statusCls}" onclick="toggleDd('${esc(p.nome)}')">${p.status} ▾</button>
+          <div class="status-menu" id="menu-${esc(p.nome)}">
+            <div class="status-opt" onclick="setStatus('${esc(p.nome)}','Ativo')">✓ Ativo</div>
+            <div class="status-opt" onclick="setStatus('${esc(p.nome)}','Férias')">🏖 Férias</div>
+            <div class="status-opt" onclick="setStatus('${esc(p.nome)}','Licença')">📋 Licença</div>
+          </div>
+        </div>
+      </div>
     </div>`;
   }).join('');
 }
 
-function renderOpcoes(lista, med) {
-  const sorted = [...lista].sort((a,b) => a.acervo_atual - b.acervo_atual);
-  document.getElementById('proc-opcoes').innerHTML = sorted.map((p,i) => {
-    const ratio = med > 0 ? p.acervo_atual / med : 1;
-    let bcls = 'b-ok', btxt = 'OK';
-    if (i === 0)          { bcls = 'b-prox'; btxt = '← próximo'; }
-    else if (ratio > 1.2) { bcls = 'b-alto'; btxt = 'Acima'; }
-    else if (ratio < 0.8) { bcls = 'b-baixo'; btxt = 'Abaixo'; }
-    return `<div class="proc-op" id="op-${esc(p.nome)}" onclick="selProc('${esc(p.nome)}')">
-      <div class="proc-op-nome">${p.nome}</div>
-      <div class="proc-op-ac">${p.acervo_atual} processos ativos</div>
+function renderOps(lista, media) {
+  const ativos = lista.filter(p => p.ativo);
+  document.getElementById('proc-ops').innerHTML = ativos.map((p, i) => {
+    const ratio = media > 0 ? p.acervo / media : 1;
+    let bcls = 'bok', btxt = 'OK';
+    if (i === 0)          { bcls = 'bprox'; btxt = '← próximo'; }
+    else if (ratio > 1.2) { bcls = 'balto'; btxt = 'Acima'; }
+    else if (ratio < 0.8) { bcls = 'bbaixo'; btxt = 'Abaixo'; }
+    return `<div class="pop" id="op-${esc(p.nome)}" onclick="selProc('${esc(p.nome)}')">
+      <div class="pop-nome">${p.nome}</div>
+      <div class="pop-ac">${p.acervo} processos ativos</div>
       <span class="badge ${bcls}" style="margin-top:4px;font-size:10px">${btxt}</span>
     </div>`;
   }).join('');
 }
 
-function selecionarDaTabela(nome) {
+function toggleDd(nome) {
+  document.querySelectorAll('.status-menu').forEach(m => {
+    if (m.id !== 'menu-' + nome) m.classList.remove('open');
+  });
+  document.getElementById('menu-' + nome).classList.toggle('open');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.status-dropdown')) {
+    document.querySelectorAll('.status-menu').forEach(m => m.classList.remove('open'));
+  }
+});
+
+async function setStatus(nome, novoStatus) {
+  document.getElementById('menu-' + nome).classList.remove('open');
+  try {
+    const r = await fetch(`${URL_AS}?acao=toggle_status&nome=${encodeURIComponent(nome)}&status=${encodeURIComponent(novoStatus)}`);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+    await carregar();
+  } catch(e) {
+    alert('Erro ao atualizar status: ' + e.message);
+  }
+}
+
+function selTabela(nome) {
   selProc(nome);
-  document.querySelector('#tela-principal .card:last-child').scrollIntoView({behavior:'smooth'});
+  document.querySelector('.card:last-child').scrollIntoView({behavior:'smooth'});
 }
 
 function selProc(nome) {
   procSel = nome;
-  document.querySelectorAll('.proc-op').forEach(e => e.classList.remove('sel'));
+  document.querySelectorAll('.pop').forEach(e => e.classList.remove('sel'));
   const el = document.getElementById('op-' + nome);
   if (el) el.classList.add('sel');
   document.getElementById('btn-dist').disabled = false;
@@ -338,11 +402,11 @@ function toggleMotivo() {
 }
 
 async function distribuir() {
-  const num     = document.getElementById('inp-num').value.trim();
-  const fluxo   = document.getElementById('inp-fluxo').value;
-  const tipo    = document.getElementById('inp-tipo').value;
-  const motivo  = document.getElementById('inp-motivo').value;
-  const titular = document.getElementById('inp-titular').value;
+  const num    = document.getElementById('inp-num').value.trim();
+  const fluxo  = document.getElementById('inp-fluxo').value;
+  const tipo   = document.getElementById('inp-tipo').value;
+  const motivo = document.getElementById('inp-motivo').value;
+  const tit    = document.getElementById('inp-titular').value;
 
   if (!num)    { showFb('Informe o número do processo.', 'err'); return; }
   if (!fluxo)  { showFb('Selecione o fluxo do processo.', 'err'); return; }
@@ -350,43 +414,38 @@ async function distribuir() {
 
   const btn = document.getElementById('btn-dist');
   btn.disabled = true; btn.textContent = 'Registrando...';
-
   try {
-    const params = new URLSearchParams({
+    const p = new URLSearchParams({
       acao:'distribuir', num_processo:num, fluxo, tipo,
-      motivo, nome_proc:procSel, titular, distribuidor:dist
+      motivo, nome_proc:procSel, titular:tit, distribuidor:dist
     });
-    const r = await fetch(URL_AS + '?' + params);
+    const r = await fetch(URL_AS + '?' + p);
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
-    showFb('✓ ' + d.mensagem, 'ok');
+    showFb('✓ ' + d.mensagem + (d.conta_placar ? '' : ' — juntada, não altera o placar'), 'ok');
     document.getElementById('inp-num').value = '';
     document.getElementById('inp-fluxo').value = '';
     document.getElementById('inp-tipo').value = 'Primeira distribuição';
     document.getElementById('inp-motivo').value = '';
     document.getElementById('fg-motivo').style.display = 'none';
     procSel = null;
-    document.querySelectorAll('.proc-op').forEach(e => e.classList.remove('sel'));
+    document.querySelectorAll('.pop').forEach(e => e.classList.remove('sel'));
     document.getElementById('btn-dist').disabled = true;
     await carregar();
-  } catch(e) {
-    showFb('Erro: ' + e.message, 'err');
-  }
+  } catch(e) { showFb('Erro: ' + e.message, 'err'); }
   btn.disabled = false; btn.textContent = 'Confirmar distribuição';
 }
 
 function showFb(msg, tipo) {
   const el = document.getElementById('fb');
-  el.textContent = msg;
-  el.className = 'fb fb-' + tipo;
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 5000);
+  el.textContent = msg; el.className = 'fb fb' + tipo; el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 6000);
 }
 
 function ini(n) { return n.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
-function esc(s) { return String(s).replace(/'/g,"\\'"); }
+function esc(s) { return String(s).replace(/['\s]/g, c => c === "'" ? "\\'" : '_'); }
 function cor7(s) {
-  const cs=['#2a78d6','#1baf7a','#eda100','#4a3aa7','#e34948','#e87ba4','#eb6834'];
+  const cs=['#2a78d6','#1baf7a','#eda100','#4a3aa7','#e34948','#e87ba4','#eb6834','#008370','#c45c00','#6b3fa0'];
   let h=0; for(const c of String(s)) h=(h*31+c.charCodeAt(0))%cs.length; return cs[h];
 }
 </script>
