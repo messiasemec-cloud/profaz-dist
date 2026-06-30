@@ -16,10 +16,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .main{max-width:1000px;margin:0 auto;padding:24px 16px}
 .card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;overflow:hidden;margin-bottom:20px}
 .cb{padding:20px}
-.ctitle{font-size:14px;font-weight:500;margin-bottom:14px}
 .btn-grid{display:flex;gap:10px;flex-wrap:wrap}
 .bsel{padding:10px 20px;border:0.5px solid #c3c2b7;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;transition:all .15s}
-.bsel:hover{border-color:#1a3a5c;background:#e8eef5;color:#1a3a5c}
+.bsel:hover{border-color:#1a3a5c;background:#e8eef5}
 .alerta{border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:13px;display:flex;align-items:center;gap:10px}
 .aw{background:#faeeda;border:0.5px solid #FAC775;color:#633806}
 .aok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
@@ -34,22 +33,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .cht{font-size:14px;font-weight:500}
 .chs{font-size:12px;color:#898781}
 .bsm{font-size:12px;padding:5px 12px;border:0.5px solid #c3c2b7;border-radius:6px;background:#fff;cursor:pointer}
-.bsm:hover{background:#f4f3f0}
 /* TABELA */
-.th{display:grid;grid-template-columns:1fr 80px 80px 80px 90px 100px 110px;padding:8px 20px;border-bottom:0.5px solid rgba(0,0,0,.08)}
-.th span{font-size:11px;color:#898781;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
-.th span:not(:first-child){text-align:center}
-.pr{display:grid;grid-template-columns:1fr 80px 80px 80px 90px 100px 110px;padding:11px 20px;border-bottom:0.5px solid rgba(0,0,0,.06);align-items:center;transition:background .1s}
+.th{display:grid;grid-template-columns:1fr 80px 80px 80px 80px 90px 110px;padding:8px 20px;border-bottom:0.5px solid rgba(0,0,0,.08)}
+.th span{font-size:11px;color:#898781;font-weight:500;text-transform:uppercase;letter-spacing:.04em;text-align:center}
+.th span:first-child{text-align:left}
+.pr{display:grid;grid-template-columns:1fr 80px 80px 80px 80px 90px 110px;padding:11px 20px;border-bottom:0.5px solid rgba(0,0,0,.06);align-items:center}
 .pr:last-child{border-bottom:none}
-.pr:not(.inativo):hover{background:#f8f7f5;cursor:pointer}
+.pr.clicavel{cursor:pointer}
+.pr.clicavel:hover{background:#f8f7f5}
 .pr.prox{background:#e1f5ee}
 .pr.prox:hover{background:#c8eddf}
-.pr.inativo{opacity:.6}
-.pr.inativo .status-dropdown{opacity:1;pointer-events:all}
+.pr.inativo{opacity:.55}
 .av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
 .pi{display:flex;align-items:center;gap:10px}
-.pn{font-size:13px;font-weight:500;line-height:1.3}
-.pd{font-size:11px;color:#898781;margin-top:2px;display:flex;align-items:center;gap:6px}
+.pn{font-size:13px;font-weight:500}
+.pd{font-size:11px;color:#898781;margin-top:2px}
+.barra{display:flex;align-items:center;gap:5px}
+.bbg{width:60px;height:4px;border-radius:3px;background:#e1e0d9;overflow:hidden}
+.bfill{height:100%;border-radius:3px}
 .cel{text-align:center;font-size:14px;font-weight:500}
 .cels{text-align:center;font-size:13px;color:#52514e}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
@@ -57,23 +58,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .balto{background:#fcebeb;color:#791f1f}
 .bbaixo{background:#faeeda;color:#633806}
 .bprox{background:#1baf7a;color:#fff}
-.bferias{background:#e8eef5;color:#1a3a5c}
-.blicenca{background:#f3eef9;color:#4a3aa7}
-.barra{display:flex;align-items:center;gap:5px}
-.bbg{width:60px;height:4px;border-radius:3px;background:#e1e0d9;overflow:hidden}
-.bfill{height:100%;border-radius:3px}
-/* STATUS BTN */
-.status-btn{font-size:11px;padding:3px 8px;border-radius:20px;border:0.5px solid;cursor:pointer;font-weight:500;transition:all .15s}
-.status-ativo{background:#e1f5ee;color:#085041;border-color:#9FE1CB}
-.status-ferias{background:#e8eef5;color:#1a3a5c;border-color:#a8c0de}
-.status-licenca{background:#f3eef9;color:#4a3aa7;border-color:#c5b8e8}
-.status-btn:hover{filter:brightness(.92)}
-/* DROPDOWN STATUS */
-.status-dropdown{position:relative;display:inline-block}
-.status-menu{position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:100;min-width:140px;display:none}
-.status-menu.open{display:block}
-.status-opt{padding:8px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px}
-.status-opt:hover{background:#f4f3f0}
+.bfer{background:#e8eef5;color:#1a3a5c}
+.blic{background:#f3eef9;color:#4a3aa7}
+/* BOTÃO STATUS */
+.sbtn{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid;cursor:pointer;font-weight:500;background:#fff}
+.sbtn-ativo{color:#085041;border-color:#9FE1CB;background:#e1f5ee}
+.sbtn-ferias{color:#1a3a5c;border-color:#a8c0de;background:#e8eef5}
+.sbtn-licenca{color:#4a3aa7;border-color:#c5b8e8;background:#f3eef9}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9999}
+.modal-box{background:#fff;border-radius:12px;width:290px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden}
+.modal-head{padding:14px 18px}
+.modal-head-title{color:#fff;font-size:14px;font-weight:500}
+.modal-head-sub{color:rgba(255,255,255,.75);font-size:12px;margin-top:2px}
+.modal-body{padding:18px}
+.modal-msg{font-size:13px;color:#52514e;margin-bottom:16px;line-height:1.6}
+.modal-btns{display:flex;gap:8px}
+.modal-cancel{flex:1;padding:9px;border:0.5px solid #c3c2b7;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#52514e}
+.modal-ok{flex:1;padding:9px;border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:13px;font-weight:500}
+.finput{width:100%;padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:14px;outline:none;margin-bottom:16px}
+.finput:focus{border-color:#1a3a5c}
 /* FORMULÁRIO */
 .fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
 .fg label{font-size:12px;color:#898781;font-weight:500}
@@ -84,11 +88,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .proc-ops{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:6px}
 .pop{padding:10px 12px;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;cursor:pointer;transition:all .12s}
 .pop:hover{border-color:#1a3a5c;background:#e8eef5}
-.pop-inativo{opacity:.6;cursor:not-allowed;background:#f8f7f5;pointer-events:none}
 .pop.sel{border-color:#1baf7a;background:#e1f5ee}
+.pop-inativo{opacity:.5;cursor:not-allowed;background:#f8f7f5}
 .pop-nome{font-size:13px;font-weight:500;line-height:1.3}
 .pop-ac{font-size:11px;color:#898781;margin-top:3px}
-.btn-dist{width:100%;padding:12px;background:#1baf7a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;margin-top:16px;transition:background .15s}
+.btn-dist{width:100%;padding:12px;background:#1baf7a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;margin-top:16px}
 .btn-dist:hover{background:#0F6E56}
 .btn-dist:disabled{background:#888;cursor:not-allowed}
 .fb{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none}
@@ -97,19 +101,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .loading{text-align:center;padding:40px;color:#898781;font-size:14px}
 .spin{display:inline-block;width:18px;height:18px;border:2px solid #e1e0d9;border-top-color:#1a3a5c;border-radius:50%;animation:spin .8s linear infinite;margin-right:6px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
-.analistas-box{background:#f8f7f5;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;padding:12px 14px;margin-top:8px;font-size:13px;color:#52514e}
-.analistas-box strong{color:#0b0b0b}
+.analistas-box{background:#f8f7f5;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;padding:12px 14px;font-size:13px;color:#52514e;margin-bottom:16px}
 .sep{border:none;border-top:0.5px solid rgba(0,0,0,.08);margin:16px 0}
-@media(max-width:700px){
-  .th,.pr{grid-template-columns:1fr 70px 80px 100px}
-  .col-ef,.col-con,.col-sem{display:none}
-  .fgrid{grid-template-columns:1fr}
-  .kpi-row{grid-template-columns:1fr 1fr}
-}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="hl">
     <div class="logo">PGM</div>
@@ -122,11 +118,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <div class="main">
-
   <!-- LOGIN -->
   <div id="tela-login" class="card">
     <div class="cb">
-      <div class="ctitle">Quem está distribuindo agora?</div>
+      <div style="font-size:14px;font-weight:500;margin-bottom:14px">Quem está distribuindo agora?</div>
       <div class="btn-grid">
         <button class="bsel" onclick="login('Distribuidor 1')">Distribuidor 1</button>
         <button class="bsel" onclick="login('Distribuidor 2')">Distribuidor 2</button>
@@ -137,7 +132,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <!-- PRINCIPAL -->
   <div id="tela-principal" style="display:none">
-
     <div id="alerta" class="alerta aw">
       <div class="dot dw" id="adot"></div>
       <span id="atxt">Carregando...</span>
@@ -150,7 +144,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="kpi"><div class="klabel">Menor acervo</div><div class="kval" id="k-min">—</div><div class="ksub" id="k-min-n"></div></div>
     </div>
 
-    <!-- TABELA -->
     <div class="card">
       <div class="ch">
         <div>
@@ -162,26 +155,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="th">
         <span>Procurador(a)</span>
         <span>Acervo</span>
-        <span class="col-ef">Exec.F</span>
-        <span class="col-con">Con.F</span>
-        <span class="col-sem">Semana</span>
+        <span>EF</span>
+        <span>Con.</span>
+        <span>Semana</span>
         <span>Situação</span>
-        <span style="text-align:left">Status</span>
+        <span>Status</span>
       </div>
       <div id="lista"><div class="loading"><span class="spin"></span>Carregando...</div></div>
     </div>
 
-    <!-- FORMULÁRIO -->
     <div class="card">
       <div class="ch"><div class="cht">Registrar distribuição</div></div>
       <div class="cb">
         <div id="fb" class="fb"></div>
-
         <div class="analistas-box">
-          <strong>Analistas:</strong> David Bruno e João Pedro — processos novos com valor &lt; 50k, de 2025/2026 ou cadastro novo passam por eles antes do procurador titular.
+          <strong>Analistas:</strong> David Bruno e João Pedro — processos com valor &lt; 50k, de 2025/2026 ou cadastro novo passam por eles antes do procurador titular.
         </div>
-        <div class="sep"></div>
-
         <div class="fgrid">
           <div class="fg">
             <label>Número do processo *</label>
@@ -234,14 +223,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="fg full">
             <label>Procurador(a) designado(a) *</label>
             <div class="proc-ops" id="proc-ops">
-              <div style="font-size:13px;color:#898781;padding:8px 0">Carregando...</div>
+              <div style="font-size:13px;color:#898781">Carregando...</div>
             </div>
           </div>
         </div>
         <button class="btn-dist" id="btn-dist" onclick="distribuir()" disabled>Confirmar distribuição</button>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -249,6 +237,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 const URL_AS = 'https://script.google.com/macros/s/AKfycbzt186mHh_LrKKI1gg5hofoQl_mwj5rRxkgZCjiCIcId2UVDtlbWHwdo05lSU9_hNCP/exec';
 let dist = '', procs = [], procSel = null, med = 0;
 
+// ── LOGIN ──────────────────────────────────────────────
 function login(nome) {
   dist = nome;
   document.getElementById('huser').textContent = 'Distribuidor: ' + nome;
@@ -257,6 +246,7 @@ function login(nome) {
   carregar();
 }
 
+// ── CARREGAR DADOS ────────────────────────────────────
 async function carregar() {
   document.getElementById('lista').innerHTML = '<div class="loading"><span class="spin"></span>Carregando...</div>';
   try {
@@ -274,6 +264,7 @@ async function carregar() {
   }
 }
 
+// ── RENDER ────────────────────────────────────────────
 function renderAlerta(d) {
   const diff = d.maximo - d.minimo;
   const al = document.getElementById('alerta');
@@ -281,10 +272,10 @@ function renderAlerta(d) {
   const txt = document.getElementById('atxt');
   if (diff > 50) {
     al.className = 'alerta aw'; dot.className = 'dot dw';
-    txt.innerHTML = `Acervo desequilibrado — diferença de <strong>${diff}</strong> processos entre o maior e o menor`;
+    txt.innerHTML = `Acervo desequilibrado — diferença de <strong>${diff}</strong> processos`;
   } else {
     al.className = 'alerta aok'; dot.className = 'dot dok';
-    txt.innerHTML = `Acervo equilibrado — variação de apenas <strong>${diff}</strong> processos`;
+    txt.innerHTML = `Acervo equilibrado — variação de <strong>${diff}</strong> processos`;
   }
 }
 
@@ -293,31 +284,34 @@ function renderKPIs(d) {
   document.getElementById('k-media').textContent = d.media;
   document.getElementById('k-max').textContent = d.maximo;
   document.getElementById('k-min').textContent = d.minimo;
-  const pMax = procs.find(p => p.acervo === d.maximo && p.ativo);
-  const pMin = procs.find(p => p.acervo === d.minimo && p.ativo);
+  const pMax = procs.find(p => p.ativo && p.acervo === d.maximo);
+  const pMin = procs.find(p => p.ativo && p.acervo === d.minimo);
   document.getElementById('k-max-n').textContent = pMax ? pMax.nome.split(' ')[0] : '';
   document.getElementById('k-min-n').textContent = pMin ? pMin.nome.split(' ')[0] : '';
 }
 
 function renderTabela(d) {
   const maxAc = d.maximo || 1;
+  const ativos = d.procuradores.filter(p => p.ativo);
   document.getElementById('lista').innerHTML = d.procuradores.map((p, i) => {
-    const pct   = Math.round(p.acervo / maxAc * 100);
+    const pct = Math.round(p.acervo / maxAc * 100);
     const ratio = med > 0 ? p.acervo / med : 1;
+    const cor = cor7(p.nome);
+    const iProx = p.ativo && ativos[0]?.nome === p.nome;
+
     let badge, bcls;
     if (!p.ativo) {
-      const retStr = p.retorno ? ` · ${formatDate(p.retorno)}` : '';
-      badge = p.status + retStr; bcls = p.status === 'Férias' ? 'bferias' : 'blicenca';
-    } else if (i === 0) { badge = '← próximo'; bcls = 'bprox'; }
-    else if (ratio > 1.2) { badge = 'Acima'; bcls = 'balto'; }
-    else if (ratio < 0.8) { badge = 'Abaixo'; bcls = 'bbaixo'; }
-    else { badge = 'OK'; bcls = 'bok'; }
+      const ret = p.retorno ? fmtData(p.retorno) : '';
+      badge = p.status + (ret ? ' · retorno ' + ret : '');
+      bcls = p.status === 'Férias' ? 'bfer' : 'blic';
+    } else if (iProx)       { badge = '← próximo'; bcls = 'bprox'; }
+    else if (ratio > 1.2)   { badge = 'Acima';     bcls = 'balto'; }
+    else if (ratio < 0.8)   { badge = 'Abaixo';    bcls = 'bbaixo'; }
+    else                    { badge = 'OK';          bcls = 'bok'; }
 
-    const cor = cor7(p.nome);
-    const statusCls = p.status === 'Férias' ? 'status-ferias' : p.status === 'Licença' ? 'status-licenca' : 'status-ativo';
-    const idx = i; // usa índice numérico para IDs — evita problemas com acentos e apóstrofos
+    const scls = p.status === 'Férias' ? 'sbtn-ferias' : p.status === 'Licença' ? 'sbtn-licenca' : 'sbtn-ativo';
 
-    return `<div class="pr ${i===0&&p.ativo?'prox':''} ${!p.ativo?'inativo':''}" onclick="${p.ativo?`selTabela(${idx})`:'void(0)'}" style="${!p.ativo?'cursor:default':''}">
+    return `<div class="pr ${iProx?'prox':''} ${p.ativo?'clicavel':'inativo'}" data-idx="${i}">
       <div class="pi">
         <div class="av" style="background:${cor}22;color:${cor}">${ini(p.nome)}</div>
         <div>
@@ -328,29 +322,43 @@ function renderTabela(d) {
         </div>
       </div>
       <div class="cel">${p.acervo}</div>
-      <div class="cels col-ef">${p.ef}</div>
-      <div class="cels col-con">${p.con}</div>
-      <div class="cels col-sem">${p.semana}</div>
+      <div class="cels">${p.ef||0}</div>
+      <div class="cels">${p.con||0}</div>
+      <div class="cels">${p.semana||0}</div>
       <div class="cels"><span class="badge ${bcls}">${badge}</span></div>
-      <div onclick="event.stopPropagation()">
-        <button class="status-btn ${statusCls}" onclick="abrirMenuStatus(${idx}, this)">${p.status} ▾</button>
-      </div>
+      <div><button class="sbtn ${scls}" data-idx="${i}">${p.status} ▾</button></div>
     </div>`;
   }).join('');
+
+  // clique na linha → seleciona procurador
+  document.querySelectorAll('.pr.clicavel').forEach(row => {
+    row.addEventListener('click', () => {
+      const idx = parseInt(row.dataset.idx);
+      selProcIdx(idx);
+      document.querySelector('.card:last-child').scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  // clique no botão de status
+  document.querySelectorAll('.sbtn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.idx);
+      abrirStatus(idx, btn);
+    });
+  });
 }
 
 function renderOps(lista, media) {
   const ativos = lista.filter(p => p.ativo);
   document.getElementById('proc-ops').innerHTML = lista.map((p, i) => {
-    const idx2 = i; // índice global para IDs
     if (!p.ativo) {
-      const scls = p.status === 'Férias' ? 'bferias' : 'blicenca';
-      const retorno = p.retorno ? `Retorno: ${formatDate(p.retorno)}` : '';
-      return `<div class="pop pop-inativo" title="Indisponível — ${p.status}">
+      const ret = p.retorno ? ' · retorno ' + fmtData(p.retorno) : '';
+      const scls = p.status === 'Férias' ? 'bfer' : 'blic';
+      return `<div class="pop pop-inativo">
         <div class="pop-nome" style="color:#898781">${p.nome}</div>
         <div class="pop-ac">${p.acervo} processos</div>
-        <span class="badge ${scls}" style="margin-top:4px;font-size:10px">${p.status}</span>
-        ${retorno ? `<div style="font-size:10px;color:#898781;margin-top:4px">${retorno}</div>` : ''}
+        <span class="badge ${scls}" style="margin-top:4px;font-size:10px">${p.status}${ret}</span>
       </div>`;
     }
     const idxAtivo = ativos.indexOf(p);
@@ -359,258 +367,199 @@ function renderOps(lista, media) {
     if (idxAtivo === 0)   { bcls = 'bprox'; btxt = '← próximo'; }
     else if (ratio > 1.2) { bcls = 'balto'; btxt = 'Acima'; }
     else if (ratio < 0.8) { bcls = 'bbaixo'; btxt = 'Abaixo'; }
-    return `<div class="pop" id="op-${idx2}" onclick="selProcIdx(${idx2})">
+    return `<div class="pop" data-idx="${i}">
       <div class="pop-nome">${p.nome}</div>
       <div class="pop-ac">${p.acervo} processos ativos</div>
       <span class="badge ${bcls}" style="margin-top:4px;font-size:10px">${btxt}</span>
     </div>`;
   }).join('');
+
+  document.querySelectorAll('.pop:not(.pop-inativo)').forEach(el => {
+    el.addEventListener('click', () => selProcIdx(parseInt(el.dataset.idx)));
+  });
 }
 
-function abrirMenuStatus(idx, btn) {
-  const antigo = document.getElementById('menu-flutuante');
-  if (antigo) { antigo.remove(); return; }
-
+// ── STATUS ────────────────────────────────────────────
+function abrirStatus(idx, btn) {
   const p = procs[idx];
   if (!p) return;
 
-  const rect = btn.getBoundingClientRect();
+  // opções disponíveis (exclui o status atual)
+  const opcoes = ['Ativo','Férias','Licença'].filter(s => s !== p.status);
+
   const menu = document.createElement('div');
-  menu.id = 'menu-flutuante';
-  menu.style.cssText = `position:fixed;top:${rect.bottom + 4}px;left:${rect.left}px;background:#fff;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:9999;min-width:150px;overflow:hidden`;
+  menu.style.cssText = 'position:fixed;background:#fff;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:9999;overflow:hidden;min-width:130px';
 
-  const opts = [];
-  if (p.status !== 'Ativo')   opts.push({label:'✓ Ativo',    fn:() => { menu.remove(); confirmarAtivar(idx); }});
-  if (p.status !== 'Férias')  opts.push({label:'🏖 Férias',  fn:() => { menu.remove(); pedirRetornoIdx(idx); }});
-  if (p.status !== 'Licença') opts.push({label:'📋 Licença', fn:() => { menu.remove(); confirmarLicenca(idx); }});
-
-  opts.forEach(o => {
-    const div = document.createElement('div');
-    div.className = 'status-opt';
-    div.textContent = o.label;
-    div.addEventListener('click', e => { e.stopPropagation(); o.fn(); });
-    menu.appendChild(div);
+  opcoes.forEach(op => {
+    const item = document.createElement('div');
+    item.style.cssText = 'padding:9px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px';
+    item.textContent = op === 'Ativo' ? '✓ Ativo' : op === 'Férias' ? '🏖 Férias' : '📋 Licença';
+    item.onmouseenter = () => item.style.background = '#f4f3f0';
+    item.onmouseleave = () => item.style.background = '';
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      fecharMenu(menu);
+      if (op === 'Férias')  modalFerias(idx);
+      else if (op === 'Ativo')   modalAtivar(idx);
+      else if (op === 'Licença') modalLicenca(idx);
+    });
+    menu.appendChild(item);
   });
 
+  // posiciona abaixo do botão
+  const rect = btn.getBoundingClientRect();
+  menu.style.top  = (rect.bottom + 4) + 'px';
+  menu.style.left = rect.left + 'px';
   document.body.appendChild(menu);
-  setTimeout(() => document.addEventListener('click', () => menu.remove(), { once: true }), 100);
-}
-
-function confirmarAtivar(idx) {
-  const p = procs[idx];
-  if (!p) return;
-  const modal = criarModal('#1baf7a', '✓ Reativar procurador', p.nome,
-    `Confirma o retorno de <strong>${p.nome}</strong> para a esteira de distribuição?`,
-    'Confirmar', () => setStatus(p.nome, 'Ativo'));
-  document.body.appendChild(modal);
-}
-
-function confirmarLicenca(idx) {
-  const p = procs[idx];
-  if (!p) return;
-  const modal = criarModal('#4a3aa7', '📋 Licença', p.nome,
-    `<strong>${p.nome}</strong> será removido(a) da esteira.<br>O retorno será manual (sem prazo definido).`,
-    'Confirmar', () => setStatus(p.nome, 'Licença'));
-  document.body.appendChild(modal);
-}
-
-function criarModal(cor, titulo, subtitulo, corpo, btnTxt, onConfirm) {
-  const m = document.createElement('div');
-  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9999';
-  m.innerHTML = `
-    <div style="background:#fff;border-radius:12px;width:290px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden">
-      <div style="background:${cor};padding:14px 18px">
-        <div style="color:#fff;font-size:14px;font-weight:500">${titulo}</div>
-        <div style="color:rgba(255,255,255,.75);font-size:12px;margin-top:2px">${subtitulo}</div>
-      </div>
-      <div style="padding:18px">
-        <div style="font-size:13px;color:#52514e;margin-bottom:16px;line-height:1.6">${corpo}</div>
-        <div style="display:flex;gap:8px">
-          <button id="btn-cancelar-modal" style="flex:1;padding:9px;border:0.5px solid #c3c2b7;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#52514e">Cancelar</button>
-          <button id="btn-confirmar-modal" style="flex:1;padding:9px;border:none;border-radius:8px;background:${cor};color:#fff;cursor:pointer;font-size:13px;font-weight:500">${btnTxt}</button>
-        </div>
-      </div>
-    </div>`;
-  m.querySelector('#btn-cancelar-modal').addEventListener('click', () => m.remove());
-  m.querySelector('#btn-confirmar-modal').addEventListener('click', () => { m.remove(); onConfirm(); });
-  m.addEventListener('click', e => { if (e.target === m) m.remove(); });
-  return m;
-}
-
-function toggleDd(idx) {
-  document.querySelectorAll('.status-menu').forEach(m => {
-    if (m.id !== 'menu-' + idx) m.classList.remove('open');
-  });
-  document.getElementById('menu-' + idx).classList.toggle('open');
-}
-
-function setStatusIdx(idx, novoStatus) {
-  const nome = procs[idx]?.nome;
-  if (!nome) return;
-  document.getElementById('menu-' + idx).classList.remove('open');
-
-  setStatus(nome, novoStatus);
-}
-
-function pedirRetornoIdx(idx) {
-  const nome = procs[idx]?.nome;
-  if (nome) pedirRetorno(nome);
-}
-
-function selProcIdx(idx) {
-  const nome = procs[idx]?.nome;
-  if (nome) selProc(nome);
-}
-
-function selTabela(idx) {
-  const nome = procs[idx]?.nome;
-  if (nome) {
-    selProc(nome);
-    document.querySelector('.card:last-child').scrollIntoView({behavior:'smooth'});
-  }
-}
-
-function pedirRetorno(nome) {
-  const hoje = new Date().toISOString().split('T')[0];
-  const antigo = document.getElementById('modal-ferias');
-  if (antigo) antigo.remove();
-
-  const modal = document.createElement('div');
-  modal.id = 'modal-ferias';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:999';
-  modal.innerHTML = `
-    <div style="background:#fff;border-radius:12px;width:280px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden">
-      <div style="background:#1a3a5c;padding:14px 18px">
-        <div style="color:#fff;font-size:14px;font-weight:500">🏖 Férias</div>
-        <div style="color:rgba(255,255,255,.7);font-size:12px;margin-top:2px">${nome}</div>
-      </div>
-      <div style="padding:18px">
-        <div style="margin-bottom:16px">
-          <div style="font-size:11px;color:#898781;font-weight:500;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Data de retorno</div>
-          <input type="date" id="ferias-retorno" style="width:100%;padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:7px;font-size:14px;outline:none">
-        </div>
-        <div style="display:flex;gap:8px">
-          <button onclick="document.getElementById('modal-ferias').remove()"
-            style="flex:1;padding:9px;border:0.5px solid #c3c2b7;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#52514e">
-            Cancelar
-          </button>
-          <button onclick="confirmarFerias('${esc(nome)}')"
-            style="flex:1;padding:9px;border:none;border-radius:8px;background:#1a3a5c;color:#fff;cursor:pointer;font-size:13px;font-weight:500">
-            Confirmar
-          </button>
-        </div>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
 
   // fecha ao clicar fora
-  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  const fechar = () => fecharMenu(menu);
+  setTimeout(() => document.addEventListener('click', fechar, {once:true}), 0);
 }
 
-async function confirmarFerias(nome) {
-  const retorno = document.getElementById('ferias-retorno').value;
-  if (!retorno) { alert('Informe a data de retorno.'); return; }
-  document.getElementById('modal-ferias').remove();
+function fecharMenu(menu) {
+  if (menu && menu.parentNode) menu.remove();
+}
+
+// ── MODAIS ────────────────────────────────────────────
+function modalAtivar(idx) {
+  const p = procs[idx];
+  const m = modal('#1baf7a', '✓ Reativar', p.nome,
+    `Confirma o retorno de <strong>${p.nome}</strong> para a esteira?`,
+    'Confirmar', () => salvarStatus(p.nome, 'Ativo', ''));
+  document.body.appendChild(m);
+}
+
+function modalLicenca(idx) {
+  const p = procs[idx];
+  const m = modal('#4a3aa7', '📋 Licença', p.nome,
+    `<strong>${p.nome}</strong> sairá da esteira.<br>Retorno será manual, sem prazo definido.`,
+    'Confirmar', () => salvarStatus(p.nome, 'Licença', ''));
+  document.body.appendChild(m);
+}
+
+function modalFerias(idx) {
+  const p = procs[idx];
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg';
+  bg.innerHTML = `
+    <div class="modal-box">
+      <div class="modal-head" style="background:#1a3a5c">
+        <div class="modal-head-title">🏖 Férias</div>
+        <div class="modal-head-sub">${p.nome}</div>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:11px;color:#898781;font-weight:500;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Data de retorno</div>
+        <input type="date" id="inp-retorno-ferias" class="finput">
+        <div class="modal-btns">
+          <button class="modal-cancel" id="btn-cancel-ferias">Cancelar</button>
+          <button class="modal-ok" id="btn-ok-ferias" style="background:#1a3a5c">Confirmar</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(bg);
+  document.getElementById('btn-cancel-ferias').onclick = () => bg.remove();
+  document.getElementById('btn-ok-ferias').onclick = () => {
+    const ret = document.getElementById('inp-retorno-ferias').value;
+    if (!ret) { alert('Informe a data de retorno.'); return; }
+    bg.remove();
+    salvarStatus(p.nome, 'Férias', ret);
+  };
+  bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
+}
+
+function modal(cor, titulo, sub, corpo, btnTxt, onOk) {
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg';
+  bg.innerHTML = `
+    <div class="modal-box">
+      <div class="modal-head" style="background:${cor}">
+        <div class="modal-head-title">${titulo}</div>
+        <div class="modal-head-sub">${sub}</div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-msg">${corpo}</div>
+        <div class="modal-btns">
+          <button class="modal-cancel" id="m-cancel">Cancelar</button>
+          <button class="modal-ok" id="m-ok" style="background:${cor}">${btnTxt}</button>
+        </div>
+      </div>
+    </div>`;
+  bg.querySelector('#m-cancel').onclick = () => bg.remove();
+  bg.querySelector('#m-ok').onclick = () => { bg.remove(); onOk(); };
+  bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
+  return bg;
+}
+
+async function salvarStatus(nome, status, retorno) {
   try {
-    const r = await fetch(`${URL_AS}?acao=toggle_status&nome=${encodeURIComponent(nome)}&status=Férias&retorno=${encodeURIComponent(retorno)}`);
+    const params = new URLSearchParams({acao:'toggle_status', nome, status, retorno});
+    const r = await fetch(URL_AS + '?' + params);
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
     await carregar();
-  } catch(e) { alert('Erro: ' + e.message); }
+  } catch(e) { alert('Erro ao salvar: ' + e.message); }
 }
 
-document.addEventListener('click', e => {
-  if (!e.target.closest('.status-dropdown')) {
-    document.querySelectorAll('.status-menu').forEach(m => m.classList.remove('open'));
-  }
-});
-
-async function setStatus(nome, novoStatus) {
-  document.getElementById('menu-' + nome).classList.remove('open');
-  try {
-    const r = await fetch(`${URL_AS}?acao=toggle_status&nome=${encodeURIComponent(nome)}&status=${encodeURIComponent(novoStatus)}`);
-    const d = await r.json();
-    if (!d.ok) throw new Error(d.erro);
-    await carregar();
-  } catch(e) {
-    alert('Erro ao atualizar status: ' + e.message);
-  }
-}
-
-function selTabela(nome) {
-  selProc(nome);
-  document.querySelector('.card:last-child').scrollIntoView({behavior:'smooth'});
-}
-
-function selProc(nome) {
-  procSel = nome;
-  document.querySelectorAll('.pop').forEach(e => e.classList.remove('sel'));
-  const el = document.getElementById('op-' + nome);
+// ── SELEÇÃO PROCURADOR ───────────────────────────────
+function selProcIdx(idx) {
+  const p = procs[idx];
+  if (!p || !p.ativo) return;
+  procSel = p.nome;
+  document.querySelectorAll('.pop').forEach(el => el.classList.remove('sel'));
+  const el = document.querySelector(`.pop[data-idx="${idx}"]`);
   if (el) el.classList.add('sel');
   document.getElementById('btn-dist').disabled = false;
 }
 
+// ── DISTRIBUIÇÃO ─────────────────────────────────────
 function toggleMotivo() {
   const t = document.getElementById('inp-tipo').value;
   document.getElementById('fg-motivo').style.display = t === 'Redistribuição' ? 'flex' : 'none';
 }
 
 async function distribuir() {
-  const num    = document.getElementById('inp-num').value.trim();
-  const fluxo  = document.getElementById('inp-fluxo').value;
-  const tipo   = document.getElementById('inp-tipo').value;
-  const motivo = document.getElementById('inp-motivo').value;
-  const tit    = document.getElementById('inp-titular').value;
+  const num   = document.getElementById('inp-num').value.trim();
+  const fluxo = document.getElementById('inp-fluxo').value;
+  const tipo  = document.getElementById('inp-tipo').value;
+  const motivo= document.getElementById('inp-motivo').value;
+  const tit   = document.getElementById('inp-titular').value;
 
-  if (!num)    { showFb('Informe o número do processo.', 'err'); return; }
-  if (!fluxo)  { showFb('Selecione o fluxo do processo.', 'err'); return; }
-  if (!procSel){ showFb('Selecione um procurador(a).', 'err'); return; }
+  if (!num)    { showFb('Informe o número do processo.','err'); return; }
+  if (!fluxo)  { showFb('Selecione o fluxo.','err'); return; }
+  if (!procSel){ showFb('Selecione um procurador(a).','err'); return; }
 
   const btn = document.getElementById('btn-dist');
   btn.disabled = true; btn.textContent = 'Registrando...';
   try {
-    const p = new URLSearchParams({
-      acao:'distribuir', num_processo:num, fluxo, tipo,
-      motivo, nome_proc:procSel, titular:tit, distribuidor:dist
-    });
-    const r = await fetch(URL_AS + '?' + p);
+    const p = new URLSearchParams({acao:'distribuir',num_processo:num,fluxo,tipo,motivo,nome_proc:procSel,titular:tit,distribuidor:dist});
+    const r = await fetch(URL_AS+'?'+p);
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
-    showFb('✓ ' + d.mensagem + (d.conta_placar ? '' : ' — juntada, não altera o placar'), 'ok');
-    document.getElementById('inp-num').value = '';
-    document.getElementById('inp-fluxo').value = '';
-    document.getElementById('inp-tipo').value = 'Primeira distribuição';
-    document.getElementById('inp-motivo').value = '';
-    document.getElementById('fg-motivo').style.display = 'none';
-    procSel = null;
-    document.querySelectorAll('.pop').forEach(e => e.classList.remove('sel'));
-    document.getElementById('btn-dist').disabled = true;
+    showFb('✓ ' + d.mensagem,'ok');
+    document.getElementById('inp-num').value='';
+    document.getElementById('inp-fluxo').value='';
+    document.getElementById('inp-tipo').value='Primeira distribuição';
+    document.getElementById('inp-motivo').value='';
+    document.getElementById('fg-motivo').style.display='none';
+    procSel=null;
+    document.querySelectorAll('.pop').forEach(e=>e.classList.remove('sel'));
+    document.getElementById('btn-dist').disabled=true;
     await carregar();
-  } catch(e) { showFb('Erro: ' + e.message, 'err'); }
-  btn.disabled = false; btn.textContent = 'Confirmar distribuição';
+  } catch(e){ showFb('Erro: '+e.message,'err'); }
+  btn.disabled=false; btn.textContent='Confirmar distribuição';
 }
 
 function showFb(msg, tipo) {
-  const el = document.getElementById('fb');
-  el.textContent = msg; el.className = 'fb fb' + tipo; el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 6000);
+  const el=document.getElementById('fb');
+  el.textContent=msg; el.className='fb fb'+tipo; el.style.display='block';
+  setTimeout(()=>el.style.display='none',5000);
 }
 
-function formatDate(str) {
-  if (!str) return '';
-  // yyyy-MM-dd → dd/MM/yyyy
-  if (str.includes('-')) {
-    const [a, m, d] = str.split('-');
-    return `${d}/${m}/${a}`;
-  }
-  return str;
-}
-function ini(n) { return n.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
-function esc(s) { return String(s).replace(/'/g, "\\'"); }
-function cor7(s) {
-  const cs=['#2a78d6','#1baf7a','#eda100','#4a3aa7','#e34948','#e87ba4','#eb6834','#008370','#c45c00','#6b3fa0'];
-  let h=0; for(const c of String(s)) h=(h*31+c.charCodeAt(0))%cs.length; return cs[h];
-}
+// ── UTILS ─────────────────────────────────────────────
+function ini(n){return n.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
+function cor7(s){const cs=['#2a78d6','#1baf7a','#eda100','#4a3aa7','#e34948','#e87ba4','#eb6834','#008370','#c45c00','#6b3fa0'];let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%cs.length;return cs[h];}
+function fmtData(s){if(!s)return'';if(s.includes('-')){const[a,m,d]=s.split('-');return`${d}/${m}/${a}`;}return s;}
 </script>
 </body>
 </html>
