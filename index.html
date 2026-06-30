@@ -443,7 +443,7 @@ function showFb(msg, tipo) {
 }
 
 function ini(n) { return n.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
-function esc(s) { return String(s).replace(/['\s]/g, c => c === "'" ? "\\'" : '_'); }
+function esc(s) { return String(s).replace(/'/g, "\\'"); }
 function cor7(s) {
   const cs=['#2a78d6','#1baf7a','#eda100','#4a3aa7','#e34948','#e87ba4','#eb6834','#008370','#c45c00','#6b3fa0'];
   let h=0; for(const c of String(s)) h=(h*31+c.charCodeAt(0))%cs.length; return cs[h];
