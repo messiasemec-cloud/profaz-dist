@@ -333,14 +333,7 @@ function renderTabela(d) {
       <div class="cels col-sem">${p.semana}</div>
       <div class="cels"><span class="badge ${bcls}">${badge}</span></div>
       <div onclick="event.stopPropagation()">
-        <div class="status-dropdown" id="dd-${idx}">
-          <button class="status-btn ${statusCls}" onclick="toggleDd(${idx})">${p.status} ▾</button>
-          <div class="status-menu" id="menu-${idx}">
-            <div class="status-opt" onclick="setStatusIdx(${idx},'Ativo')">✓ Ativo</div>
-            <div class="status-opt" onclick="pedirRetornoIdx(${idx})">🏖 Férias</div>
-            <div class="status-opt" onclick="setStatusIdx(${idx},'Licença')">📋 Licença</div>
-          </div>
-        </div>
+        <button class="status-btn ${statusCls}" onclick="abrirMenuStatus(${idx}, this)">${p.status} ▾</button>
       </div>
     </div>`;
   }).join('');
@@ -372,6 +365,38 @@ function renderOps(lista, media) {
       <span class="badge ${bcls}" style="margin-top:4px;font-size:10px">${btxt}</span>
     </div>`;
   }).join('');
+}
+
+function abrirMenuStatus(idx, btn) {
+  // Remove menu anterior
+  const antigo = document.getElementById('menu-flutuante');
+  if (antigo) { antigo.remove(); return; }
+
+  const p = procs[idx];
+  if (!p) return;
+
+  const rect = btn.getBoundingClientRect();
+  const menu = document.createElement('div');
+  menu.id = 'menu-flutuante';
+  menu.style.cssText = `position:fixed;top:${rect.bottom + 4}px;left:${rect.left}px;background:#fff;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:9999;min-width:140px;overflow:hidden`;
+
+  const opts = [];
+  if (p.status !== 'Ativo')   opts.push(`<div class="status-opt" onclick="fecharMenu();setStatusIdx(${idx},'Ativo')">✓ Ativo</div>`);
+  if (p.status !== 'Férias')  opts.push(`<div class="status-opt" onclick="fecharMenu();pedirRetornoIdx(${idx})">🏖 Férias</div>`);
+  if (p.status !== 'Licença') opts.push(`<div class="status-opt" onclick="fecharMenu();setStatusIdx(${idx},'Licença')">📋 Licença</div>`);
+
+  menu.innerHTML = opts.join('');
+  document.body.appendChild(menu);
+
+  // fecha ao clicar fora
+  setTimeout(() => {
+    document.addEventListener('click', fecharMenu, { once: true });
+  }, 0);
+}
+
+function fecharMenu() {
+  const m = document.getElementById('menu-flutuante');
+  if (m) m.remove();
 }
 
 function toggleDd(idx) {
