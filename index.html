@@ -83,6 +83,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .proc-ops{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:6px}
 .pop{padding:10px 12px;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;cursor:pointer;transition:all .12s}
 .pop:hover{border-color:#1a3a5c;background:#e8eef5}
+.pop-inativo{opacity:.5;cursor:not-allowed;pointer-events:none;background:#f8f7f5}
 .pop.sel{border-color:#1baf7a;background:#e1f5ee}
 .pop-nome{font-size:13px;font-weight:500;line-height:1.3}
 .pop-ac{font-size:11px;color:#898781;margin-top:3px}
@@ -304,7 +305,8 @@ function renderTabela(d) {
     const ratio = med > 0 ? p.acervo / med : 1;
     let badge, bcls;
     if (!p.ativo) {
-      badge = p.status; bcls = p.status === 'Férias' ? 'bferias' : 'blicenca';
+      const retStr = p.retorno ? ` · ${formatDate(p.retorno)}` : '';
+      badge = p.status + retStr; bcls = p.status === 'Férias' ? 'bferias' : 'blicenca';
     } else if (i === 0) { badge = '← próximo'; bcls = 'bprox'; }
     else if (ratio > 1.2) { badge = 'Acima'; bcls = 'balto'; }
     else if (ratio < 0.8) { badge = 'Abaixo'; bcls = 'bbaixo'; }
@@ -333,7 +335,7 @@ function renderTabela(d) {
           <button class="status-btn ${statusCls}" onclick="toggleDd('${esc(p.nome)}')">${p.status} ▾</button>
           <div class="status-menu" id="menu-${esc(p.nome)}">
             <div class="status-opt" onclick="setStatus('${esc(p.nome)}','Ativo')">✓ Ativo</div>
-            <div class="status-opt" onclick="setStatus('${esc(p.nome)}','Férias')">🏖 Férias</div>
+            <div class="status-opt" onclick="pedirRetorno('${esc(p.nome)}')">🏖 Férias</div>
             <div class="status-opt" onclick="setStatus('${esc(p.nome)}','Licença')">📋 Licença</div>
           </div>
         </div>
@@ -344,10 +346,21 @@ function renderTabela(d) {
 
 function renderOps(lista, media) {
   const ativos = lista.filter(p => p.ativo);
-  document.getElementById('proc-ops').innerHTML = ativos.map((p, i) => {
+  document.getElementById('proc-ops').innerHTML = lista.map((p, i) => {
+    if (!p.ativo) {
+      const scls = p.status === 'Férias' ? 'bferias' : 'blicenca';
+      const retorno = p.retorno ? `Retorno: ${formatDate(p.retorno)}` : '';
+      return `<div class="pop pop-inativo" title="Indisponível — ${p.status}">
+        <div class="pop-nome" style="color:#898781">${p.nome}</div>
+        <div class="pop-ac">${p.acervo} processos</div>
+        <span class="badge ${scls}" style="margin-top:4px;font-size:10px">${p.status}</span>
+        ${retorno ? `<div style="font-size:10px;color:#898781;margin-top:4px">${retorno}</div>` : ''}
+      </div>`;
+    }
+    const idx = ativos.indexOf(p);
     const ratio = media > 0 ? p.acervo / media : 1;
     let bcls = 'bok', btxt = 'OK';
-    if (i === 0)          { bcls = 'bprox'; btxt = '← próximo'; }
+    if (idx === 0)        { bcls = 'bprox'; btxt = '← próximo'; }
     else if (ratio > 1.2) { bcls = 'balto'; btxt = 'Acima'; }
     else if (ratio < 0.8) { bcls = 'bbaixo'; btxt = 'Abaixo'; }
     return `<div class="pop" id="op-${esc(p.nome)}" onclick="selProc('${esc(p.nome)}')">
@@ -363,6 +376,57 @@ function toggleDd(nome) {
     if (m.id !== 'menu-' + nome) m.classList.remove('open');
   });
   document.getElementById('menu-' + nome).classList.toggle('open');
+}
+
+function pedirRetorno(nome) {
+  document.querySelectorAll('.status-menu').forEach(m => m.classList.remove('open'));
+  const hoje = new Date().toISOString().split('T')[0];
+  // Remove modal anterior se existir
+  const antigo = document.getElementById('modal-ferias');
+  if (antigo) antigo.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'modal-ferias';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:999';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;width:280px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden">
+      <div style="background:#1a3a5c;padding:14px 18px">
+        <div style="color:#fff;font-size:14px;font-weight:500">🏖 Férias</div>
+        <div style="color:rgba(255,255,255,.7);font-size:12px;margin-top:2px">${nome}</div>
+      </div>
+      <div style="padding:18px">
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px;color:#898781;font-weight:500;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Data de retorno</div>
+          <input type="date" id="ferias-retorno" style="width:100%;padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:7px;font-size:14px;outline:none">
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="document.getElementById('modal-ferias').remove()"
+            style="flex:1;padding:9px;border:0.5px solid #c3c2b7;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#52514e">
+            Cancelar
+          </button>
+          <button onclick="confirmarFerias('${esc(nome)}')"
+            style="flex:1;padding:9px;border:none;border-radius:8px;background:#1a3a5c;color:#fff;cursor:pointer;font-size:13px;font-weight:500">
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  // fecha ao clicar fora
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+}
+
+async function confirmarFerias(nome) {
+  const retorno = document.getElementById('ferias-retorno').value;
+  if (!retorno) { alert('Informe a data de retorno.'); return; }
+  document.getElementById('modal-ferias').remove();
+  try {
+    const r = await fetch(`${URL_AS}?acao=toggle_status&nome=${encodeURIComponent(nome)}&status=Férias&retorno=${encodeURIComponent(retorno)}`);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+    await carregar();
+  } catch(e) { alert('Erro: ' + e.message); }
 }
 
 document.addEventListener('click', e => {
@@ -442,6 +506,15 @@ function showFb(msg, tipo) {
   setTimeout(() => el.style.display = 'none', 6000);
 }
 
+function formatDate(str) {
+  if (!str) return '';
+  // yyyy-MM-dd → dd/MM/yyyy
+  if (str.includes('-')) {
+    const [a, m, d] = str.split('-');
+    return `${d}/${m}/${a}`;
+  }
+  return str;
+}
 function ini(n) { return n.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
 function esc(s) { return String(s).replace(/'/g, "\\'"); }
 function cor7(s) {
