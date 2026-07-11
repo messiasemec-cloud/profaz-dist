@@ -712,18 +712,7 @@ async function buscarProcesso() {
 
       if (ehEF) {
         // ── FLUXO EF ─────────────────────────────────────────────
-        // SEMPRE vai para aba EF, esteira normal dos 7
-        // NUNCA marca titular, NUNCA pré-seleciona ninguém
         titularAtual = null;
-
-        // força tipo Juntada se tem titular, senão Primeira distribuição
-        const tipoTexto = d.tem_titular ? 'Juntada' : 'Primeira distribuição';
-        const selTipo = document.getElementById('inp-tipo');
-        for (let i = 0; i < selTipo.options.length; i++) {
-          if (selTipo.options[i].text === tipoTexto) { selTipo.selectedIndex = i; break; }
-        }
-
-        // vai para aba EF
         abaAtiva = 'EF';
         document.querySelectorAll('.aba-btn').forEach(b => {
           b.textContent.trim().startsWith('Execução') ? b.classList.add('ativa') : b.classList.remove('ativa');
@@ -731,17 +720,71 @@ async function buscarProcesso() {
         document.getElementById('info-nucleo').textContent = 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.';
         document.getElementById('info-nucleo').style.display = 'block';
         document.getElementById('fg-motivo').style.display = 'none';
-        atualizarEtapa();
         renderKPIs('EF', null);
-        renderTabela('EF');
         renderOps('EF');
-        // limpa seleção
         procSel = null;
         document.querySelectorAll('.pop').forEach(e => e.classList.remove('sel'));
         document.getElementById('btn-dist').disabled = true;
 
-        const infoTit = d.tem_titular ? ` · Titular original: <strong>${d.titular}</strong>` : ' · Sem titular';
-        box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong>${infoTit} · Segue esteira EF — analistas → próximo da fila`;
+        const idxTitEF = d.tem_titular ? procs.findIndex(p => p.nome === d.titular) : -1;
+        const procTitEF = idxTitEF >= 0 ? procs[idxTitEF] : null;
+        const titEFDisponivel = procTitEF && procTitEF.ativo;
+        const titEFnoGrupoEF = procTitEF && procTitEF.nucleo === 'EF';
+
+        if (d.em_triagem) {
+          // ── JÁ PASSOU PELA TRIAGEM — define destino final ──────
+          // força etapa titular
+          const selEtapa = document.getElementById('inp-etapa');
+          for (let i = 0; i < selEtapa.options.length; i++) {
+            if (selEtapa.options[i].value === 'titular') { selEtapa.selectedIndex = i; break; }
+          }
+          document.getElementById('fg-etapa').style.display = 'flex';
+
+          if (d.tem_titular && titEFnoGrupoEF && titEFDisponivel) {
+            // titular do grupo EF disponível → vai para ele
+            titularAtual = d.titular;
+            renderTabela('EF');
+            if (idxTitEF >= 0) selProcIdx(idxTitEF);
+            box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+            box.innerHTML = `✓ Já passou pela triagem · <strong>${d.fluxo}</strong> · Volta para titular: <strong>${d.titular}</strong>`;
+
+          } else if (d.tem_titular && titEFnoGrupoEF && !titEFDisponivel) {
+            // titular do grupo EF de férias → tramitação temporária para outro EF
+            titularAtual = null;
+            const selTipo = document.getElementById('inp-tipo');
+            for (let i = 0; i < selTipo.options.length; i++) {
+              if (selTipo.options[i].text === 'Tramitação temporária') { selTipo.selectedIndex = i; break; }
+            }
+            renderTabela('EF');
+            const ret = procTitEF.retorno ? ` · retorno ${procTitEF.retorno}` : '';
+            box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
+            box.innerHTML = `⚠ Já passou pela triagem · Titular <strong>${d.titular}</strong> de ${procTitEF.status}${ret} · Tramitação temporária → próximo da fila EF`;
+
+          } else {
+            // titular no grupo Conhecimento → próximo da fila dos 5 EF (definitivo)
+            titularAtual = null;
+            renderTabela('EF');
+            box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+            box.innerHTML = `✓ Já passou pela triagem · <strong>${d.fluxo}</strong> · Titular original: <strong>${d.titular || 'nenhum'}</strong> · Próximo da fila EF`;
+          }
+
+        } else {
+          // ── NOVA COMUNICAÇÃO — vai para analistas ──────────────
+          const selEtapa = document.getElementById('inp-etapa');
+          for (let i = 0; i < selEtapa.options.length; i++) {
+            if (selEtapa.options[i].value === 'triagem') { selEtapa.selectedIndex = i; break; }
+          }
+          document.getElementById('fg-etapa').style.display = 'flex';
+          atualizarEtapa();
+          renderTabela('EF');
+
+          const infoTit = d.tem_titular ? ` · Titular: <strong>${d.titular}</strong>` : ' · Sem titular';
+          const aviso = procTitEF && !titEFDisponivel
+            ? ` · <em style="color:#1a3a5c">ℹ Titular de ${procTitEF.status}${procTitEF.retorno ? ' · retorno '+procTitEF.retorno : ''}</em>`
+            : '';
+          box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+          box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong>${infoTit}${aviso} · → Analistas (triagem)`;
+        }
 
       } else {
         // ── FLUXO CONHECIMENTO / ADM ──────────────────────────────
