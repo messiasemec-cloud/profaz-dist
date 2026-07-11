@@ -694,29 +694,44 @@ async function buscarProcesso() {
       }
       toggleMotivo();
 
-      // muda para aba do núcleo correto
-      if (d.nucleo !== abaAtiva) {
-        const abaBtns = document.querySelectorAll('.aba-btn');
-        const nomes = ['EF','Conhecimento','Administrativo'];
-        abaBtns.forEach((b,i) => { if (nomes[i] === d.nucleo) { setAba(d.nucleo, b); b.classList.add('ativa'); } else b.classList.remove('ativa'); });
-      }
-
-      // se tem titular, pré-seleciona E destaca na tabela
       if (d.tem_titular) {
+        // Tem titular — juntada vai para o titular independente do núcleo
         const idx = procs.findIndex(p => p.nome === d.titular);
-        if (idx >= 0) {
-          selProcIdx(idx);
-          // destaca o titular na tabela removendo badge "próximo" dos outros
-          // e colocando "← titular" nele
-          titularAtual = d.titular;
-          renderTabela(abaAtiva); // re-renderiza com titular destacado
-          // re-seleciona após re-render
-          const idx2 = procs.findIndex(p => p.nome === d.titular);
-          if (idx2 >= 0) selProcIdx(idx2);
+        const procTitular = idx >= 0 ? procs[idx] : null;
+        const nucleoTitular = procTitular?.nucleo || d.nucleo;
+
+        // muda para aba do TITULAR (não do fluxo)
+        if (nucleoTitular !== abaAtiva) {
+          const abaBtns = document.querySelectorAll('.aba-btn');
+          const nomes = ['EF','Conhecimento','Administrativo'];
+          abaBtns.forEach((b,i) => {
+            if (nomes[i] === nucleoTitular) { setAba(nucleoTitular, b); b.classList.add('ativa'); }
+            else b.classList.remove('ativa');
+          });
         }
-        box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Titular: <strong>${d.titular}</strong> · Tipo sugerido: <strong>${d.tipo_sugerido}</strong>`;
+
+        titularAtual = d.titular;
+        renderTabela(abaAtiva);
+        if (idx >= 0) selProcIdx(idx);
+
+        // aviso se titular está em núcleo diferente do fluxo
+        const avisoTransicao = nucleoTitular !== d.nucleo
+          ? ` · <em style="color:#633806">⚠ Titular no grupo ${nucleoTitular} — período de transição</em>`
+          : '';
+        box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Titular: <strong>${d.titular}</strong> · Tipo sugerido: <strong>${d.tipo_sugerido}</strong>${avisoTransicao}`;
+
       } else {
+        // Sem titular — nova distribuição vai para fila do núcleo do fluxo
         titularAtual = null;
+        if (d.nucleo !== abaAtiva) {
+          const abaBtns = document.querySelectorAll('.aba-btn');
+          const nomes = ['EF','Conhecimento','Administrativo'];
+          abaBtns.forEach((b,i) => {
+            if (nomes[i] === d.nucleo) { setAba(d.nucleo, b); b.classList.add('ativa'); }
+            else b.classList.remove('ativa');
+          });
+        }
+        renderTabela(abaAtiva);
         box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Sem titular — nova distribuição · Núcleo: <strong>${d.nucleo}</strong>`;
       }
     }
