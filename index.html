@@ -216,7 +216,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
           <div class="fg">
             <label>Fluxo do processo *</label>
-            <select id="inp-fluxo">
+            <select id="inp-fluxo" onchange="atualizarEtapa()">
               <option value="">Selecione...</option>
               <option>Execução fiscal</option>
               <option>Execução fiscal - GAV</option>
@@ -328,8 +328,8 @@ function setAba(nucleo, btn) {
   info.textContent = infos[nucleo] || '';
   info.style.display = 'block';
 
-  // etapa só aparece na aba EF
-  document.getElementById('fg-etapa').style.display = nucleo === 'EF' ? 'flex' : 'none';
+  // atualiza visibilidade da etapa baseado no fluxo atual
+  atualizarEtapa();
 
   // recarrega tabela e seletor
   if (procs.length) renderAbaDados(nucleo);
@@ -352,7 +352,7 @@ function renderAba(nucleo, d) {
   const info = document.getElementById('info-nucleo');
   info.textContent = infos[nucleo] || '';
   info.style.display = 'block';
-  document.getElementById('fg-etapa').style.display = nucleo === 'EF' ? 'flex' : 'none';
+  atualizarEtapa();
 }
 
 function renderAbaDados(nucleo) {
@@ -659,6 +659,20 @@ function selProcIdx(idx) {
 function toggleMotivo() {
   const t = document.getElementById('inp-tipo').value;
   document.getElementById('fg-motivo').style.display = t === 'Redistribuição' ? 'flex' : 'none';
+  atualizarEtapa();
+}
+
+function atualizarEtapa() {
+  const tipo  = document.getElementById('inp-tipo').value;
+  const fluxo = document.getElementById('inp-fluxo').value.toLowerCase();
+  const ehFluxoEF = fluxo.includes('execução fiscal');
+
+  // Etapa (triagem analista) aparece quando:
+  // - É EF (aba ou fluxo) E
+  // - Tipo é Primeira distribuição ou Redistribuição OU é Juntada de EF (processo de EF passando por analista mesmo que titular seja de outro grupo)
+  // NÃO aparece para: Juntada de Conhecimento, Tramitação temporária de Conhecimento, Adm
+  const precisaEtapa = ehFluxoEF && (tipo !== 'Tramitação temporária');
+  document.getElementById('fg-etapa').style.display = precisaEtapa ? 'flex' : 'none';
 }
 
 async function buscarProcesso() {
@@ -711,6 +725,16 @@ async function buscarProcesso() {
         }
 
         titularAtual = d.titular;
+
+        // força tipo para Juntada
+        const tipoSel = document.getElementById('inp-tipo');
+        for (let i = 0; i < tipoSel.options.length; i++) {
+          if (tipoSel.options[i].text === 'Juntada') { tipoSel.selectedIndex = i; break; }
+        }
+        document.getElementById('fg-motivo').style.display = 'none';
+        // deixa atualizarEtapa decidir se mostra etapa baseado no fluxo
+        atualizarEtapa();
+
         renderTabela(abaAtiva);
         if (idx >= 0) selProcIdx(idx);
 
