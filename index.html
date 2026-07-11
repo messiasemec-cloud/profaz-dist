@@ -280,7 +280,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <script>
 const URL_AS = 'https://script.google.com/macros/s/AKfycbzt186mHh_LrKKI1gg5hofoQl_mwj5rRxkgZCjiCIcId2UVDtlbWHwdo05lSU9_hNCP/exec';
-let dist = '', procs = [], procSel = null, abaAtiva = 'EF', med = 0;
+let dist = '', procs = [], procSel = null, abaAtiva = 'EF', med = 0, titularAtual = null;
 
 // ── LOGIN ─────────────────────────────────────────────────────────
 function login(nome) {
@@ -461,11 +461,13 @@ function renderRow(p, i, cols, maxAc, ativos, media) {
   const isPrimeiroAtivo = p.ativo && ativos[0]?.nome === p.nome;
 
   let badge, bcls;
+  const isTitular = titularAtual && p.nome === titularAtual;
   if (!p.ativo) {
     const ret = p.retorno ? ' · ' + fmtData(p.retorno) : '';
     badge = p.status + ret;
     bcls  = p.status === 'Férias' ? 'bfer' : 'blic';
-  } else if (isPrimeiroAtivo) { badge = '← próximo'; bcls = 'bprox'; }
+  } else if (isTitular)        { badge = '← titular'; bcls = 'bprox'; }
+  else if (isPrimeiroAtivo && !titularAtual) { badge = '← próximo'; bcls = 'bprox'; }
   else if (ratio > 1.2)        { badge = 'Acima';     bcls = 'balto'; }
   else if (ratio < 0.8)        { badge = 'Abaixo';    bcls = 'bbaixo'; }
   else                          { badge = 'OK';         bcls = 'bok'; }
@@ -699,12 +701,22 @@ async function buscarProcesso() {
         abaBtns.forEach((b,i) => { if (nomes[i] === d.nucleo) { setAba(d.nucleo, b); b.classList.add('ativa'); } else b.classList.remove('ativa'); });
       }
 
-      // se tem titular, pré-seleciona
+      // se tem titular, pré-seleciona E destaca na tabela
       if (d.tem_titular) {
         const idx = procs.findIndex(p => p.nome === d.titular);
-        if (idx >= 0) selProcIdx(idx);
+        if (idx >= 0) {
+          selProcIdx(idx);
+          // destaca o titular na tabela removendo badge "próximo" dos outros
+          // e colocando "← titular" nele
+          titularAtual = d.titular;
+          renderTabela(abaAtiva); // re-renderiza com titular destacado
+          // re-seleciona após re-render
+          const idx2 = procs.findIndex(p => p.nome === d.titular);
+          if (idx2 >= 0) selProcIdx(idx2);
+        }
         box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Titular: <strong>${d.titular}</strong> · Tipo sugerido: <strong>${d.tipo_sugerido}</strong>`;
       } else {
+        titularAtual = null;
         box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Sem titular — nova distribuição · Núcleo: <strong>${d.nucleo}</strong>`;
       }
     }
@@ -717,6 +729,10 @@ async function buscarProcesso() {
 function limparBusca() {
   const box = document.getElementById('resultado-busca');
   box.style.display = 'none';
+  if (titularAtual) {
+    titularAtual = null;
+    renderTabela(abaAtiva);
+  }
 }
 
 async function distribuir() {
