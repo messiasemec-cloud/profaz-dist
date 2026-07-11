@@ -466,7 +466,7 @@ function renderRow(p, i, cols, maxAc, ativos, media) {
     const ret = p.retorno ? ' · ' + fmtData(p.retorno) : '';
     badge = p.status + ret;
     bcls  = p.status === 'Férias' ? 'bfer' : 'blic';
-  } else if (isTitular)        { badge = '← titular'; bcls = 'bprox'; }
+  } else if (isTitular)        { badge = '← próximo (titular)'; bcls = 'bprox'; }
   else if (isPrimeiroAtivo && !titularAtual) { badge = '← próximo'; bcls = 'bprox'; }
   else if (ratio > 1.2)        { badge = 'Acima';     bcls = 'balto'; }
   else if (ratio < 0.8)        { badge = 'Abaixo';    bcls = 'bbaixo'; }
