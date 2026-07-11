@@ -206,9 +206,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div id="info-nucleo" class="info-box" style="display:none"></div>
 
         <div class="fgrid">
-          <div class="fg">
+          <div class="fg full" style="position:relative">
             <label>Número do processo *</label>
-            <input id="inp-num" type="text" placeholder="ex: 0001234-55.2024.8.06.0001">
+            <div style="display:flex;gap:8px">
+              <input id="inp-num" type="text" placeholder="ex: 0001234-55.2024.8.06.0001" style="flex:1" oninput="limparBusca()">
+              <button onclick="buscarProcesso()" type="button" style="padding:8px 14px;background:#0a8a7a;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;white-space:nowrap">🔍 Buscar</button>
+            </div>
+            <div id="resultado-busca" style="display:none;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px"></div>
           </div>
           <div class="fg">
             <label>Fluxo do processo *</label>
@@ -653,6 +657,66 @@ function selProcIdx(idx) {
 function toggleMotivo() {
   const t = document.getElementById('inp-tipo').value;
   document.getElementById('fg-motivo').style.display = t === 'Redistribuição' ? 'flex' : 'none';
+}
+
+async function buscarProcesso() {
+  const num = document.getElementById('inp-num').value.trim();
+  if (!num) { showFb('Informe o número do processo antes de buscar.','err'); return; }
+
+  const btn = document.querySelector('button[onclick="buscarProcesso()"]');
+  btn.textContent = '⏳'; btn.disabled = true;
+
+  try {
+    const r = await fetch(URL_AS + '?acao=buscar_processo&num=' + encodeURIComponent(num));
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+
+    const box = document.getElementById('resultado-busca');
+
+    if (!d.encontrado) {
+      box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
+      box.innerHTML = '⚠ Processo não encontrado na base — preencha o fluxo manualmente. Será registrado como novo ao confirmar.';
+    } else {
+      box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+
+      // preenche fluxo
+      const sel = document.getElementById('inp-fluxo');
+      for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].text === d.fluxo) { sel.selectedIndex = i; break; }
+      }
+
+      // preenche tipo
+      const tipo = document.getElementById('inp-tipo');
+      for (let i = 0; i < tipo.options.length; i++) {
+        if (tipo.options[i].text === d.tipo_sugerido) { tipo.selectedIndex = i; break; }
+      }
+      toggleMotivo();
+
+      // muda para aba do núcleo correto
+      if (d.nucleo !== abaAtiva) {
+        const abaBtns = document.querySelectorAll('.aba-btn');
+        const nomes = ['EF','Conhecimento','Administrativo'];
+        abaBtns.forEach((b,i) => { if (nomes[i] === d.nucleo) { setAba(d.nucleo, b); b.classList.add('ativa'); } else b.classList.remove('ativa'); });
+      }
+
+      // se tem titular, pré-seleciona
+      if (d.tem_titular) {
+        const idx = procs.findIndex(p => p.nome === d.titular);
+        if (idx >= 0) selProcIdx(idx);
+        box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Titular: <strong>${d.titular}</strong> · Tipo sugerido: <strong>${d.tipo_sugerido}</strong>`;
+      } else {
+        box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Sem titular — nova distribuição · Núcleo: <strong>${d.nucleo}</strong>`;
+      }
+    }
+  } catch(e) {
+    showFb('Erro na busca: ' + e.message, 'err');
+  }
+  btn.textContent = '🔍 Buscar'; btn.disabled = false;
+}
+
+function limparBusca() {
+  const box = document.getElementById('resultado-busca');
+  box.style.display = 'none';
 }
 
 async function distribuir() {
