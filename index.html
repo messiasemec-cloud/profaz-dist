@@ -688,82 +688,117 @@ async function buscarProcesso() {
     if (!d.ok) throw new Error(d.erro);
 
     const box = document.getElementById('resultado-busca');
+    box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px';
 
     if (!d.encontrado) {
-      box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
+      box.style.cssText += ';background:#faeeda;border:0.5px solid #FAC775;color:#633806';
       box.innerHTML = '⚠ Processo não encontrado na base — preencha o fluxo manualmente. Será registrado como novo ao confirmar.';
+
     } else {
-      box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+      box.style.cssText += ';background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
 
-      // preenche fluxo
-      const sel = document.getElementById('inp-fluxo');
-      for (let i = 0; i < sel.options.length; i++) {
-        if (sel.options[i].text === d.fluxo) { sel.selectedIndex = i; break; }
+      // preenche fluxo no select
+      const selFluxo = document.getElementById('inp-fluxo');
+      for (let i = 0; i < selFluxo.options.length; i++) {
+        if (selFluxo.options[i].text === d.fluxo) { selFluxo.selectedIndex = i; break; }
       }
 
-      // preenche tipo
-      const tipo = document.getElementById('inp-tipo');
-      for (let i = 0; i < tipo.options.length; i++) {
-        if (tipo.options[i].text === d.tipo_sugerido) { tipo.selectedIndex = i; break; }
-      }
-      toggleMotivo();
+      const ehEF = d.fluxo.toLowerCase().includes('execução fiscal');
 
-      // ── REGRA DE ROTEAMENTO ──────────────────────────────────────
-      // EF (com ou sem titular) → sempre aba EF, esteira normal, sem marcar titular
-      // Conhecimento/ADM com titular → aba do titular, titular como ← próximo
-      // Conhecimento/ADM sem titular → aba do fluxo, fila normal
-      // ─────────────────────────────────────────────────────────────
-
-      const ehFluxoEF2 = d.fluxo.toLowerCase().includes('execução fiscal');
-      const idxTit = d.tem_titular ? procs.findIndex(p => p.nome === d.titular) : -1;
-      const nucleoTitular2 = idxTit >= 0 ? procs[idxTit].nucleo : null;
-
-      function irParaAba(nucleo) {
-        abaAtiva = nucleo;
-        document.querySelectorAll('.aba-btn').forEach(b => {
-          const txt = b.textContent.trim();
-          const ehEste = (nucleo==='EF'&&txt.startsWith('Execução'))||
-                         (nucleo==='Conhecimento'&&txt.startsWith('Conhecimento'))||
-                         (nucleo==='Administrativo'&&txt.startsWith('Administrativo'));
-          ehEste ? b.classList.add('ativa') : b.classList.remove('ativa');
-        });
-        const infos = {
-          EF:'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',
-          Conhecimento:'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',
-          Administrativo:'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.'
-        };
-        document.getElementById('info-nucleo').textContent = infos[nucleo]||'';
-        document.getElementById('info-nucleo').style.display = 'block';
-        atualizarEtapa();
-        renderKPIs(nucleo, null);
-        renderOps(nucleo);
-      }
-
-      if (ehFluxoEF2) {
-        // EF → sempre aba EF, esteira normal, SEM marcar titular
+      if (ehEF) {
+        // ── FLUXO EF ─────────────────────────────────────────────
+        // SEMPRE vai para aba EF, esteira normal dos 7
+        // NUNCA marca titular, NUNCA pré-seleciona ninguém
         titularAtual = null;
-        irParaAba('EF');
+
+        // força tipo Juntada se tem titular, senão Primeira distribuição
+        const tipoTexto = d.tem_titular ? 'Juntada' : 'Primeira distribuição';
+        const selTipo = document.getElementById('inp-tipo');
+        for (let i = 0; i < selTipo.options.length; i++) {
+          if (selTipo.options[i].text === tipoTexto) { selTipo.selectedIndex = i; break; }
+        }
+
+        // vai para aba EF
+        abaAtiva = 'EF';
+        document.querySelectorAll('.aba-btn').forEach(b => {
+          b.textContent.trim().startsWith('Execução') ? b.classList.add('ativa') : b.classList.remove('ativa');
+        });
+        document.getElementById('info-nucleo').textContent = 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.';
+        document.getElementById('info-nucleo').style.display = 'block';
+        document.getElementById('fg-motivo').style.display = 'none';
+        atualizarEtapa();
+        renderKPIs('EF', null);
         renderTabela('EF');
+        renderOps('EF');
+        // limpa seleção
+        procSel = null;
+        document.querySelectorAll('.pop').forEach(e => e.classList.remove('sel'));
+        document.getElementById('btn-dist').disabled = true;
+
         const infoTit = d.tem_titular ? ` · Titular original: <strong>${d.titular}</strong>` : ' · Sem titular';
         box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong>${infoTit} · Segue esteira EF — analistas → próximo da fila`;
 
-      } else if (d.tem_titular) {
-        // Conhecimento/ADM com titular → vai para aba do titular, marca ele como próximo
-        const abaAlvo = nucleoTitular2 || d.nucleo;
-        titularAtual = d.titular;
-        irParaAba(abaAlvo);
-        document.getElementById('fg-etapa').style.display = 'none';
-        renderTabela(abaAlvo);
-        if (idxTit >= 0) selProcIdx(idxTit);
-        box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Titular: <strong>${d.titular}</strong> · Vai direto ao titular`;
-
       } else {
-        // Conhecimento/ADM sem titular → fila normal do fluxo
-        titularAtual = null;
-        irParaAba(d.nucleo);
+        // ── FLUXO CONHECIMENTO / ADM ──────────────────────────────
+        // sem etapa de analista
         document.getElementById('fg-etapa').style.display = 'none';
-        renderTabela(d.nucleo);
-        box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Sem titular — próximo da fila ${d.nucleo}`;
+
+        if (d.tem_titular) {
+          // tem titular → vai para aba do titular, marca ele como próximo
+          const idxTit = procs.findIndex(p => p.nome === d.titular);
+          const nucleoTit = idxTit >= 0 ? procs[idxTit].nucleo : d.nucleo;
+
+          // força Juntada
+          const selTipo = document.getElementById('inp-tipo');
+          for (let i = 0; i < selTipo.options.length; i++) {
+            if (selTipo.options[i].text === 'Juntada') { selTipo.selectedIndex = i; break; }
+          }
+          document.getElementById('fg-motivo').style.display = 'none';
+
+          // vai para aba do titular
+          abaAtiva = nucleoTit;
+          document.querySelectorAll('.aba-btn').forEach(b => {
+            const txt = b.textContent.trim();
+            const ativo = (nucleoTit==='EF'&&txt.startsWith('Execução'))||
+                          (nucleoTit==='Conhecimento'&&txt.startsWith('Conhecimento'))||
+                          (nucleoTit==='Administrativo'&&txt.startsWith('Administrativo'));
+            ativo ? b.classList.add('ativa') : b.classList.remove('ativa');
+          });
+          const infos = {EF:'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',Conhecimento:'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',Administrativo:'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.'};
+          document.getElementById('info-nucleo').textContent = infos[nucleoTit]||'';
+          document.getElementById('info-nucleo').style.display = 'block';
+
+          // marca titular como próximo
+          titularAtual = d.titular;
+          renderKPIs(nucleoTit, null);
+          renderTabela(nucleoTit);
+          renderOps(nucleoTit);
+          if (idxTit >= 0) selProcIdx(idxTit);
+
+          box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Titular: <strong>${d.titular}</strong> · Vai direto ao titular`;
+
+        } else {
+          // sem titular → fila normal do fluxo
+          titularAtual = null;
+          const selTipo = document.getElementById('inp-tipo');
+          for (let i = 0; i < selTipo.options.length; i++) {
+            if (selTipo.options[i].text === 'Primeira distribuição') { selTipo.selectedIndex = i; break; }
+          }
+
+          abaAtiva = d.nucleo;
+          document.querySelectorAll('.aba-btn').forEach(b => {
+            const txt = b.textContent.trim();
+            const ativo = (d.nucleo==='EF'&&txt.startsWith('Execução'))||
+                          (d.nucleo==='Conhecimento'&&txt.startsWith('Conhecimento'))||
+                          (d.nucleo==='Administrativo'&&txt.startsWith('Administrativo'));
+            ativo ? b.classList.add('ativa') : b.classList.remove('ativa');
+          });
+          renderKPIs(d.nucleo, null);
+          renderTabela(d.nucleo);
+          renderOps(d.nucleo);
+
+          box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Sem titular — próximo da fila ${d.nucleo}`;
+        }
       }
     }
   } catch(e) {
@@ -771,6 +806,7 @@ async function buscarProcesso() {
   }
   btn.textContent = '🔍 Buscar'; btn.disabled = false;
 }
+
 
 function limparBusca() {
   const box = document.getElementById('resultado-busca');
