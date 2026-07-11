@@ -708,55 +708,62 @@ async function buscarProcesso() {
       }
       toggleMotivo();
 
-      if (d.tem_titular) {
-        // Tem titular — juntada vai para o titular independente do núcleo
-        const idx = procs.findIndex(p => p.nome === d.titular);
-        const procTitular = idx >= 0 ? procs[idx] : null;
-        const nucleoTitular = procTitular?.nucleo || d.nucleo;
+      // ── REGRA DE ROTEAMENTO ──────────────────────────────────────
+      // EF (com ou sem titular) → sempre aba EF, esteira normal, sem marcar titular
+      // Conhecimento/ADM com titular → aba do titular, titular como ← próximo
+      // Conhecimento/ADM sem titular → aba do fluxo, fila normal
+      // ─────────────────────────────────────────────────────────────
 
-        // muda para aba do TITULAR (não do fluxo)
-        if (nucleoTitular !== abaAtiva) {
-          const abaBtns = document.querySelectorAll('.aba-btn');
-          const nomes = ['EF','Conhecimento','Administrativo'];
-          abaBtns.forEach((b,i) => {
-            if (nomes[i] === nucleoTitular) { setAba(nucleoTitular, b); b.classList.add('ativa'); }
-            else b.classList.remove('ativa');
-          });
-        }
+      const ehFluxoEF2 = d.fluxo.toLowerCase().includes('execução fiscal');
+      const idxTit = d.tem_titular ? procs.findIndex(p => p.nome === d.titular) : -1;
+      const nucleoTitular2 = idxTit >= 0 ? procs[idxTit].nucleo : null;
 
-        titularAtual = d.titular;
-
-        // força tipo para Juntada
-        const tipoSel = document.getElementById('inp-tipo');
-        for (let i = 0; i < tipoSel.options.length; i++) {
-          if (tipoSel.options[i].text === 'Juntada') { tipoSel.selectedIndex = i; break; }
-        }
-        document.getElementById('fg-motivo').style.display = 'none';
-        // deixa atualizarEtapa decidir se mostra etapa baseado no fluxo
+      function irParaAba(nucleo) {
+        abaAtiva = nucleo;
+        document.querySelectorAll('.aba-btn').forEach(b => {
+          const txt = b.textContent.trim();
+          const ehEste = (nucleo==='EF'&&txt.startsWith('Execução'))||
+                         (nucleo==='Conhecimento'&&txt.startsWith('Conhecimento'))||
+                         (nucleo==='Administrativo'&&txt.startsWith('Administrativo'));
+          ehEste ? b.classList.add('ativa') : b.classList.remove('ativa');
+        });
+        const infos = {
+          EF:'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',
+          Conhecimento:'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',
+          Administrativo:'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.'
+        };
+        document.getElementById('info-nucleo').textContent = infos[nucleo]||'';
+        document.getElementById('info-nucleo').style.display = 'block';
         atualizarEtapa();
+        renderKPIs(nucleo, null);
+        renderOps(nucleo);
+      }
 
-        renderTabela(abaAtiva);
-        if (idx >= 0) selProcIdx(idx);
+      if (ehFluxoEF2) {
+        // EF → sempre aba EF, esteira normal, SEM marcar titular
+        titularAtual = null;
+        irParaAba('EF');
+        renderTabela('EF');
+        const infoTit = d.tem_titular ? ` · Titular original: <strong>${d.titular}</strong>` : ' · Sem titular';
+        box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong>${infoTit} · Segue esteira EF — analistas → próximo da fila`;
 
-        // aviso se titular está em núcleo diferente do fluxo
-        const avisoTransicao = nucleoTitular !== d.nucleo
-          ? ` · <em style="color:#633806">⚠ Titular no grupo ${nucleoTitular} — período de transição</em>`
-          : '';
-        box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Titular: <strong>${d.titular}</strong> · Tipo sugerido: <strong>${d.tipo_sugerido}</strong>${avisoTransicao}`;
+      } else if (d.tem_titular) {
+        // Conhecimento/ADM com titular → vai para aba do titular, marca ele como próximo
+        const abaAlvo = nucleoTitular2 || d.nucleo;
+        titularAtual = d.titular;
+        irParaAba(abaAlvo);
+        document.getElementById('fg-etapa').style.display = 'none';
+        renderTabela(abaAlvo);
+        if (idxTit >= 0) selProcIdx(idxTit);
+        box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Titular: <strong>${d.titular}</strong> · Vai direto ao titular`;
 
       } else {
-        // Sem titular — nova distribuição vai para fila do núcleo do fluxo
+        // Conhecimento/ADM sem titular → fila normal do fluxo
         titularAtual = null;
-        if (d.nucleo !== abaAtiva) {
-          const abaBtns = document.querySelectorAll('.aba-btn');
-          const nomes = ['EF','Conhecimento','Administrativo'];
-          abaBtns.forEach((b,i) => {
-            if (nomes[i] === d.nucleo) { setAba(d.nucleo, b); b.classList.add('ativa'); }
-            else b.classList.remove('ativa');
-          });
-        }
-        renderTabela(abaAtiva);
-        box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Sem titular — nova distribuição · Núcleo: <strong>${d.nucleo}</strong>`;
+        irParaAba(d.nucleo);
+        document.getElementById('fg-etapa').style.display = 'none';
+        renderTabela(d.nucleo);
+        box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Sem titular — próximo da fila ${d.nucleo}`;
       }
     }
   } catch(e) {
