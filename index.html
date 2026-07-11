@@ -749,38 +749,76 @@ async function buscarProcesso() {
         document.getElementById('fg-etapa').style.display = 'none';
 
         if (d.tem_titular) {
-          // tem titular → vai para aba do titular, marca ele como próximo
           const idxTit = procs.findIndex(p => p.nome === d.titular);
-          const nucleoTit = idxTit >= 0 ? procs[idxTit].nucleo : d.nucleo;
+          const procTit = idxTit >= 0 ? procs[idxTit] : null;
+          const nucleoTit = procTit?.nucleo || d.nucleo;
+          const titularIndisponivel = procTit && !procTit.ativo; // férias ou licença
 
-          // força Juntada
-          const selTipo = document.getElementById('inp-tipo');
-          for (let i = 0; i < selTipo.options.length; i++) {
-            if (selTipo.options[i].text === 'Juntada') { selTipo.selectedIndex = i; break; }
-          }
           document.getElementById('fg-motivo').style.display = 'none';
 
-          // vai para aba do titular
-          abaAtiva = nucleoTit;
-          document.querySelectorAll('.aba-btn').forEach(b => {
-            const txt = b.textContent.trim();
-            const ativo = (nucleoTit==='EF'&&txt.startsWith('Execução'))||
-                          (nucleoTit==='Conhecimento'&&txt.startsWith('Conhecimento'))||
-                          (nucleoTit==='Administrativo'&&txt.startsWith('Administrativo'));
-            ativo ? b.classList.add('ativa') : b.classList.remove('ativa');
-          });
-          const infos = {EF:'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',Conhecimento:'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',Administrativo:'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.'};
-          document.getElementById('info-nucleo').textContent = infos[nucleoTit]||'';
-          document.getElementById('info-nucleo').style.display = 'block';
+          if (titularIndisponivel) {
+            // ── TITULAR INDISPONÍVEL (férias/licença) ──────────────
+            // Tramitação temporária → vai para aba do FLUXO do processo
+            // Escolhe próximo da fila do fluxo (não do titular)
+            const abaFluxo = d.nucleo; // nucleo do fluxo (Conhecimento/EF/Adm)
 
-          // marca titular como próximo
-          titularAtual = d.titular;
-          renderKPIs(nucleoTit, null);
-          renderTabela(nucleoTit);
-          renderOps(nucleoTit);
-          if (idxTit >= 0) selProcIdx(idxTit);
+            // força Tramitação temporária
+            const selTipo = document.getElementById('inp-tipo');
+            for (let i = 0; i < selTipo.options.length; i++) {
+              if (selTipo.options[i].text === 'Tramitação temporária') { selTipo.selectedIndex = i; break; }
+            }
 
-          box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Titular: <strong>${d.titular}</strong> · Vai direto ao titular`;
+            titularAtual = null; // não marca ninguém especificamente — fila normal
+            const infos = {EF:'Núcleo Execução Fiscal.',Conhecimento:'Núcleo Conhecimento — processos mais complexos.',Administrativo:'Administrativo — processos tipo PXXXXXXX.'};
+            abaAtiva = abaFluxo;
+            document.querySelectorAll('.aba-btn').forEach(b => {
+              const txt = b.textContent.trim();
+              const ativo = (abaFluxo==='EF'&&txt.startsWith('Execução'))||
+                            (abaFluxo==='Conhecimento'&&txt.startsWith('Conhecimento'))||
+                            (abaFluxo==='Administrativo'&&txt.startsWith('Administrativo'));
+              ativo ? b.classList.add('ativa') : b.classList.remove('ativa');
+            });
+            document.getElementById('info-nucleo').textContent = infos[abaFluxo]||'';
+            document.getElementById('info-nucleo').style.display = 'block';
+            document.getElementById('fg-etapa').style.display = 'none';
+            renderKPIs(abaFluxo, null);
+            renderTabela(abaFluxo);
+            renderOps(abaFluxo);
+
+            const retornoInfo = procTit.retorno ? ` · retorno ${procTit.retorno}` : '';
+            box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
+            box.innerHTML = `⚠ Titular <strong>${d.titular}</strong> está de ${procTit.status}${retornoInfo} · Tipo alterado para <strong>Tramitação temporária</strong> · Escolha quem vai cobrir na fila de ${abaFluxo}`;
+
+          } else {
+            // ── TITULAR DISPONÍVEL ─────────────────────────────────
+            // força Juntada
+            const selTipo = document.getElementById('inp-tipo');
+            for (let i = 0; i < selTipo.options.length; i++) {
+              if (selTipo.options[i].text === 'Juntada') { selTipo.selectedIndex = i; break; }
+            }
+
+            // vai para aba do titular
+            abaAtiva = nucleoTit;
+            document.querySelectorAll('.aba-btn').forEach(b => {
+              const txt = b.textContent.trim();
+              const ativo = (nucleoTit==='EF'&&txt.startsWith('Execução'))||
+                            (nucleoTit==='Conhecimento'&&txt.startsWith('Conhecimento'))||
+                            (nucleoTit==='Administrativo'&&txt.startsWith('Administrativo'));
+              ativo ? b.classList.add('ativa') : b.classList.remove('ativa');
+            });
+            const infos = {EF:'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',Conhecimento:'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',Administrativo:'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.'};
+            document.getElementById('info-nucleo').textContent = infos[nucleoTit]||'';
+            document.getElementById('info-nucleo').style.display = 'block';
+            document.getElementById('fg-etapa').style.display = 'none';
+
+            titularAtual = d.titular;
+            renderKPIs(nucleoTit, null);
+            renderTabela(nucleoTit);
+            renderOps(nucleoTit);
+            if (idxTit >= 0) selProcIdx(idxTit);
+
+            box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Titular: <strong>${d.titular}</strong> · Vai direto ao titular`;
+          }
 
         } else {
           // sem titular → fila normal do fluxo
