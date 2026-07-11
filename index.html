@@ -150,9 +150,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="cb">
       <div style="font-size:14px;font-weight:500;margin-bottom:14px">Quem está distribuindo agora?</div>
       <div class="btn-grid">
-        <button class="bsel" onclick="login('Distribuidor 1')">Distribuidor 1</button>
-        <button class="bsel" onclick="login('Distribuidor 2')">Distribuidor 2</button>
-        <button class="bsel" onclick="login('Distribuidor 3')">Distribuidor 3</button>
+        <button class="bsel" onclick="login('Gerliane Martins')">Gerliane Martins</button>
+        <button class="bsel" onclick="login('Célia Gonçalves')">Célia Gonçalves</button>
+        <button class="bsel" onclick="login('José Erisvaldo')">José Erisvaldo</button>
       </div>
     </div>
   </div>
@@ -499,6 +499,11 @@ function renderOps(nucleo) {
     return p.nucleo === nucleo;
   }).sort((a,b) => {
     if (a.ativo !== b.ativo) return b.ativo - a.ativo;
+    // titular vai para o topo quando for juntada
+    if (titularAtual) {
+      if (a.nome === titularAtual) return -1;
+      if (b.nome === titularAtual) return 1;
+    }
     if (nucleo === 'EF') {
       if (a.nucleo === 'Analista' && b.nucleo !== 'Analista') return -1;
       if (b.nucleo === 'Analista' && a.nucleo !== 'Analista') return 1;
@@ -847,6 +852,7 @@ async function distribuir() {
     document.getElementById('inp-motivo').value = '';
     document.getElementById('fg-motivo').style.display = 'none';
     procSel = null;
+    titularAtual = null;
     document.querySelectorAll('.pop').forEach(e=>e.classList.remove('sel'));
     document.getElementById('btn-dist').disabled = true;
     await carregar();
