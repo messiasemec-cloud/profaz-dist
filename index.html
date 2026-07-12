@@ -798,8 +798,7 @@ async function buscarProcesso() {
             renderTabela('EF');
             renderOps('EF');
             box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
-            const infoTit = d.titular ? ` · Titular original no grupo Conhecimento: <strong>${d.titular}</strong>` : '';
-            box.innerHTML = `✓ Já passou pela triagem · <strong>${d.fluxo}</strong>${infoTit} · Próximo da fila EF`;
+            box.innerHTML = `✓ Já passou pela triagem · <strong>${d.fluxo}</strong> · Procuradores EF no topo`;
           }
 
         } else {
