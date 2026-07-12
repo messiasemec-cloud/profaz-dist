@@ -280,7 +280,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <script>
 const URL_AS = 'https://script.google.com/macros/s/AKfycbzt186mHh_LrKKI1gg5hofoQl_mwj5rRxkgZCjiCIcId2UVDtlbWHwdo05lSU9_hNCP/exec';
-let dist = '', procs = [], procSel = null, abaAtiva = 'EF', med = 0, titularAtual = null;
+let dist = '', procs = [], procSel = null, abaAtiva = 'EF', med = 0, titularAtual = null, posTriagem = false, ultimoAnalista = '';
 
 // ── LOGIN ─────────────────────────────────────────────────────────
 function login(nome) {
@@ -410,10 +410,26 @@ function renderTabela(nucleo) {
     return p.nucleo === nucleo;
   }).sort((a,b) => {
     if (a.ativo !== b.ativo) return b.ativo - a.ativo;
-    // analistas aparecem primeiro na fila EF
+    if (titularAtual) {
+      if (a.nome === titularAtual) return -1;
+      if (b.nome === titularAtual) return 1;
+    }
     if (nucleo === 'EF') {
-      if (a.nucleo === 'Analista' && b.nucleo !== 'Analista') return -1;
-      if (b.nucleo === 'Analista' && a.nucleo !== 'Analista') return 1;
+      const aEhAnalista = a.nucleo === 'Analista';
+      const bEhAnalista = b.nucleo === 'Analista';
+      if (!posTriagem) {
+        // PRÉ-TRIAGEM: analistas primeiro com rodízio
+        if (aEhAnalista && !bEhAnalista) return -1;
+        if (bEhAnalista && !aEhAnalista) return 1;
+        if (aEhAnalista && bEhAnalista) {
+          if (ultimoAnalista === a.nome) return 1;
+          if (ultimoAnalista === b.nome) return -1;
+        }
+      } else {
+        // PÓS-TRIAGEM: procuradores EF primeiro, analistas depois
+        if (!aEhAnalista && bEhAnalista) return -1;
+        if (aEhAnalista && !bEhAnalista) return 1;
+      }
     }
     return a.acervo - b.acervo;
   });
@@ -499,14 +515,26 @@ function renderOps(nucleo) {
     return p.nucleo === nucleo;
   }).sort((a,b) => {
     if (a.ativo !== b.ativo) return b.ativo - a.ativo;
-    // titular vai para o topo quando for juntada
     if (titularAtual) {
       if (a.nome === titularAtual) return -1;
       if (b.nome === titularAtual) return 1;
     }
     if (nucleo === 'EF') {
-      if (a.nucleo === 'Analista' && b.nucleo !== 'Analista') return -1;
-      if (b.nucleo === 'Analista' && a.nucleo !== 'Analista') return 1;
+      const aEhAnalista = a.nucleo === 'Analista';
+      const bEhAnalista = b.nucleo === 'Analista';
+      if (!posTriagem) {
+        // PRÉ-TRIAGEM: analistas primeiro com rodízio
+        if (aEhAnalista && !bEhAnalista) return -1;
+        if (bEhAnalista && !aEhAnalista) return 1;
+        if (aEhAnalista && bEhAnalista) {
+          if (ultimoAnalista === a.nome) return 1;
+          if (ultimoAnalista === b.nome) return -1;
+        }
+      } else {
+        // PÓS-TRIAGEM: procuradores EF primeiro, analistas depois
+        if (!aEhAnalista && bEhAnalista) return -1;
+        if (aEhAnalista && !bEhAnalista) return 1;
+      }
     }
     return a.acervo - b.acervo;
   });
@@ -733,6 +761,7 @@ async function buscarProcesso() {
 
         if (d.em_triagem) {
           // ── JÁ PASSOU PELA TRIAGEM — define destino final ──────
+          posTriagem = true; // analistas não aparecem como opção
           // força etapa titular
           const selEtapa = document.getElementById('inp-etapa');
           for (let i = 0; i < selEtapa.options.length; i++) {
@@ -741,9 +770,11 @@ async function buscarProcesso() {
           document.getElementById('fg-etapa').style.display = 'flex';
 
           if (d.tem_titular && titEFnoGrupoEF && titEFDisponivel) {
-            // titular do grupo EF disponível → vai para ele
+            // titular do grupo EF disponível → vai para ele (excluindo analistas)
             titularAtual = d.titular;
+            posTriagem = true;
             renderTabela('EF');
+            renderOps('EF');
             if (idxTitEF >= 0) selProcIdx(idxTitEF);
             box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
             box.innerHTML = `✓ Já passou pela triagem · <strong>${d.fluxo}</strong> · Volta para titular: <strong>${d.titular}</strong>`;
@@ -761,15 +792,19 @@ async function buscarProcesso() {
             box.innerHTML = `⚠ Já passou pela triagem · Titular <strong>${d.titular}</strong> de ${procTitEF.status}${ret} · Tramitação temporária → próximo da fila EF`;
 
           } else {
-            // titular no grupo Conhecimento → próximo da fila dos 5 EF (definitivo)
+            // titular no grupo Conhecimento ou sem titular → próximo da fila dos 5 EF
             titularAtual = null;
+            posTriagem = true;
             renderTabela('EF');
+            renderOps('EF');
             box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
-            box.innerHTML = `✓ Já passou pela triagem · <strong>${d.fluxo}</strong> · Titular original: <strong>${d.titular || 'nenhum'}</strong> · Próximo da fila EF`;
+            const infoTit = d.titular ? ` · Titular original no grupo Conhecimento: <strong>${d.titular}</strong>` : '';
+            box.innerHTML = `✓ Já passou pela triagem · <strong>${d.fluxo}</strong>${infoTit} · Próximo da fila EF`;
           }
 
         } else {
           // ── NOVA COMUNICAÇÃO — vai para analistas ──────────────
+          posTriagem = false;
           const selEtapa = document.getElementById('inp-etapa');
           for (let i = 0; i < selEtapa.options.length; i++) {
             if (selEtapa.options[i].value === 'triagem') { selEtapa.selectedIndex = i; break; }
@@ -897,9 +932,11 @@ async function buscarProcesso() {
 function limparBusca() {
   const box = document.getElementById('resultado-busca');
   box.style.display = 'none';
-  if (titularAtual) {
+  if (titularAtual || posTriagem) {
     titularAtual = null;
+    posTriagem = false;
     renderTabela(abaAtiva);
+    renderOps(abaAtiva);
   }
 }
 
@@ -934,6 +971,7 @@ async function distribuir() {
     document.getElementById('fg-motivo').style.display = 'none';
     procSel = null;
     titularAtual = null;
+    posTriagem = false;
     document.querySelectorAll('.pop').forEach(e=>e.classList.remove('sel'));
     document.getElementById('btn-dist').disabled = true;
     await carregar();
