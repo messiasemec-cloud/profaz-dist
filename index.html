@@ -165,6 +165,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <span id="atxt">Carregando...</span>
     </div>
 
+
+
+    <!-- KPIs do núcleo ativo -->
+    <div class="kpi-row" id="kpi-row">
+      <div class="kpi"><div class="klabel">Total acervo</div><div class="kval" id="k-total">—</div></div>
+      <div class="kpi"><div class="klabel">Média</div><div class="kval" id="k-media">—</div></div>
+      <div class="kpi"><div class="klabel">Maior acervo</div><div class="kval" id="k-max">—</div><div class="ksub" id="k-max-n"></div></div>
+      <div class="kpi"><div class="klabel">Menor acervo</div><div class="kval" id="k-min">—</div><div class="ksub" id="k-min-n"></div></div>
+    </div>
+
+    <!-- BLOCO FIXO: ACERVO GERAL POR NÚCLEO -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="ch">
+        <div>
+          <div class="cht">Acervo por procurador</div>
+          <div class="chs">Todos os núcleos — atualizado a cada carregamento</div>
+        </div>
+        <button class="bsm" onclick="carregar()">↻ Atualizar</button>
+      </div>
+      <div id="lista-acervo"><div class="loading"><span class="spin"></span>Carregando...</div></div>
+    </div>
+
+
     <!-- ABAS DE NÚCLEO -->
     <div class="abas">
       <button class="aba-btn ativa" onclick="setAba('EF',this)">
@@ -178,32 +201,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </button>
     </div>
 
-    <!-- KPIs do núcleo ativo -->
-    <div class="kpi-row" id="kpi-row">
-      <div class="kpi"><div class="klabel">Total acervo</div><div class="kval" id="k-total">—</div></div>
-      <div class="kpi"><div class="klabel">Média</div><div class="kval" id="k-media">—</div></div>
-      <div class="kpi"><div class="klabel">Maior acervo</div><div class="kval" id="k-max">—</div><div class="ksub" id="k-max-n"></div></div>
-      <div class="kpi"><div class="klabel">Menor acervo</div><div class="kval" id="k-min">—</div><div class="ksub" id="k-min-n"></div></div>
-    </div>
-
-    <!-- BLOCO 1: ACERVO DO NÚCLEO -->
+    <!-- ABAS + FILA DE DISTRIBUIÇÃO -->
     <div class="card">
       <div class="ch">
         <div>
-          <div class="cht" id="tabela-titulo">Acervo por procurador</div>
-          <div class="chs">Visão geral do núcleo — ordenado do menor para o maior</div>
-        </div>
-        <button class="bsm" onclick="carregar()">↻ Atualizar</button>
-      </div>
-      <div id="lista-acervo"><div class="loading"><span class="spin"></span>Carregando...</div></div>
-    </div>
-
-    <!-- BLOCO 2: FILA DE DISTRIBUIÇÃO -->
-    <div class="card">
-      <div class="ch">
-        <div>
-          <div class="cht">Fila de distribuição</div>
-          <div class="chs">Próximo a receber está no topo — dinâmica por fluxo e triagem</div>
+          <div class="cht" id="tabela-titulo">Fila de distribuição</div>
+          <div class="chs">Próximo a receber está no topo</div>
         </div>
       </div>
       <div id="lista"><div class="loading"><span class="spin"></span>Carregando...</div></div>
@@ -352,7 +355,7 @@ function setAba(nucleo, btn) {
 
 function renderAba(nucleo, d) {
   renderKPIs(nucleo, d);
-  renderAcervo(nucleo);
+  renderAcervo();
   renderTabela(nucleo);
   renderOps(nucleo);
   // info box
@@ -369,7 +372,7 @@ function renderAba(nucleo, d) {
 
 function renderAbaDados(nucleo) {
   renderKPIs(nucleo, null);
-  renderAcervo(nucleo);
+  renderAcervo();
   renderTabela(nucleo);
   renderOps(nucleo);
 }
@@ -417,41 +420,36 @@ function renderKPIs(nucleo, d) {
   document.getElementById('tabela-titulo').textContent = 'Acervo — Núcleo ' + (nucleo === 'EF' ? 'Execução Fiscal' : nucleo);
 }
 
-function renderAcervo(nucleo) {
-  // Bloco 1: todos os proc do núcleo ordenados por acervo (visão geral)
-  const lista = procs.filter(p => {
-    if (nucleo === 'EF') return p.nucleo === 'EF' || p.nucleo === 'Analista';
-    return p.nucleo === nucleo;
-  }).sort((a,b) => {
-    if (a.ativo !== b.ativo) return b.ativo - a.ativo;
-    return a.acervo - b.acervo;
-  });
-
-  const maxAc = lista.length ? Math.max(...lista.map(p=>p.acervo)) || 1 : 1;
-  const ativos = lista.filter(p => p.ativo);
-  const cols = nucleo === 'EF'
-    ? '1fr 70px 80px 80px 90px 110px'
-    : '1fr 70px 80px 90px 110px';
-
-  const thEF = `<div class="th" style="grid-template-columns:${{cols}}">
-    <span>Procurador(a)</span><span>Acervo</span><span>Semana</span><span>Mês</span><span>Situação</span><span style="text-align:left">Status</span>
-  </div>`;
-  const thOther = `<div class="th" style="grid-template-columns:${{cols}}">
+function renderAcervo() {
+  // Bloco fixo: todos os procuradores separados por núcleo
+  const cols = '1fr 70px 80px 90px 110px';
+  const th = `<div class="th" style="grid-template-columns:${{cols}}">
     <span>Procurador(a)</span><span>Acervo</span><span>Semana</span><span>Situação</span><span style="text-align:left">Status</span>
   </div>`;
 
-  let html = nucleo === 'EF' ? thEF : thOther;
+  const grupos = [
+    {id:'EF', label:'▸ Execução Fiscal', cor:'#0a8a7a'},
+    {id:'Conhecimento', label:'▸ Conhecimento', cor:'#1a3a5c'},
+    {id:'Administrativo', label:'▸ Administrativo', cor:'#4a3aa7'},
+  ];
 
-  if (nucleo === 'EF') {
-    const analistas = lista.filter(p => p.nucleo === 'Analista');
-    const procEF    = lista.filter(p => p.nucleo === 'EF');
-    if (analistas.length) {
-      html += `<div class="sep-analistas">▸ Analistas — triagem (etapa 1)</div>`;
-      html += analistas.map((p,i) => renderRow(p, i, cols, maxAc, ativos, med)).join('');
-      html += `<div class="sep-analistas" style="background:#f8f7f5;border-left-color:#1a3a5c;color:#1a3a5c">▸ Procuradores EF — titular (etapa 2)</div>`;
+  let html = th;
+
+  for (const g of grupos) {
+    let lista;
+    if (g.id === 'EF') {
+      const analistas = procs.filter(p=>p.nucleo==='Analista').sort((a,b)=>a.ativo!==b.ativo?b.ativo-a.ativo:a.acervo-b.acervo);
+      const procEF    = procs.filter(p=>p.nucleo==='EF').sort((a,b)=>a.ativo!==b.ativo?b.ativo-a.ativo:a.acervo-b.acervo);
+      lista = analistas.concat(procEF);
+    } else {
+      lista = procs.filter(p=>p.nucleo===g.id).sort((a,b)=>a.ativo!==b.ativo?b.ativo-a.ativo:a.acervo-b.acervo);
     }
-    html += procEF.map((p,i) => renderRow(p, i + (lista.filter(p=>p.nucleo==='Analista').length), cols, maxAc, ativos, med)).join('');
-  } else {
+    if (!lista.length) continue;
+
+    const maxAc = Math.max(...lista.map(p=>p.acervo)) || 1;
+    const ativos = lista.filter(p=>p.ativo);
+
+    html += `<div class="sep-analistas" style="background:#f8f7f5;border-left:3px solid ${{g.cor}};color:${{g.cor}}">${{g.label}}</div>`;
     html += lista.map((p,i) => renderRow(p, i, cols, maxAc, ativos, med)).join('');
   }
 
@@ -528,7 +526,7 @@ function renderRow(p, i, cols, maxAc, ativos, media) {
   const pct   = Math.round(p.acervo / maxAc * 100);
   const ratio = media > 0 ? p.acervo / media : 1;
   const cor   = cor7(p.nome);
-  const isPrimeiroAtivo = p.ativo && ativos[0]?.nome === p.nome;
+  const isPrimeiroAtivo = p.ativo && ativos.length > 0 && ativos[0].nome === p.nome;
 
   let badge, bcls;
   const isTitular = titularAtual && p.nome === titularAtual;
@@ -605,7 +603,7 @@ function renderOps(nucleo) {
         <span class="badge ${scls}" style="margin-top:3px;font-size:10px">${p.status}${ret}</span>
       </div>`;
     }
-    const iFirst = ativosNucleo[0]?.nome === p.nome;
+    const iFirst = ativosNucleo.length > 0 && ativosNucleo[0].nome === p.nome;
     const ratio  = med > 0 ? p.acervo / med : 1;
     let bcls = 'bok', btxt = 'OK';
     if (iFirst)           { bcls = 'bprox'; btxt = '← próximo'; }
@@ -647,7 +645,7 @@ function abrirMenuStatus(idx, btn) {
   setTimeout(() => document.addEventListener('click', () => fecharMenu(menu), {once:true}), 0);
 }
 
-function fecharMenu(menu) { if (menu?.parentNode) menu.remove(); }
+function fecharMenu(menu) { if (menu && menu.parentNode) menu.remove(); }
 
 function modalFerias(idx) {
   const p = procs[idx];
@@ -882,7 +880,7 @@ async function buscarProcesso() {
         if (d.tem_titular) {
           const idxTit = procs.findIndex(p => p.nome === d.titular);
           const procTit = idxTit >= 0 ? procs[idxTit] : null;
-          const nucleoTit = procTit?.nucleo || d.nucleo;
+          const nucleoTit = (procTit && procTit.nucleo) || d.nucleo;
           const titularIndisponivel = procTit && !procTit.ativo; // férias ou licença
 
           document.getElementById('fg-motivo').style.display = 'none';
