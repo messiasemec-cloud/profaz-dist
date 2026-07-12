@@ -423,7 +423,7 @@ function renderKPIs(nucleo, d) {
 function renderAcervo() {
   // Bloco fixo: todos os procuradores separados por núcleo
   const cols = '1fr 70px 80px 90px 110px';
-  const th = `<div class="th" style="grid-template-columns:${{cols}}">
+  const th = `<div class="th" style="grid-template-columns:'+cols+'">
     <span>Procurador(a)</span><span>Acervo</span><span>Semana</span><span>Situação</span><span style="text-align:left">Status</span>
   </div>`;
 
@@ -449,7 +449,7 @@ function renderAcervo() {
     const maxAc = Math.max(...lista.map(p=>p.acervo)) || 1;
     const ativos = lista.filter(p=>p.ativo);
 
-    html += `<div class="sep-analistas" style="background:#f8f7f5;border-left:3px solid ${{g.cor}};color:${{g.cor}}">${{g.label}}</div>`;
+    html += `<div class="sep-analistas" style="background:#f8f7f5;border-left:3px solid '+g.cor+';color:'+g.cor+'">'+g.label+'</div>`;
     html += lista.map((p,i) => renderRow(p, i, cols, maxAc, ativos, med)).join('');
   }
 
