@@ -186,14 +186,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="kpi"><div class="klabel">Menor acervo</div><div class="kval" id="k-min">—</div><div class="ksub" id="k-min-n"></div></div>
     </div>
 
-    <!-- TABELA -->
+    <!-- BLOCO 1: ACERVO DO NÚCLEO -->
     <div class="card">
       <div class="ch">
         <div>
           <div class="cht" id="tabela-titulo">Acervo por procurador</div>
-          <div class="chs">Ordenado do menor para o maior — próximo a receber está no topo</div>
+          <div class="chs">Visão geral do núcleo — ordenado do menor para o maior</div>
         </div>
         <button class="bsm" onclick="carregar()">↻ Atualizar</button>
+      </div>
+      <div id="lista-acervo"><div class="loading"><span class="spin"></span>Carregando...</div></div>
+    </div>
+
+    <!-- BLOCO 2: FILA DE DISTRIBUIÇÃO -->
+    <div class="card">
+      <div class="ch">
+        <div>
+          <div class="cht">Fila de distribuição</div>
+          <div class="chs">Próximo a receber está no topo — dinâmica por fluxo e triagem</div>
+        </div>
       </div>
       <div id="lista"><div class="loading"><span class="spin"></span>Carregando...</div></div>
     </div>
@@ -341,6 +352,7 @@ function setAba(nucleo, btn) {
 
 function renderAba(nucleo, d) {
   renderKPIs(nucleo, d);
+  renderAcervo(nucleo);
   renderTabela(nucleo);
   renderOps(nucleo);
   // info box
@@ -357,6 +369,7 @@ function renderAba(nucleo, d) {
 
 function renderAbaDados(nucleo) {
   renderKPIs(nucleo, null);
+  renderAcervo(nucleo);
   renderTabela(nucleo);
   renderOps(nucleo);
 }
@@ -402,6 +415,47 @@ function renderKPIs(nucleo, d) {
   document.getElementById('k-max-n').textContent = pMax ? pMax.nome.split(' ')[0] : '';
   document.getElementById('k-min-n').textContent = pMin ? pMin.nome.split(' ')[0] : '';
   document.getElementById('tabela-titulo').textContent = 'Acervo — Núcleo ' + (nucleo === 'EF' ? 'Execução Fiscal' : nucleo);
+}
+
+function renderAcervo(nucleo) {
+  // Bloco 1: todos os proc do núcleo ordenados por acervo (visão geral)
+  const lista = procs.filter(p => {
+    if (nucleo === 'EF') return p.nucleo === 'EF' || p.nucleo === 'Analista';
+    return p.nucleo === nucleo;
+  }).sort((a,b) => {
+    if (a.ativo !== b.ativo) return b.ativo - a.ativo;
+    return a.acervo - b.acervo;
+  });
+
+  const maxAc = lista.length ? Math.max(...lista.map(p=>p.acervo)) || 1 : 1;
+  const ativos = lista.filter(p => p.ativo);
+  const cols = nucleo === 'EF'
+    ? '1fr 70px 80px 80px 90px 110px'
+    : '1fr 70px 80px 90px 110px';
+
+  const thEF = `<div class="th" style="grid-template-columns:${{cols}}">
+    <span>Procurador(a)</span><span>Acervo</span><span>Semana</span><span>Mês</span><span>Situação</span><span style="text-align:left">Status</span>
+  </div>`;
+  const thOther = `<div class="th" style="grid-template-columns:${{cols}}">
+    <span>Procurador(a)</span><span>Acervo</span><span>Semana</span><span>Situação</span><span style="text-align:left">Status</span>
+  </div>`;
+
+  let html = nucleo === 'EF' ? thEF : thOther;
+
+  if (nucleo === 'EF') {
+    const analistas = lista.filter(p => p.nucleo === 'Analista');
+    const procEF    = lista.filter(p => p.nucleo === 'EF');
+    if (analistas.length) {
+      html += `<div class="sep-analistas">▸ Analistas — triagem (etapa 1)</div>`;
+      html += analistas.map((p,i) => renderRow(p, i, cols, maxAc, ativos, med)).join('');
+      html += `<div class="sep-analistas" style="background:#f8f7f5;border-left-color:#1a3a5c;color:#1a3a5c">▸ Procuradores EF — titular (etapa 2)</div>`;
+    }
+    html += procEF.map((p,i) => renderRow(p, i + (lista.filter(p=>p.nucleo==='Analista').length), cols, maxAc, ativos, med)).join('');
+  } else {
+    html += lista.map((p,i) => renderRow(p, i, cols, maxAc, ativos, med)).join('');
+  }
+
+  document.getElementById('lista-acervo').innerHTML = html;
 }
 
 function renderTabela(nucleo) {
