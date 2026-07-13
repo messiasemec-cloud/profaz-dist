@@ -412,6 +412,7 @@ function renderKPIs(nucleo, d) {
 
 function renderAcervo() {
   // Bloco fixo: todos os procuradores separados por núcleo
+  if (!procs.length) return; // aguarda dados carregarem
   const cols = '1fr 70px 80px 90px 110px';
   const th = `<div class="th" style="grid-template-columns:'+cols+'">
     <span>Procurador(a)</span><span>Acervo</span><span>Semana</span><span>Situação</span><span style="text-align:left">Status</span>
@@ -423,7 +424,7 @@ function renderAcervo() {
     {id:'Administrativo', label:'▸ Administrativo', cor:'#4a3aa7'},
   ];
 
-  let html = th;
+  let html = '';
 
   for (const g of grupos) {
     let lista;
