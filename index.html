@@ -401,13 +401,13 @@ function renderKPIs(nucleo, d) {
   const pMax = lista.find(p => p.acervo === mx);
   const pMin = lista.find(p => p.acervo === mn);
 
-  document.getElementById('k-total').textContent = total.toLocaleString('pt-BR');
-  document.getElementById('k-media').textContent = med;
-  document.getElementById('k-max').textContent = mx;
-  document.getElementById('k-min').textContent = mn;
-  document.getElementById('k-max-n').textContent = pMax ? pMax.nome.split(' ')[0] : '';
-  document.getElementById('k-min-n').textContent = pMin ? pMin.nome.split(' ')[0] : '';
-  document.getElementById('tabela-titulo').textContent = 'Acervo — Núcleo ' + (nucleo === 'EF' ? 'Execução Fiscal' : nucleo);
+  const _kt = document.getElementById('k-total'); if(_kt) _kt.textContent = total.toLocaleString('pt-BR');
+  const _km = document.getElementById('k-media'); if(_km) _km.textContent = med;
+  const _kmx = document.getElementById('k-max'); if(_kmx) _kmx.textContent = mx;
+  const _kmn = document.getElementById('k-min'); if(_kmn) _kmn.textContent = mn;
+  const _kmxn = document.getElementById('k-max-n'); if(_kmxn) _kmxn.textContent = pMax ? pMax.nome.split(' ')[0] : '';
+  const _kmnn = document.getElementById('k-min-n'); if(_kmnn) _kmnn.textContent = pMin ? pMin.nome.split(' ')[0] : '';
+  // tabela-titulo removido
 }
 
 function renderAcervo() {
