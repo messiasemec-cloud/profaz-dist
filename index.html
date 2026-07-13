@@ -299,7 +299,7 @@ function login(nome) {
 
 // ── CARREGAR ──────────────────────────────────────────────────────
 async function carregar() {
-  document.getElementById('lista').innerHTML = '<div class="loading"><span class="spin"></span>Carregando...</div>';
+  // #lista não é mais exibido
   try {
     const r = await fetch(URL_AS + '?acao=dashboard');
     const d = await r.json();
@@ -309,7 +309,7 @@ async function carregar() {
     renderAba(abaAtiva, d);
     renderAlerta(d);
   } catch(e) {
-    document.getElementById('lista').innerHTML = '<div class="loading">Erro: ' + e.message + '</div>';
+    document.getElementById('lista-acervo').innerHTML = '<div class="loading">Erro: ' + e.message + '</div>';
   }
 }
 
@@ -348,7 +348,6 @@ function setAba(nucleo, btn) {
 function renderAba(nucleo, d) {
   renderKPIs(nucleo, d);
   renderAcervo();
-  renderTabela(nucleo);
   renderOps(nucleo);
   // info box
   const infos = {
@@ -365,7 +364,6 @@ function renderAba(nucleo, d) {
 function renderAbaDados(nucleo) {
   renderKPIs(nucleo, null);
   renderAcervo();
-  renderTabela(nucleo);
   renderOps(nucleo);
 }
 
@@ -817,8 +815,7 @@ async function buscarProcesso() {
             // titular do grupo EF disponível → vai para ele (excluindo analistas)
             titularAtual = d.titular;
             posTriagem = true;
-            renderTabela('EF');
-            renderOps('EF');
+                      renderOps('EF');
             if (idxTitEF >= 0) selProcIdx(idxTitEF);
             box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
             box.innerHTML = `✓ Já passou pela triagem · <strong>${d.fluxo}</strong> · Volta para titular: <strong>${d.titular}</strong>`;
@@ -830,8 +827,7 @@ async function buscarProcesso() {
             for (let i = 0; i < selTipo.options.length; i++) {
               if (selTipo.options[i].text === 'Tramitação temporária') { selTipo.selectedIndex = i; break; }
             }
-            renderTabela('EF');
-            const ret = procTitEF.retorno ? ` · retorno ${procTitEF.retorno}` : '';
+                      const ret = procTitEF.retorno ? ` · retorno ${procTitEF.retorno}` : '';
             box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
             box.innerHTML = `⚠ Já passou pela triagem · Titular <strong>${d.titular}</strong> de ${procTitEF.status}${ret} · Tramitação temporária → próximo da fila EF`;
 
@@ -839,8 +835,7 @@ async function buscarProcesso() {
             // titular no grupo Conhecimento ou sem titular → próximo da fila dos 5 EF
             titularAtual = null;
             posTriagem = true;
-            renderTabela('EF');
-            renderOps('EF');
+                      renderOps('EF');
             box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
             box.innerHTML = `✓ Já passou pela triagem · <strong>${d.fluxo}</strong> · Procuradores EF no topo`;
           }
@@ -854,8 +849,7 @@ async function buscarProcesso() {
           }
           document.getElementById('fg-etapa').style.display = 'flex';
           atualizarEtapa();
-          renderTabela('EF');
-
+        
           const infoTit = d.tem_titular ? ` · Titular: <strong>${d.titular}</strong>` : ' · Sem titular';
           const aviso = procTitEF && !titEFDisponivel
             ? ` · <em style="color:#1a3a5c">ℹ Titular de ${procTitEF.status}${procTitEF.retorno ? ' · retorno '+procTitEF.retorno : ''}</em>`
@@ -903,8 +897,7 @@ async function buscarProcesso() {
             document.getElementById('info-nucleo').style.display = 'block';
             document.getElementById('fg-etapa').style.display = 'none';
             renderKPIs(abaFluxo, null);
-            renderTabela(abaFluxo);
-            renderOps(abaFluxo);
+                      renderOps(abaFluxo);
 
             const retornoInfo = procTit.retorno ? ` · retorno ${procTit.retorno}` : '';
             box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
@@ -934,7 +927,6 @@ async function buscarProcesso() {
 
             titularAtual = d.titular;
             renderKPIs(nucleoTit, null);
-            renderTabela(nucleoTit);
             renderOps(nucleoTit);
             if (idxTit >= 0) selProcIdx(idxTit);
 
@@ -958,8 +950,7 @@ async function buscarProcesso() {
             ativo ? b.classList.add('ativa') : b.classList.remove('ativa');
           });
           renderKPIs(d.nucleo, null);
-          renderTabela(d.nucleo);
-          renderOps(d.nucleo);
+                  renderOps(d.nucleo);
 
           box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Sem titular — próximo da fila ${d.nucleo}`;
         }
@@ -978,8 +969,7 @@ function limparBusca() {
   if (titularAtual || posTriagem) {
     titularAtual = null;
     posTriagem = false;
-    renderTabela(abaAtiva);
-    renderOps(abaAtiva);
+      renderOps(abaAtiva);
   }
 }
 
