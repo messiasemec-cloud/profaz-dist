@@ -417,18 +417,13 @@ function renderKPIs(nucleo, d) {
 }
 
 function renderAcervo() {
-  // Bloco fixo: todos os procuradores separados por núcleo
-  if (!procs.length) return; // aguarda dados carregarem
-  const cols = '1fr 70px 80px 90px 110px';
-  const th = `<div class="th" style="grid-template-columns:'+cols+'">
-    <span>Procurador(a)</span><span>Acervo</span><span>Semana</span><span>Situação</span><span style="text-align:left">Status</span>
-  </div>`;
+  if (!procs.length) return;
 
   const grupos = [
-    {id:'EF', label:'▸ Execução Fiscal', cor:'#0a8a7a'},
-    {id:'Conhecimento', label:'▸ Conhecimento', cor:'#1a3a5c'},
-    {id:'Administrativo', label:'▸ Administrativo', cor:'#4a3aa7'},
-    {id:'PTAC', label:'▸ PTAC', cor:'#c45c00'},
+    {id:'EF',             label:'Execução Fiscal', cor:'#0a8a7a', temCard:true},
+    {id:'Conhecimento',   label:'Conhecimento',     cor:'#1a3a5c', temCard:true},
+    {id:'Administrativo', label:'Administrativo',   cor:'#4a3aa7', temCard:false},
+    {id:'PTAC',           label:'PTAC',             cor:'#c45c00', temCard:false},
   ];
 
   let html = '';
@@ -444,11 +439,43 @@ function renderAcervo() {
     }
     if (!lista.length) continue;
 
-    const maxAc = Math.max(...lista.map(p=>p.acervo)) || 1;
-    const ativos = lista.filter(p=>p.ativo);
+    const ativos = lista.filter(p=>p.ativo && p.nucleo!=='Analista');
+    const vals   = ativos.map(p=>p.acervo);
+    const total  = vals.reduce((s,v)=>s+v,0);
+    const media  = vals.length ? Math.round(total/vals.length) : 0;
+    const mx     = vals.length ? Math.max(...vals) : 0;
+    const mn     = vals.length ? Math.min(...vals) : 0;
+    const diff   = mx - mn;
+    const pMax   = ativos.find(p=>p.acervo===mx);
+    const pMin   = ativos.find(p=>p.acervo===mn);
 
-    html += '<div class="sep-analistas" style="background:#f8f7f5;border-left:3px solid ' + g.cor + ';color:' + g.cor + '">' + g.label + '</div>';
-    html += lista.map((p,i) => renderRow(p, i, cols, maxAc, ativos, med)).join('');
+    // separador do grupo
+    html += '<div class="sep-analistas" style="background:#f8f7f5;border-left:3px solid ' + g.cor + ';color:' + g.cor + ';font-size:13px;padding:9px 16px;font-weight:600">▸ ' + g.label + '</div>';
+
+    // alerta de desequilíbrio (só para grupos com card)
+    if (g.temCard && vals.length > 1) {
+      var alertCor, alertBg, alertBorder, alertDot;
+      if (diff <= 30)      { alertBg='#e1f5ee'; alertBorder='#9FE1CB'; alertCor='#085041'; alertDot='#1baf7a'; }
+      else if (diff <= 80) { alertBg='#faeeda'; alertBorder='#FAC775'; alertCor='#633806'; alertDot='#eda100'; }
+      else                 { alertBg='#fcebeb'; alertBorder='#F09595'; alertCor='#791f1f'; alertDot='#e34948'; }
+
+      html += '<div style="margin:8px 16px;padding:10px 14px;background:' + alertBg + ';border:0.5px solid ' + alertBorder + ';border-radius:8px;font-size:13px;color:' + alertCor + ';display:flex;align-items:center;gap:10px">';
+      html += '<div style="width:8px;height:8px;border-radius:50%;background:' + alertDot + ';flex-shrink:0"></div>';
+      html += '<span>Acervo ' + (diff<=30?'equilibrado':'desequilibrado') + ' — diferença de <strong>' + diff + '</strong> processos entre o maior (' + (pMax?pMax.nome.split(' ')[0]:'') + ', ' + mx + ') e o menor (' + (pMin?pMin.nome.split(' ')[0]:'') + ', ' + mn + ')</span></div>';
+
+      // mini KPIs
+      html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 16px 8px">';
+      html += '<div style="background:#f8f7f5;border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:#898781;text-transform:uppercase;letter-spacing:.04em">Total acervo</div><div style="font-size:20px;font-weight:500;color:#1a3a5c">' + total + '</div></div>';
+      html += '<div style="background:#f8f7f5;border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:#898781;text-transform:uppercase;letter-spacing:.04em">Média</div><div style="font-size:20px;font-weight:500;color:#1a3a5c">' + media + '</div></div>';
+      html += '<div style="background:#f8f7f5;border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:#898781;text-transform:uppercase;letter-spacing:.04em">Maior acervo</div><div style="font-size:20px;font-weight:500;color:#1a3a5c">' + mx + '</div><div style="font-size:11px;color:#898781">' + (pMax?pMax.nome.split(' ')[0]:'') + '</div></div>';
+      html += '<div style="background:#f8f7f5;border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:#898781;text-transform:uppercase;letter-spacing:.04em">Menor acervo</div><div style="font-size:20px;font-weight:500;color:#1a3a5c">' + mn + '</div><div style="font-size:11px;color:#898781">' + (pMin?pMin.nome.split(' ')[0]:'') + '</div></div>';
+      html += '</div>';
+    }
+
+    // linhas dos procuradores
+    const maxAc = Math.max(...lista.map(p=>p.acervo)) || 1;
+    const cols = '1fr 70px 80px 90px 110px';
+    html += lista.map(function(p,i) { return renderRow(p, i, cols, maxAc, ativos, media); }).join('');
   }
 
   document.getElementById('lista-acervo').innerHTML = html;
