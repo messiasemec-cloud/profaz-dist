@@ -915,7 +915,7 @@ async function buscarProcesso() {
           for(var i=0;i<selR.options.length;i++){if(selR.options[i].text==='Redistribuição'){selR.selectedIndex=i;break;}}
           renderKPIs(d.nucleo,null); renderOps(d.nucleo);
           box.style.cssText='display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
-          box.innerHTML='⚠ Processo de <strong>'+d.fluxo+'</strong> · Titular <strong>'+d.titular+'</strong> está no grupo '+_nucleoCheck+' · Redistribuindo para grupo <strong>'+d.nucleo+'</strong>';
+          box.innerHTML='⚠ <strong>'+d.fluxo+'</strong> · Titular <strong>'+d.titular+'</strong> está no grupo '+_nucleoCheck+' · Redistribuindo para grupo <strong>'+d.nucleo+'</strong>';
         } else if (d.tem_titular) {
           const idxTit = procs.findIndex(p => p.nome === d.titular);
           const procTit = idxTit >= 0 ? procs[idxTit] : null;
