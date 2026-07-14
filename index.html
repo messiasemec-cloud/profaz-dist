@@ -199,6 +199,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="aba-btn" onclick="setAba('Administrativo',this)">
         Administrativo <span class="aba-badge" id="badge-Administrativo">0</span>
       </button>
+      <button class="aba-btn" onclick="setAba('PTAC',this)">
+        PTAC <span class="aba-badge" id="badge-PTAC">0</span>
+      </button>
     </div>
 
     <!-- ABAS + FILA DE DISTRIBUIÇÃO (sem tabela de acervo) -->
@@ -314,8 +317,9 @@ async function carregar() {
 }
 
 function atualizarBadges(d) {
-  ['EF','Conhecimento','Administrativo'].forEach(n => {
+  ['EF','Conhecimento','Administrativo','PTAC'].forEach(n => {
     const ativos = d.procuradores.filter(p => p.nucleo === n || (n === 'EF' && p.nucleo === 'Analista'));
+    // PTAC badge
     document.getElementById('badge-' + n).textContent = ativos.length;
   });
 }
@@ -328,7 +332,8 @@ function setAba(nucleo, btn) {
   const infos = {
     EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',
     Conhecimento: 'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',
-    Administrativo: 'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.'
+    Administrativo: 'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.',
+    PTAC: 'PTAC — Projeto especial. Titular: Raimundo Gomes de Almeida Neto.'
   };
   const info = document.getElementById('info-nucleo');
   info.textContent = infos[nucleo] || '';
@@ -353,7 +358,8 @@ function renderAba(nucleo, d) {
   const infos = {
     EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',
     Conhecimento: 'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',
-    Administrativo: 'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.'
+    Administrativo: 'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.',
+    PTAC: 'PTAC — Projeto especial. Titular: Raimundo Gomes de Almeida Neto.'
   };
   const info = document.getElementById('info-nucleo');
   info.textContent = infos[nucleo] || '';
@@ -422,6 +428,7 @@ function renderAcervo() {
     {id:'EF', label:'▸ Execução Fiscal', cor:'#0a8a7a'},
     {id:'Conhecimento', label:'▸ Conhecimento', cor:'#1a3a5c'},
     {id:'Administrativo', label:'▸ Administrativo', cor:'#4a3aa7'},
+    {id:'PTAC', label:'▸ PTAC', cor:'#c45c00'},
   ];
 
   let html = '';
