@@ -556,7 +556,7 @@ function renderRow(p, i, cols, maxAc, ativos, media) {
   let badge, bcls;
   const isTitular = titularAtual && p.nome === titularAtual;
   if (!p.ativo) {
-    const ret = p.retorno ? ' · ' + fmtData(p.retorno) : '';
+    const ret = p.retorno ? ' - retorno ' + fmtData(p.retorno) : '';
     badge = p.status + ret;
     bcls  = p.status === 'Férias' ? 'bfer' : 'blic';
   } else if (isTitular)        { badge = '← próximo (titular)'; bcls = 'bprox'; }
