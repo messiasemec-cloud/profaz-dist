@@ -1055,7 +1055,25 @@ function showFb(msg,tipo) {
 
 // ── UTILS ─────────────────────────────────────────────────────────
 function ini(n) { return n.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
-function fmtData(s) { if(!s)return''; if(s.includes('-')){ const[a,m,d]=s.split('-');return`${d}/${m}/${a}`; } return s; }
+function fmtData(s) {
+  if(!s) return '';
+  const str = String(s);
+  // já está no formato DD/MM/YYYY
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return str;
+  // formato YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}/.test(str)) { const[a,m,d]=str.split('T')[0].split('-'); return d+'/'+m+'/'+a; }
+  // objeto Date ou string longa — tenta parsear
+  try {
+    const dt = new Date(str);
+    if(!isNaN(dt.getTime())) {
+      const d = String(dt.getDate()).padStart(2,'0');
+      const m = String(dt.getMonth()+1).padStart(2,'0');
+      const a = dt.getFullYear();
+      return d+'/'+m+'/'+a;
+    }
+  } catch(e) {}
+  return str;
+}
 function cor7(s) {
   const cs=['#2a78d6','#1baf7a','#eda100','#4a3aa7','#e34948','#e87ba4','#eb6834','#008370','#c45c00','#6b3fa0'];
   let h=0; for(const c of String(s))h=(h*31+c.charCodeAt(0))%cs.length; return cs[h];
