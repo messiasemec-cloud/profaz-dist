@@ -304,7 +304,6 @@ async function carregar() {
     procs = d.procuradores;
     atualizarBadges(d);
     renderAba(abaAtiva, d);
-    renderAlerta(d);
   } catch(e) {
     document.getElementById('lista-acervo').innerHTML = '<div class="loading">Erro: ' + e.message + '</div>';
   }
@@ -892,7 +891,32 @@ async function buscarProcesso() {
         // sem etapa de analista
         document.getElementById('fg-etapa').style.display = 'none';
 
-        if (d.tem_titular) {
+        // Se titular é de outro grupo → redistribuição para fila do fluxo
+        const _idxCheck = d.tem_titular ? procs.findIndex(function(p){return p.nome===d.titular;}) : -1;
+        const _procCheck = _idxCheck>=0 ? procs[_idxCheck] : null;
+        const _nucleoCheck = _procCheck ? _procCheck.nucleo : null;
+        const titularOutroGrupo = d.tem_titular && _nucleoCheck && _nucleoCheck !== d.nucleo;
+
+        if (titularOutroGrupo) {
+          titularAtual = null;
+          // muda para aba do fluxo
+          abaAtiva = d.nucleo;
+          document.querySelectorAll('.aba-btn').forEach(function(b){
+            const txt=b.textContent.trim();
+            var ativo=(d.nucleo==='Conhecimento'&&txt.startsWith('Conhecimento'))||
+                      (d.nucleo==='Administrativo'&&txt.startsWith('Administrativo'))||
+                      (d.nucleo==='PTAC'&&txt.startsWith('PTAC'));
+            ativo?b.classList.add('ativa'):b.classList.remove('ativa');
+          });
+          document.getElementById('info-nucleo').textContent = 'Núcleo '+d.nucleo+' — redistribuição do grupo '+_nucleoCheck;
+          document.getElementById('info-nucleo').style.display = 'block';
+          // tipo redistribuição
+          var selR=document.getElementById('inp-tipo');
+          for(var i=0;i<selR.options.length;i++){if(selR.options[i].text==='Redistribuição'){selR.selectedIndex=i;break;}}
+          renderKPIs(d.nucleo,null); renderOps(d.nucleo);
+          box.style.cssText='display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
+          box.innerHTML='⚠ Processo de <strong>'+d.fluxo+'</strong> · Titular <strong>'+d.titular+'</strong> está no grupo '+_nucleoCheck+' · Redistribuindo para grupo <strong>'+d.nucleo+'</strong>';
+        } else if (d.tem_titular) {
           const idxTit = procs.findIndex(p => p.nome === d.titular);
           const procTit = idxTit >= 0 ? procs[idxTit] : null;
           const nucleoTit = (procTit && procTit.nucleo) || d.nucleo;
