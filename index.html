@@ -894,9 +894,11 @@ function resetEmbargo() {
   var lnao = document.getElementById('lbl-embargo-nao');
   var lsim = document.getElementById('lbl-embargo-sim');
   var aviso = document.getElementById('embargo-aviso');
+  var fg = document.getElementById('fg-embargo');
   if(lnao){lnao.style.borderColor='#c3c2b7';lnao.style.background='#fff';}
   if(lsim){lsim.style.borderColor='#c3c2b7';lsim.style.background='#fff';}
   if(aviso){aviso.style.display='none';}
+  if(fg){fg.style.display='none';}
 }
 
 function toggleEmbargo() {
@@ -904,8 +906,11 @@ function toggleEmbargo() {
   const ehEF = fluxo.includes('execução fiscal');
   const fg = document.getElementById('fg-embargo');
   if (fg) {
-    fg.style.display = ehEF ? 'flex' : 'none';
-    if (!ehEF) { resetEmbargo(); }
+    if (ehEF) {
+      fg.style.display = 'flex'; // mostra só quando EF manual
+    } else {
+      resetEmbargo(); // esconde e reseta para outros fluxos
+    }
   }
 }
 
