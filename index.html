@@ -705,7 +705,7 @@ function processarEF(d) {
   var idxTitEF = d.tem_titular ? procs.findIndex(function(p){return p.nome===d.titular;}) : -1;
   var procTitEF = idxTitEF>=0 ? procs[idxTitEF] : null;
   var aviso = procTitEF && !procTitEF.ativo
-    ? ' · <em style="color:#1a3a5c">ℹ Titular de '+procTitEF.status+(procTitEF.retorno?' · retorno '+procTitEF.retorno:'')+'</em>'
+    ? ' · <em style="color:#1a3a5c">ℹ Titular de '+procTitEF.status+(procTitEF.retorno?' · retorno '+fmtData(procTitEF.retorno):'')+'</em>'
     : '';
   var box = document.getElementById('resultado-busca');
   box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
