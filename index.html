@@ -216,7 +216,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
           <div class="fg">
             <label>Fluxo do processo *</label>
-            <select id="inp-fluxo" onchange="atualizarEtapa()">
+            <select id="inp-fluxo" onchange="atualizarEtapa();toggleEmbargo()">
               <option value="">Selecione...</option>
               <option>Execução fiscal</option>
               <option>Execução fiscal - GAV</option>
@@ -229,6 +229,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <option>Análise de requerimento para inscrição</option>
               <option>Solicitar extrato ou atualização de cálculo</option>
             </select>
+          </div>
+          <div class="fg" id="fg-embargo" style="display:none">
+            <label>&nbsp;</label>
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 0">
+              <input type="checkbox" id="chk-embargo" onchange="onEmbargoChange()" style="width:16px;height:16px;cursor:pointer">
+              <label for="chk-embargo" style="font-size:14px;cursor:pointer;color:#633806;font-weight:500">⚖ É embargo à execução? → vai para Conhecimento</label>
+            </div>
           </div>
           <div class="fg">
             <label>Tipo de distribuição *</label>
@@ -634,6 +641,80 @@ function renderOps(nucleo) {
 }
 
 // ── STATUS ────────────────────────────────────────────────────────
+function modalEmbargo(d) {
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg';
+  bg.innerHTML = '<div class="modal-box">' +
+    '<div class="modal-head" style="background:#1a3a5c">' +
+      '<div class="modal-head-title">⚖ Embargo à Execução?</div>' +
+      '<div class="modal-head-sub">' + d.num_processo + ' · ' + d.fluxo + '</div>' +
+    '</div>' +
+    '<div class="modal-body">' +
+      '<div class="modal-msg">Este processo é um <strong>Embargo à Execução</strong>?<br><br>' +
+        '<span style="font-size:12px;color:#898781">Sim → vai para o grupo Conhecimento<br>Não → segue para o grupo EF (analistas → próximo da fila)</span>' +
+      '</div>' +
+      '<div class="modal-btns">' +
+        '<button class="modal-cancel" id="btn-nao-embargo">Não — é EF normal</button>' +
+        '<button class="modal-ok" id="btn-sim-embargo" style="background:#0a8a7a">Sim — é Embargo</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+  document.body.appendChild(bg);
+
+  bg.querySelector('#btn-nao-embargo').onclick = function() {
+    bg.remove();
+    // segue fluxo EF normal
+    processarEF(d);
+  };
+  bg.querySelector('#btn-sim-embargo').onclick = function() {
+    bg.remove();
+    // vai para Conhecimento como novo processo
+    abaAtiva = 'Conhecimento';
+    document.querySelectorAll('.aba-btn').forEach(function(b){
+      b.textContent.trim().startsWith('Conhecimento')?b.classList.add('ativa'):b.classList.remove('ativa');
+    });
+    document.getElementById('info-nucleo').textContent = 'Núcleo Conhecimento — embargo à execução.';
+    document.getElementById('info-nucleo').style.display = 'block';
+    document.getElementById('fg-etapa').style.display = 'none';
+    titularAtual = null;
+    renderKPIs('Conhecimento', null);
+    renderOps('Conhecimento');
+    var box = document.getElementById('resultado-busca');
+    box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+    box.innerHTML = '✓ Embargo à Execução · vai para grupo <strong>Conhecimento</strong> · próximo da fila';
+  };
+  bg.addEventListener('click', function(e){ if(e.target===bg) bg.remove(); });
+}
+
+function processarEF(d) {
+  // fluxo EF normal após confirmação "não é embargo"
+  titularAtual = null;
+  abaAtiva = 'EF';
+  document.querySelectorAll('.aba-btn').forEach(function(b){
+    b.textContent.trim().startsWith('Execução')?b.classList.add('ativa'):b.classList.remove('ativa');
+  });
+  document.getElementById('info-nucleo').textContent = 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.';
+  document.getElementById('info-nucleo').style.display = 'block';
+  document.getElementById('fg-motivo').style.display = 'none';
+  atualizarEtapa();
+  renderKPIs('EF', null);
+  renderOps('EF');
+  posTriagem = false;
+  procSel = null;
+  document.querySelectorAll('.pop').forEach(function(e){e.classList.remove('sel');});
+  document.getElementById('btn-dist').disabled = true;
+  var infoTit = d.tem_titular ? ' · Titular original: <strong>'+d.titular+'</strong>' : ' · Sem titular';
+  var idxTitEF = d.tem_titular ? procs.findIndex(function(p){return p.nome===d.titular;}) : -1;
+  var procTitEF = idxTitEF>=0 ? procs[idxTitEF] : null;
+  var aviso = procTitEF && !procTitEF.ativo
+    ? ' · <em style="color:#1a3a5c">ℹ Titular de '+procTitEF.status+(procTitEF.retorno?' · retorno '+procTitEF.retorno:'')+'</em>'
+    : '';
+  var box = document.getElementById('resultado-busca');
+  box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+  box.innerHTML = '✓ Execução fiscal'+infoTit+aviso+' · → Analistas (triagem)';
+  renderTabela('EF');
+}
+
 function abrirMenuStatus(idx, btn) {
   const antigo = document.getElementById('menu-flutuante');
   if (antigo) { antigo.remove(); return; }
@@ -756,6 +837,45 @@ function selProcIdx(idx) {
 }
 
 // ── FORMULÁRIO ────────────────────────────────────────────────────
+function toggleEmbargo() {
+  const fluxo = document.getElementById('inp-fluxo').value.toLowerCase();
+  const ehEF = fluxo.includes('execução fiscal');
+  const fg = document.getElementById('fg-embargo');
+  if (fg) {
+    fg.style.display = ehEF ? 'flex' : 'none';
+    if (!ehEF) document.getElementById('chk-embargo').checked = false;
+  }
+}
+
+function onEmbargoChange() {
+  const chk = document.getElementById('chk-embargo').checked;
+  if (chk) {
+    // muda para aba Conhecimento
+    const abaBtns = document.querySelectorAll('.aba-btn');
+    abaBtns.forEach(function(b) {
+      b.textContent.trim().startsWith('Conhecimento') ? b.classList.add('ativa') : b.classList.remove('ativa');
+    });
+    abaAtiva = 'Conhecimento';
+    document.getElementById('info-nucleo').textContent = 'Núcleo Conhecimento — embargo à execução vai para o próximo da fila de Conhecimento.';
+    document.getElementById('info-nucleo').style.display = 'block';
+    document.getElementById('fg-etapa').style.display = 'none';
+    renderKPIs('Conhecimento', null);
+    renderOps('Conhecimento');
+  } else {
+    // volta para EF
+    const abaBtns = document.querySelectorAll('.aba-btn');
+    abaBtns.forEach(function(b) {
+      b.textContent.trim().startsWith('Execução') ? b.classList.add('ativa') : b.classList.remove('ativa');
+    });
+    abaAtiva = 'EF';
+    document.getElementById('info-nucleo').textContent = 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas.';
+    document.getElementById('info-nucleo').style.display = 'block';
+    atualizarEtapa();
+    renderKPIs('EF', null);
+    renderOps('EF');
+  }
+}
+
 function toggleMotivo() {
   const t = document.getElementById('inp-tipo').value;
   document.getElementById('fg-motivo').style.display = t === 'Redistribuição' ? 'flex' : 'none';
@@ -807,6 +927,13 @@ async function buscarProcesso() {
 
       if (ehEF) {
         // ── FLUXO EF ─────────────────────────────────────────────
+        // Se processo já está na base (juntada EF) → pergunta se é embargo
+        if (d.encontrado) {
+          // Mostra modal de embargo
+          modalEmbargo(d);
+          btn.textContent = '🔍 Buscar'; btn.disabled = false;
+          return; // aguarda decisão do modal
+        }
         titularAtual = null;
         abaAtiva = 'EF';
         document.querySelectorAll('.aba-btn').forEach(b => {
