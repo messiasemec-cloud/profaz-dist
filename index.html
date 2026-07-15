@@ -644,18 +644,16 @@ function renderOps(nucleo) {
 function modalEmbargo(d) {
   const bg = document.createElement('div');
   bg.className = 'modal-bg';
+  var numCurto = d.num_processo ? d.num_processo.replace(/[^0-9]/g,'').replace(/(\d{7})(\d{2})(\d{4})(\d)(\d{2})(\d{4})/,'$1-$2.$3.$4.$5.$6') : d.num_processo;
   bg.innerHTML = '<div class="modal-box">' +
     '<div class="modal-head" style="background:#1a3a5c">' +
-      '<div class="modal-head-title">⚖ Embargo à Execução?</div>' +
-      '<div class="modal-head-sub">' + d.num_processo + ' · ' + d.fluxo + '</div>' +
+      '<div class="modal-head-title">⚖ Execução Fiscal nº ' + (numCurto||d.num_processo) + '</div>' +
     '</div>' +
     '<div class="modal-body">' +
-      '<div class="modal-msg">Este processo é um <strong>Embargo à Execução</strong>?<br><br>' +
-        '<span style="font-size:12px;color:#898781">Sim → vai para o grupo Conhecimento<br>Não → segue para o grupo EF (analistas → próximo da fila)</span>' +
-      '</div>' +
+      '<div class="modal-msg">Este processo é um <strong>Embargo à Execução</strong>?</div>' +
       '<div class="modal-btns">' +
-        '<button class="modal-cancel" id="btn-nao-embargo">Não — é EF normal</button>' +
-        '<button class="modal-ok" id="btn-sim-embargo" style="background:#0a8a7a">Sim — é Embargo</button>' +
+        '<button class="modal-cancel" id="btn-nao-embargo">Não</button>' +
+        '<button class="modal-ok" id="btn-sim-embargo" style="background:#0a8a7a">Sim</button>' +
       '</div>' +
     '</div>' +
   '</div>';
