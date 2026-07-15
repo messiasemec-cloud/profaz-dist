@@ -964,6 +964,30 @@ function onEmbargoChange(val) {
   }
 }
 
+function filtrarTipos(encontrado, temTitular) {
+  const sel = document.getElementById('inp-tipo');
+  const opcoes = sel.options;
+  for (let i = 0; i < opcoes.length; i++) {
+    const txt = opcoes[i].text;
+    if (!encontrado) {
+      // processo não encontrado: só Primeira distribuição e Redistribuição
+      opcoes[i].disabled = (txt === 'Juntada' || txt === 'Tramitação temporária');
+      if (txt === 'Juntada' || txt === 'Tramitação temporária') opcoes[i].style.color = '#ccc';
+      else opcoes[i].style.color = '';
+    } else {
+      // processo encontrado: todas as opções disponíveis
+      opcoes[i].disabled = false;
+      opcoes[i].style.color = '';
+    }
+  }
+  // se tipo atual ficou desabilitado, muda para Primeira distribuição
+  if (sel.options[sel.selectedIndex].disabled) {
+    for (let i = 0; i < opcoes.length; i++) {
+      if (!opcoes[i].disabled) { sel.selectedIndex = i; break; }
+    }
+  }
+}
+
 function toggleMotivo() {
   const t = document.getElementById('inp-tipo').value;
   document.getElementById('fg-motivo').style.display = t === 'Redistribuição' ? 'flex' : 'none';
@@ -1005,6 +1029,7 @@ async function buscarProcesso() {
 
     } else {
       box.style.cssText += ';background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+      filtrarTipos(true, d.tem_titular);
 
       // preenche fluxo no select
       const selFluxo = document.getElementById('inp-fluxo');
@@ -1232,6 +1257,7 @@ async function buscarProcesso() {
 function limparBusca() {
   const box = document.getElementById('resultado-busca');
   box.style.display = 'none';
+  filtrarTipos(true, false); // reseta todas as opções
   if (titularAtual || posTriagem) {
     titularAtual = null;
     posTriagem = false;
