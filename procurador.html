@@ -175,11 +175,12 @@ async function init() {
   try {
     const r = await fetch(URL_AS + '?acao=dashboard');
     const d = await r.json();
-    if (!d.ok) throw new Error(d.erro);
+    if (!d.ok) throw new Error(d.erro || JSON.stringify(d));
+    if (!d.procuradores || !d.procuradores.length) throw new Error('Nenhum procurador retornado');
     todosProcs = d.procuradores;
     renderLogin(d.procuradores);
   } catch(e) {
-    document.getElementById('proc-grid').innerHTML = '<div style="color:#e34948">Erro: ' + e.message + '</div>';
+    document.getElementById('proc-grid').innerHTML = '<div style="color:#e34948;padding:10px">Erro ao carregar: ' + e.message + '</div>';
   }
 }
 
