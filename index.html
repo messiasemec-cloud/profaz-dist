@@ -230,12 +230,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <option>Solicitar extrato ou atualização de cálculo</option>
             </select>
           </div>
-          <div class="fg" id="fg-embargo" style="display:none">
-            <label>&nbsp;</label>
-            <div style="display:flex;align-items:center;gap:8px;padding:8px 0">
-              <input type="checkbox" id="chk-embargo" onchange="onEmbargoChange()" style="width:16px;height:16px;cursor:pointer">
-              <label for="chk-embargo" style="font-size:14px;cursor:pointer;color:#633806;font-weight:500">⚖ É embargo à execução? → vai para Conhecimento</label>
+          <div class="fg full" id="fg-embargo" style="display:none">
+            <label style="color:#633806;font-weight:500">⚖ Este processo é um Embargo à Execução? *</label>
+            <div style="display:flex;gap:12px;margin-top:6px">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 14px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:14px;background:#fff" id="lbl-embargo-nao">
+                <input type="radio" name="embargo" value="nao" onchange="onEmbargoChange('nao')" style="cursor:pointer"> Não
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 14px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:14px;background:#fff" id="lbl-embargo-sim">
+                <input type="radio" name="embargo" value="sim" onchange="onEmbargoChange('sim')" style="cursor:pointer"> Sim
+              </label>
             </div>
+            <div id="embargo-aviso" style="display:none;font-size:12px;color:#e34948;margin-top:4px">⚠ Responda se é embargo antes de confirmar.</div>
           </div>
           <div class="fg">
             <label>Tipo de distribuição *</label>
@@ -888,12 +893,26 @@ function toggleEmbargo() {
   const fg = document.getElementById('fg-embargo');
   if (fg) {
     fg.style.display = ehEF ? 'flex' : 'none';
-    if (!ehEF) document.getElementById('chk-embargo').checked = false;
+    if (!ehEF) {
+      // reset radio buttons
+      document.querySelectorAll('input[name="embargo"]').forEach(function(r){r.checked=false;});
+      document.getElementById('lbl-embargo-nao').style.borderColor = '#c3c2b7';
+      document.getElementById('lbl-embargo-nao').style.background = '#fff';
+      document.getElementById('lbl-embargo-sim').style.borderColor = '#c3c2b7';
+      document.getElementById('lbl-embargo-sim').style.background = '#fff';
+      document.getElementById('embargo-aviso').style.display = 'none';
+    }
   }
 }
 
-function onEmbargoChange() {
-  const chk = document.getElementById('chk-embargo').checked;
+function onEmbargoChange(val) {
+  // highlight selected option
+  document.getElementById('lbl-embargo-nao').style.borderColor = val==='nao' ? '#0a8a7a' : '#c3c2b7';
+  document.getElementById('lbl-embargo-nao').style.background  = val==='nao' ? '#e1f5ee' : '#fff';
+  document.getElementById('lbl-embargo-sim').style.borderColor = val==='sim' ? '#633806' : '#c3c2b7';
+  document.getElementById('lbl-embargo-sim').style.background  = val==='sim' ? '#faeeda' : '#fff';
+  document.getElementById('embargo-aviso').style.display = 'none';
+  const chk = val === 'sim';
   if (chk) {
     // muda para aba Conhecimento
     const abaBtns = document.querySelectorAll('.aba-btn');
@@ -1205,6 +1224,16 @@ async function distribuir() {
 
   if (!num)    { showFb('Informe o número do processo.','err'); return; }
   if (!fluxo)  { showFb('Selecione o fluxo.','err'); return; }
+  // valida embargo se campo visível
+  const fgEmb = document.getElementById('fg-embargo');
+  if (fgEmb && fgEmb.style.display !== 'none') {
+    const embargoResp = document.querySelector('input[name="embargo"]:checked');
+    if (!embargoResp) {
+      document.getElementById('embargo-aviso').style.display = 'block';
+      showFb('Responda se é Embargo à Execução antes de confirmar.','err');
+      return;
+    }
+  }
   if (!procSel){ showFb('Selecione um destinatário.','err'); return; }
 
   const btn = document.getElementById('btn-dist');
@@ -1227,6 +1256,9 @@ async function distribuir() {
     procSel = null;
     titularAtual = null;
     posTriagem = false;
+    document.querySelectorAll('input[name="embargo"]').forEach(function(r){r.checked=false;});
+    var fgEmb2 = document.getElementById('fg-embargo');
+    if(fgEmb2) { fgEmb2.style.display='none'; }
     document.querySelectorAll('.pop').forEach(e=>e.classList.remove('sel'));
     document.getElementById('btn-dist').disabled = true;
     await carregar();
