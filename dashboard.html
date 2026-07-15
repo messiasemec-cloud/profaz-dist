@@ -17,7 +17,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .main{max-width:1100px;margin:0 auto;padding:20px 16px}
 .bsm{font-size:12px;padding:5px 12px;border:0.5px solid #c3c2b7;border-radius:6px;background:#fff;cursor:pointer}
 .updated{font-size:11px;color:#898781;margin-top:4px;text-align:right}
-.semaforos{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.semaforos{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
 .semaforo{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px}
 .sem-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0}
 .sem-verde{background:#1baf7a}.sem-amarelo{background:#eda100}.sem-vermelho{background:#e34948}
@@ -28,10 +28,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .vol-label{font-size:11px;color:#898781;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
 .vol-val{font-size:28px;font-weight:500;color:#1a3a5c}
 .vol-sub{font-size:11px;color:#898781;margin-top:2px}
-.nucleo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.nucleo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
 .nucleo-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;overflow:hidden}
 .nucleo-header{padding:12px 16px;font-size:13px;font-weight:500;color:#fff}
 .nh-ef{background:#1a3a5c}.nh-con{background:#0a8a7a}.nh-adm{background:#4a3aa7}
+.nh-ptac{background:#c45c00}
 .nucleo-body{padding:12px 16px}
 .nucleo-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid rgba(0,0,0,.05);font-size:13px}
 .nucleo-row:last-child{border-bottom:none}
@@ -85,7 +86,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="semaforos" id="semaforos">
     <div class="semaforo"><div class="sem-dot" style="background:#ccc"></div><div><div class="sem-titulo">Execução Fiscal</div><div class="sem-msg">Carregando...</div></div></div>
     <div class="semaforo"><div class="sem-dot" style="background:#ccc"></div><div><div class="sem-titulo">Conhecimento</div><div class="sem-msg">Carregando...</div></div></div>
-    <div class="semaforo"><div class="sem-dot" style="background:#ccc"></div><div><div class="sem-titulo">Administrativo</div><div class="sem-msg">Carregando...</div></div></div>
   </div>
 
   <div class="vol-title">Volume de distribuições registradas</div>
@@ -100,6 +100,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="nucleo-card"><div class="nucleo-header nh-ef">Execução Fiscal</div><div class="nucleo-body"><div class="loading"><span class="spin"></span></div></div></div>
     <div class="nucleo-card"><div class="nucleo-header nh-con">Conhecimento</div><div class="nucleo-body"><div class="loading"><span class="spin"></span></div></div></div>
     <div class="nucleo-card"><div class="nucleo-header nh-adm">Administrativo</div><div class="nucleo-body"><div class="loading"><span class="spin"></span></div></div></div>
+    <div class="nucleo-card"><div class="nucleo-header nh-ptac">PTAC</div><div class="nucleo-body"><div class="loading"><span class="spin"></span></div></div></div>
   </div>
 
   <div class="card">
@@ -132,7 +133,6 @@ function renderSemaforos(d) {
   const cfg = [
     {id:'EF',          label:'Execução Fiscal'},
     {id:'Conhecimento',label:'Conhecimento'},
-    {id:'Administrativo',label:'Administrativo'},
   ];
   document.getElementById('semaforos').innerHTML = cfg.map(n => {
     const procs = d.procuradores.filter(p=>p.nucleo===n.id&&p.ativo);
@@ -158,6 +158,7 @@ function renderNucleos(v) {
     {id:'EF',cls:'nh-ef',label:'Execução Fiscal'},
     {id:'Conhecimento',cls:'nh-con',label:'Conhecimento'},
     {id:'Administrativo',cls:'nh-adm',label:'Administrativo'},
+    {id:'PTAC',cls:'nh-ptac',label:'PTAC'},
   ];
   document.getElementById('nucleo-grid').innerHTML = cfg.map(n => {
     const d = v.porNucleo?.[n.id] || {};
