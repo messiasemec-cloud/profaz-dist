@@ -43,6 +43,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bok{background:#e1f5ee;color:#085041}
 .balto{background:#fcebeb;color:#791f1f}
 .bbaixo{background:#faeeda;color:#633806}
+.bfer{background:#e8eef5;color:#1a3a5c}
+.blic{background:#f3eef9;color:#4a3aa7}
 .btn-conf{width:100%;padding:12px;background:#0a8a7a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;margin-top:16px;transition:background .15s}
 .btn-conf:hover{background:#076b5e}
 .btn-conf:disabled{background:#888;cursor:not-allowed}
@@ -139,7 +141,9 @@ async function carregarProcs() {
     const r = await fetch(URL_AS + '?acao=dashboard');
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
-    procs = d.procuradores.filter(function(p) { return p.nucleo === 'EF' && p.ativo; });
+    procs = d.procuradores.filter(function(p) { return p.nucleo === 'EF'; });
+    const ativos = procs.filter(function(p){return p.ativo;});
+    med = ativos.length ? Math.round(ativos.reduce(function(s,v){return s+v.acervo;},0)/ativos.length) : 0;
     const vals = procs.map(function(p) { return p.acervo; });
     med = vals.length ? Math.round(vals.reduce(function(s,v){return s+v;},0)/vals.length) : 0;
   } catch(e) {
@@ -193,12 +197,26 @@ async function buscar() {
 }
 
 function renderProcs() {
-  const lista = procs.slice().sort(function(a,b){return a.acervo-b.acervo;});
+  const lista = procs.slice().sort(function(a,b){
+    if (a.ativo !== b.ativo) return b.ativo - a.ativo;
+    return a.acervo - b.acervo;
+  });
+  const ativos = lista.filter(function(p){return p.ativo;});
   document.getElementById('proc-ops').innerHTML = lista.map(function(p) {
     const idx = procs.indexOf(p);
     const ratio = med > 0 ? p.acervo/med : 1;
+    const isPrimeiroAtivo = p.ativo && ativos.length > 0 && ativos[0].nome === p.nome;
+    if (!p.ativo) {
+      const ret = p.retorno ? ' · retorno ' + fmtData(p.retorno) : '';
+      const bcls = p.status === 'Férias' ? 'bfer' : 'blic';
+      return '<div class="pop" style="opacity:.5;cursor:not-allowed;background:#f8f7f5;pointer-events:none">' +
+        '<div class="pop-nome" style="color:#898781">' + p.nome + '</div>' +
+        '<div class="pop-ac">' + p.acervo + ' processos</div>' +
+        '<span class="badge ' + bcls + '">' + p.status + ret + '</span>' +
+      '</div>';
+    }
     let bcls, btxt;
-    if (idx === 0) { bcls='bprox'; btxt='← próximo'; }
+    if (isPrimeiroAtivo) { bcls='bprox'; btxt='← próximo'; }
     else if (ratio > 1.2) { bcls='balto'; btxt='Acima'; }
     else if (ratio < 0.8) { bcls='bbaixo'; btxt='Abaixo'; }
     else { bcls='bok'; btxt='OK'; }
@@ -208,6 +226,22 @@ function renderProcs() {
       '<span class="badge ' + bcls + '">' + btxt + '</span>' +
     '</div>';
   }).join('');
+}
+
+function fmtData(s) {
+  if(!s) return '';
+  var str = String(s);
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return str;
+  try {
+    var dt = new Date(str);
+    if(!isNaN(dt.getTime())) {
+      var d = String(dt.getDate()).padStart(2,'0');
+      var m = String(dt.getMonth()+1).padStart(2,'0');
+      var a = dt.getFullYear();
+      return d+'/'+m+'/'+a;
+    }
+  } catch(e) {}
+  return str;
 }
 
 function selProc(idx) {
