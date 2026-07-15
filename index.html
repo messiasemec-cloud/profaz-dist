@@ -216,7 +216,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
           <div class="fg">
             <label>Fluxo do processo *</label>
-            <select id="inp-fluxo" onchange="atualizarEtapa();toggleEmbargo()">
+            <select id="inp-fluxo" onchange="onFluxoChange()">
               <option value="">Selecione...</option>
               <option>Execução fiscal</option>
               <option>Execução fiscal - GAV</option>
@@ -839,6 +839,49 @@ function selProcIdx(idx) {
 }
 
 // ── FORMULÁRIO ────────────────────────────────────────────────────
+function onFluxoChange() {
+  const fluxo = document.getElementById('inp-fluxo').value.toLowerCase();
+  const ehEF  = fluxo.includes('execução fiscal');
+  const ehCon = fluxo.includes('conhecimento');
+  const ehAdm = !ehEF && !ehCon && fluxo !== '';
+
+  // determina aba destino
+  let novaAba = abaAtiva;
+  if (ehEF)  novaAba = 'EF';
+  else if (ehCon) novaAba = 'Conhecimento';
+  else if (fluxo.includes('administrativo') || fluxo.includes('requerimento') ||
+           fluxo.includes('solicitação') || fluxo.includes('consulta') ||
+           fluxo.includes('cancelamento') || fluxo.includes('parcelamento') ||
+           fluxo.includes('ofício') || fluxo.includes('análise') ||
+           fluxo.startsWith('p')) novaAba = 'Administrativo';
+
+  // muda aba se diferente
+  if (novaAba !== abaAtiva) {
+    abaAtiva = novaAba;
+    document.querySelectorAll('.aba-btn').forEach(function(b) {
+      const txt = b.textContent.trim();
+      const ativo = (novaAba==='EF'&&txt.startsWith('Execução'))||
+                    (novaAba==='Conhecimento'&&txt.startsWith('Conhecimento'))||
+                    (novaAba==='Administrativo'&&txt.startsWith('Administrativo'))||
+                    (novaAba==='PTAC'&&txt.startsWith('PTAC'));
+      ativo ? b.classList.add('ativa') : b.classList.remove('ativa');
+    });
+    const infos = {
+      EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',
+      Conhecimento: 'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',
+      Administrativo: 'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.',
+      PTAC: 'PTAC — Projeto especial. Titular: Raimundo Gomes de Almeida Neto.'
+    };
+    document.getElementById('info-nucleo').textContent = infos[novaAba] || '';
+    document.getElementById('info-nucleo').style.display = 'block';
+    renderKPIs(novaAba, null);
+    renderOps(novaAba);
+  }
+
+  atualizarEtapa();
+  toggleEmbargo();
+}
+
 function toggleEmbargo() {
   const fluxo = document.getElementById('inp-fluxo').value.toLowerCase();
   const ehEF = fluxo.includes('execução fiscal');
