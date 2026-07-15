@@ -175,26 +175,69 @@ function renderNucleos(v) {
 
 function renderTabela(d) {
   const grupos = [
-    {nucleo:'EF', label:'Execução Fiscal', temAnalistas:true},
-    {nucleo:'Conhecimento', label:'Conhecimento'},
-    {nucleo:'Administrativo', label:'Administrativo'},
+    {id:'EF', label:'Execução Fiscal', cor:'#0a8a7a', temCard:true},
+    {id:'Conhecimento', label:'Conhecimento', cor:'#1a3a5c', temCard:true},
+    {id:'Administrativo', label:'Administrativo', cor:'#4a3aa7', temCard:false},
+    {id:'PTAC', label:'PTAC', cor:'#c45c00', temCard:false},
   ];
+
   let html = '';
+
   for (const g of grupos) {
-    html += `<div class="sep">${g.label}</div>`;
-    if (g.temAnalistas) {
-      const analistas = d.procuradores.filter(p=>p.nucleo==='Analista').sort((a,b)=>a.acervo-b.acervo);
-      if (analistas.length) {
-        html += `<div class="sep sep-ef">Analistas</div>`;
-        html += analistas.map(p=>rowHTML(p,d)).join('');
-        html += `<div class="sep sep-ef">Procuradores EF</div>`;
-      }
+    let lista;
+    if (g.id === 'EF') {
+      const analistas = d.procuradores.filter(p=>p.nucleo==='Analista').sort((a,b)=>a.ativo!==b.ativo?b.ativo-a.ativo:a.acervo-b.acervo);
+      const procEF    = d.procuradores.filter(p=>p.nucleo==='EF').sort((a,b)=>a.ativo!==b.ativo?b.ativo-a.ativo:a.acervo-b.acervo);
+      lista = analistas.concat(procEF);
+    } else {
+      lista = d.procuradores.filter(p=>p.nucleo===g.id).sort((a,b)=>a.ativo!==b.ativo?b.ativo-a.ativo:a.acervo-b.acervo);
     }
-    const procs = d.procuradores.filter(p=>p.nucleo===g.nucleo).sort((a,b)=>a.acervo-b.acervo);
-    html += procs.map(p=>rowHTML(p,d)).join('');
+    if (!lista.length) continue;
+
+    const ativos = lista.filter(p=>p.ativo && p.nucleo!=='Analista');
+    const vals   = ativos.map(p=>p.acervo);
+    const total  = vals.reduce((s,v)=>s+v,0);
+    const media  = vals.length ? Math.round(total/vals.length) : 0;
+    const mx     = vals.length ? Math.max(...vals) : 0;
+    const mn     = vals.length ? Math.min(...vals) : 0;
+    const diff   = mx - mn;
+    const pMax   = ativos.find(p=>p.acervo===mx);
+    const pMin   = ativos.find(p=>p.acervo===mn);
+
+    html += '<div style="background:#f8f7f5;border-left:3px solid '+g.cor+';color:'+g.cor+';padding:9px 20px;font-size:13px;font-weight:600">▸ '+g.label+'</div>';
+
+    if (g.temCard && vals.length > 1) {
+      const [cor,msg] = diff<=30 ? ['#1baf7a','Equilibrado — variação de '+diff+' processos']
+                      : diff<=80 ? ['#eda100','Atenção — diferença de '+diff+' processos']
+                      :            ['#e34948','Desequilibrado — diferença de '+diff+' processos entre o maior ('+( pMax?pMax.nome.split(' ')[0]:'')+', '+mx+') e o menor ('+(pMin?pMin.nome.split(' ')[0]:'')+', '+mn+')'];
+      html += '<div style="margin:8px 16px;padding:10px 14px;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:10px;border:0.5px solid '+cor+'22;background:'+cor+'11">';
+      html += '<div style="width:8px;height:8px;border-radius:50%;background:'+cor+';flex-shrink:0"></div>';
+      html += '<span style="color:'+cor+'">'+msg+'</span></div>';
+      html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 16px 8px">';
+      html += '<div style="background:#f8f7f5;border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:#898781;text-transform:uppercase">Total</div><div style="font-size:20px;font-weight:500;color:#1a3a5c">'+total+'</div></div>';
+      html += '<div style="background:#f8f7f5;border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:#898781;text-transform:uppercase">Média</div><div style="font-size:20px;font-weight:500;color:#1a3a5c">'+media+'</div></div>';
+      html += '<div style="background:#f8f7f5;border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:#898781;text-transform:uppercase">Maior</div><div style="font-size:20px;font-weight:500;color:#1a3a5c">'+mx+'</div><div style="font-size:11px;color:#898781">'+(pMax?pMax.nome.split(' ')[0]:'')+'</div></div>';
+      html += '<div style="background:#f8f7f5;border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:#898781;text-transform:uppercase">Menor</div><div style="font-size:20px;font-weight:500;color:#1a3a5c">'+mn+'</div><div style="font-size:11px;color:#898781">'+(pMin?pMin.nome.split(' ')[0]:'')+'</div></div>';
+      html += '</div>';
+    }
+
+    if (g.id === 'EF') {
+      const analistas2 = lista.filter(p=>p.nucleo==='Analista');
+      const procEF2    = lista.filter(p=>p.nucleo==='EF');
+      if (analistas2.length) {
+        html += '<div style="background:#e8eef5;border-left:3px solid #1a3a5c;color:#1a3a5c;padding:7px 20px;font-size:12px">Analistas</div>';
+        html += analistas2.map(p=>rowHTML(p,d)).join('');
+        html += '<div style="background:#e8eef5;border-left:3px solid #1a3a5c;color:#1a3a5c;padding:7px 20px;font-size:12px">Procuradores EF</div>';
+      }
+      html += procEF2.map(p=>rowHTML(p,d)).join('');
+    } else {
+      html += lista.map(p=>rowHTML(p,d)).join('');
+    }
   }
+
   document.getElementById('lista').innerHTML = html;
 }
+
 
 function rowHTML(p, d) {
   const cor = cor7(p.nome);
@@ -202,7 +245,7 @@ function rowHTML(p, d) {
   const media = grupoPrcs.length ? grupoPrcs.reduce((s,x)=>s+x.acervo,0)/grupoPrcs.length : 0;
   const ratio = media>0 ? p.acervo/media : 1;
   let badge,bcls;
-  if (!p.ativo) { badge=p.status+(p.retorno?' · '+p.retorno:''); bcls=p.status==='Férias'?'bfer':'blic'; }
+  if (!p.ativo) { badge=p.status+(p.retorno?' - retorno '+fmtData(p.retorno):''); bcls=p.status==='Férias'?'bfer':'blic'; }
   else if (ratio>1.2) { badge='Acima'; bcls='balto'; }
   else if (ratio<0.8) { badge='Abaixo'; bcls='bbaixo'; }
   else { badge='OK'; bcls='bok'; }
@@ -221,6 +264,21 @@ function rowHTML(p, d) {
   </div>`;
 }
 
+function fmtData(s) {
+  if(!s) return '';
+  var str = String(s);
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return str;
+  try {
+    var dt = new Date(str);
+    if(!isNaN(dt.getTime())) {
+      var d = String(dt.getDate()).padStart(2,'0');
+      var m = String(dt.getMonth()+1).padStart(2,'0');
+      var a = dt.getFullYear();
+      return d+'/'+m+'/'+a;
+    }
+  } catch(e) {}
+  return str;
+}
 function ini(n){return n.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
 function cor7(s){const cs=['#2a78d6','#1baf7a','#eda100','#4a3aa7','#e34948','#e87ba4','#eb6834','#008370','#c45c00','#6b3fa0'];let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%cs.length;return cs[h];}
 
