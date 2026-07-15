@@ -185,14 +185,22 @@ async function init() {
 }
 
 function renderLogin(procs) {
-  const conhecimento = procs.filter(function(p) { return p.nucleo === 'Conhecimento'; })
+  var conhecimento = procs.filter(function(p) { return p.nucleo === 'Conhecimento'; })
     .sort(function(a,b) { return a.nome.localeCompare(b.nome); });
-  document.getElementById('proc-grid').innerHTML = conhecimento.map(function(p) {
-    return '<button class="proc-btn" onclick="abrirPainel('' + p.nome.replace(/'/g,"\'") + '')">' +
-      '<div class="proc-btn-nome">' + p.nome + '</div>' +
-      '<div class="proc-btn-nucleo">Conhecimento' + (!p.ativo ? ' · ' + p.status : '') + '</div>' +
-    '</button>';
-  }).join('');
+  var html = '';
+  conhecimento.forEach(function(p, i) {
+    html += '<button class="proc-btn" onclick="abrirPainelIdx(' + i + ')">';
+    html += '<div class="proc-btn-nome">' + p.nome + '</div>';
+    html += '<div class="proc-btn-nucleo">Conhecimento' + (!p.ativo ? ' &middot; ' + p.status : '') + '</div>';
+    html += '</button>';
+  });
+  window._listaCon = conhecimento;
+  document.getElementById('proc-grid').innerHTML = html;
+}
+function abrirPainelIdx(i) {
+  if (window._listaCon && window._listaCon[i]) {
+    abrirPainel(window._listaCon[i].nome);
+  }
 }
 
 function voltarLogin() {
