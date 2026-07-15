@@ -1121,7 +1121,7 @@ async function buscarProcesso() {
             renderKPIs(abaFluxo, null);
                       renderOps(abaFluxo);
 
-            const retornoInfo = procTit.retorno ? ` · retorno ${procTit.retorno}` : '';
+            const retornoInfo = procTit.retorno ? ' · retorno ' + fmtData(procTit.retorno) : '';
             box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
             box.innerHTML = `⚠ Titular <strong>${d.titular}</strong> está de ${procTit.status}${retornoInfo} · Tipo alterado para <strong>Tramitação temporária</strong> · Escolha quem vai cobrir na fila de ${abaFluxo}`;
 
