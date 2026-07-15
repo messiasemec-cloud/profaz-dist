@@ -666,11 +666,13 @@ function modalEmbargo(d) {
 
   bg.querySelector('#btn-nao-embargo').onclick = function() {
     bg.remove();
+    resetEmbargo();
     // segue fluxo EF normal
     processarEF(d);
   };
   bg.querySelector('#btn-sim-embargo').onclick = function() {
     bg.remove();
+    resetEmbargo();
     // vai para Conhecimento como redistribuição
     abaAtiva = 'Conhecimento';
     document.querySelectorAll('.aba-btn').forEach(function(b){
@@ -887,21 +889,23 @@ function onFluxoChange() {
   toggleEmbargo();
 }
 
+function resetEmbargo() {
+  document.querySelectorAll('input[name="embargo"]').forEach(function(r){r.checked=false;});
+  var lnao = document.getElementById('lbl-embargo-nao');
+  var lsim = document.getElementById('lbl-embargo-sim');
+  var aviso = document.getElementById('embargo-aviso');
+  if(lnao){lnao.style.borderColor='#c3c2b7';lnao.style.background='#fff';}
+  if(lsim){lsim.style.borderColor='#c3c2b7';lsim.style.background='#fff';}
+  if(aviso){aviso.style.display='none';}
+}
+
 function toggleEmbargo() {
   const fluxo = document.getElementById('inp-fluxo').value.toLowerCase();
   const ehEF = fluxo.includes('execução fiscal');
   const fg = document.getElementById('fg-embargo');
   if (fg) {
     fg.style.display = ehEF ? 'flex' : 'none';
-    if (!ehEF) {
-      // reset radio buttons
-      document.querySelectorAll('input[name="embargo"]').forEach(function(r){r.checked=false;});
-      document.getElementById('lbl-embargo-nao').style.borderColor = '#c3c2b7';
-      document.getElementById('lbl-embargo-nao').style.background = '#fff';
-      document.getElementById('lbl-embargo-sim').style.borderColor = '#c3c2b7';
-      document.getElementById('lbl-embargo-sim').style.background = '#fff';
-      document.getElementById('embargo-aviso').style.display = 'none';
-    }
+    if (!ehEF) { resetEmbargo(); }
   }
 }
 
@@ -965,6 +969,7 @@ async function buscarProcesso() {
 
   const btn = document.querySelector('button[onclick="buscarProcesso()"]');
   btn.textContent = '⏳'; btn.disabled = true;
+  resetEmbargo();
 
   try {
     const r = await fetch(URL_AS + '?acao=buscar_processo&num=' + encodeURIComponent(num));
