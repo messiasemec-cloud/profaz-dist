@@ -305,14 +305,20 @@ function login(nome) {
 
 // ── CARREGAR ──────────────────────────────────────────────────────
 async function carregar() {
-  // #lista não é mais exibido
+  document.getElementById('lista-acervo').innerHTML = '<div class="loading"><span class="spin"></span>Carregando...</div>';
   try {
     const r = await fetch(URL_AS + '?acao=dashboard');
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
     procs = d.procuradores;
+    ultimoAnalista = d.ultimoAnalista || '';
+    // calcula média geral
+    const ativos = procs.filter(p => p.ativo && p.nucleo !== 'Analista');
+    med = ativos.length ? Math.round(ativos.reduce((s,p)=>s+p.acervo,0)/ativos.length) : 0;
     atualizarBadges(d);
-    renderAba(abaAtiva, d);
+    renderAcervo();
+    renderKPIs(abaAtiva, d);
+    renderOps(abaAtiva);
   } catch(e) {
     document.getElementById('lista-acervo').innerHTML = '<div class="loading">Erro: ' + e.message + '</div>';
   }
