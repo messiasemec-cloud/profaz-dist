@@ -666,7 +666,7 @@ function modalEmbargo(d) {
   };
   bg.querySelector('#btn-sim-embargo').onclick = function() {
     bg.remove();
-    // vai para Conhecimento como novo processo
+    // vai para Conhecimento como redistribuição
     abaAtiva = 'Conhecimento';
     document.querySelectorAll('.aba-btn').forEach(function(b){
       b.textContent.trim().startsWith('Conhecimento')?b.classList.add('ativa'):b.classList.remove('ativa');
@@ -674,12 +674,16 @@ function modalEmbargo(d) {
     document.getElementById('info-nucleo').textContent = 'Núcleo Conhecimento — embargo à execução.';
     document.getElementById('info-nucleo').style.display = 'block';
     document.getElementById('fg-etapa').style.display = 'none';
+    // tipo = Redistribuição
+    var selT = document.getElementById('inp-tipo');
+    for(var i=0;i<selT.options.length;i++){if(selT.options[i].text==='Redistribuição'){selT.selectedIndex=i;break;}}
+    document.getElementById('fg-motivo').style.display = 'none';
     titularAtual = null;
     renderKPIs('Conhecimento', null);
     renderOps('Conhecimento');
     var box = document.getElementById('resultado-busca');
     box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
-    box.innerHTML = '✓ Embargo à Execução · vai para grupo <strong>Conhecimento</strong> · próximo da fila';
+    box.innerHTML = '✓ Embargo à Execução · Redistribuição → grupo <strong>Conhecimento</strong> · próximo da fila';
   };
   bg.addEventListener('click', function(e){ if(e.target===bg) bg.remove(); });
 }
