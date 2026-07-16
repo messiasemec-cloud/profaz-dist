@@ -316,9 +316,10 @@ function renderMensagem(acervo, media, diff) {
 }
 
 function renderBarra(acervo, media, minimo, maximo) {
-  const range = maximo - minimo || 1;
-  const pctProc  = Math.round((acervo - minimo) / range * 100);
-  const pctMedia = Math.round((media   - minimo) / range * 100);
+  // usa escala a partir de 0 para mostrar sempre barra visível
+  const escalaMax = maximo * 1.05 || 1;
+  const pctProc  = Math.max(3, Math.round(acervo  / escalaMax * 100));
+  const pctMedia = Math.round(media / escalaMax * 100);
 
   const cor = acervo > media + 10 ? '#e07020' : acervo < media - 10 ? '#0a8a7a' : '#1baf7a';
 
@@ -326,11 +327,12 @@ function renderBarra(acervo, media, minimo, maximo) {
   document.getElementById('eq-fill').style.background = cor;
   document.getElementById('eq-media-line').style.left  = pctMedia + '%';
   document.getElementById('eq-media-label').textContent = 'Média (' + media + ')';
-  document.getElementById('eq-menor-label').textContent = 'Menor (' + minimo + ')';
+  document.getElementById('eq-menor-label').textContent = '0';
   document.getElementById('eq-maior-label').textContent = 'Maior (' + maximo + ')';
+  var diff2 = acervo - media;
   document.getElementById('eq-desc').textContent =
     'Seu acervo: ' + acervo + ' processos  ·  Média do grupo: ' + media + '  ·  ' +
-    (acervo > media ? '+' : '') + (acervo - media) + ' em relação à média';
+    (diff2 >= 0 ? '+' : '') + diff2 + ' em relação à média';
 }
 
 async function carregarHistorico(nome, mesAtual) {
