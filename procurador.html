@@ -119,7 +119,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <!-- BARRA DE EQUALIZAÇÃO -->
     <div class="card">
-      <div class="ch">Posição no grupo Conhecimento</div>
+      <div class="ch" id="eq-titulo">Posição no grupo</div>
       <div class="cb">
         <div class="eq-container">
           <div class="eq-label">
@@ -260,14 +260,22 @@ async function abrirPainel(nome) {
   document.getElementById('tela-painel').style.display = 'block';
 
   const proc = todosProcs.find(function(p) { return p.nome === nome; });
-  const grupo = todosProcs.filter(function(p) { return p.nucleo === 'Conhecimento' && p.ativo; });
+  // calcula média do grupo do próprio procurador
+  var nucleoProc = proc ? proc.nucleo : 'Conhecimento';
+  var grupoFiltro = nucleoProc === 'EF' 
+    ? function(p){ return p.nucleo==='EF' && p.ativo; }
+    : function(p){ return p.nucleo===nucleoProc && p.ativo; };
+  const grupo = todosProcs.filter(grupoFiltro);
   const acervos = grupo.map(function(p) { return p.acervo; });
-  const media  = Math.round(acervos.reduce(function(s,v){return s+v;},0) / acervos.length);
-  const maximo = Math.max.apply(null, acervos);
-  const minimo = Math.min.apply(null, acervos);
+  const media  = acervos.length ? Math.round(acervos.reduce(function(s,v){return s+v;},0) / acervos.length) : 0;
+  const maximo = acervos.length ? Math.max.apply(null, acervos) : 0;
+  const minimo = acervos.length ? Math.min.apply(null, acervos) : 0;
   const meuAcervo = proc ? proc.acervo : 0;
   const diff = meuAcervo - media;
 
+  // título dinâmico
+  var tituloGrupo = nucleoProc === 'EF' ? 'Execução Fiscal' : nucleoProc;
+  document.getElementById('eq-titulo').textContent = 'Posição no grupo ' + tituloGrupo;
   // KPIs
   document.getElementById('kv-acervo').textContent = meuAcervo;
   document.getElementById('kv-media').textContent  = media;
