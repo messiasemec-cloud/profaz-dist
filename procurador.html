@@ -24,7 +24,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .proc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
 .proc-btn{padding:12px 14px;border:0.5px solid #c3c2b7;border-radius:8px;background:#fff;cursor:pointer;text-align:left;transition:all .15s}
 .proc-btn:hover{border-color:#0a8a7a;background:#e1f5ee}
-.proc-btn-inativo{opacity:.55;cursor:not-allowed;pointer-events:none;background:#f8f7f5}
 .proc-btn-nome{font-size:13px;font-weight:500}
 .proc-btn-nucleo{font-size:11px;color:#898781;margin-top:2px}
 
@@ -187,37 +186,55 @@ async function init() {
 
 function renderLogin(procs) {
   const grupos = [
-    {id:'EF',             label:'Execução Fiscal',  cor:'#0a8a7a'},
-    {id:'Analista',       label:'Analistas',         cor:'#0a8a7a'},
-    {id:'Conhecimento',   label:'Conhecimento',      cor:'#1a3a5c'},
-    {id:'Administrativo', label:'Administrativo',    cor:'#4a3aa7'},
-    {id:'PTAC',           label:'PTAC',              cor:'#c45c00'},
+    {id:'EF',             label:'Execução Fiscal', cor:'#0a8a7a', analistas:true},
+    {id:'Conhecimento',   label:'Conhecimento',     cor:'#1a3a5c'},
+    {id:'Administrativo', label:'Administrativo',   cor:'#4a3aa7'},
+    {id:'PTAC',           label:'PTAC',             cor:'#c45c00'},
   ];
 
   window._listaAll = procs;
   var html = '';
 
   grupos.forEach(function(g) {
-    var lista = procs.filter(function(p){ return p.nucleo === g.id; })
-      .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+    var lista = [];
+    if (g.analistas) {
+      // EF: analistas primeiro depois proc EF, ordenados por acervo
+      var analistas = procs.filter(function(p){ return p.nucleo==='Analista'; })
+        .sort(function(a,b){ return a.acervo-b.acervo; });
+      var procEF = procs.filter(function(p){ return p.nucleo==='EF'; })
+        .sort(function(a,b){ return a.acervo-b.acervo; });
+      lista = analistas.concat(procEF);
+    } else {
+      lista = procs.filter(function(p){ return p.nucleo===g.id; })
+        .sort(function(a,b){ return a.acervo-b.acervo; });
+    }
     if (!lista.length) return;
 
     html += '<div style="margin-bottom:20px">';
-    html += '<div style="font-size:12px;font-weight:600;color:' + g.cor + ';text-transform:uppercase;letter-spacing:.06em;border-left:3px solid ' + g.cor + ';padding-left:10px;margin-bottom:10px">▸ ' + g.label + '</div>';
+    html += '<div style="font-size:12px;font-weight:600;color:'+g.cor+';text-transform:uppercase;letter-spacing:.06em;border-left:3px solid '+g.cor+';padding-left:10px;margin-bottom:10px">▸ '+g.label+'</div>';
     html += '<div class="proc-grid">';
-    lista.forEach(function(p, i) {
+
+    lista.forEach(function(p) {
       var globalIdx = procs.indexOf(p);
-      var statusTxt = !p.ativo ? (' · <span style="color:#898781">' + p.status + (p.retorno ? ' ' + fmtDataLogin(p.retorno) : '') + '</span>') : '';
-      html += '<button class="proc-btn' + (!p.ativo ? ' proc-btn-inativo' : '') + '" onclick="abrirPainelIdx(' + globalIdx + ')">';
+      var statusTxt = '';
+      if (!p.ativo) {
+        var ret = p.retorno ? ' · retorno ' + fmtDataLogin(p.retorno) : '';
+        statusTxt = '<div style="font-size:11px;color:#1a3a5c;margin-top:2px">' + p.status + ret + '</div>';
+      }
+      // sempre habilitado — licença e férias só indicam status
+      html += '<button class="proc-btn" onclick="abrirPainelIdx('+globalIdx+')" style="' + (!p.ativo?'border-color:#c3c2b7;':'') + '">';
       html += '<div class="proc-btn-nome">' + p.nome + '</div>';
-      html += '<div class="proc-btn-nucleo">' + p.acervo + ' processos' + statusTxt + '</div>';
+      html += '<div class="proc-btn-nucleo">' + p.acervo + ' processos</div>';
+      if (statusTxt) html += statusTxt;
       html += '</button>';
     });
+
     html += '</div></div>';
   });
 
   document.getElementById('proc-grid').innerHTML = html;
 }
+
 
 function fmtDataLogin(s) {
   if(!s) return '';
