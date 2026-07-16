@@ -239,8 +239,9 @@ function fmtDataLogin(s) {
 
 
 function abrirPainelIdx(i) {
-  if (window._listaCon && window._listaCon[i]) {
-    abrirPainel(window._listaCon[i].nome);
+  var lista = window._listaAll || window._listaCon;
+  if (lista && lista[i]) {
+    abrirPainel(lista[i].nome);
   }
 }
 
