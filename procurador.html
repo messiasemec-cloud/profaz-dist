@@ -186,7 +186,7 @@ async function init() {
 
 function renderLogin(procs) {
   const grupos = [
-    {id:'EF',             label:'Execução Fiscal', cor:'#0a8a7a', analistas:true},
+    {id:'EF',             label:'Execução Fiscal', cor:'#0a8a7a'},
     {id:'Conhecimento',   label:'Conhecimento',     cor:'#1a3a5c'},
     {id:'Administrativo', label:'Administrativo',   cor:'#4a3aa7'},
     {id:'PTAC',           label:'PTAC',             cor:'#c45c00'},
@@ -197,17 +197,8 @@ function renderLogin(procs) {
 
   grupos.forEach(function(g) {
     var lista = [];
-    if (g.analistas) {
-      // EF: analistas primeiro depois proc EF, ordenados por acervo
-      var analistas = procs.filter(function(p){ return p.nucleo==='Analista'; })
-        .sort(function(a,b){ return a.acervo-b.acervo; });
-      var procEF = procs.filter(function(p){ return p.nucleo==='EF'; })
-        .sort(function(a,b){ return a.acervo-b.acervo; });
-      lista = analistas.concat(procEF);
-    } else {
-      lista = procs.filter(function(p){ return p.nucleo===g.id; })
-        .sort(function(a,b){ return a.acervo-b.acervo; });
-    }
+    lista = procs.filter(function(p){ return p.nucleo===g.id; })
+      .sort(function(a,b){ return a.acervo-b.acervo; });
     if (!lista.length) return;
 
     html += '<div style="margin-bottom:20px">';
@@ -222,9 +213,11 @@ function renderLogin(procs) {
         statusTxt = '<div style="font-size:11px;color:#1a3a5c;margin-top:2px">' + p.status + ret + '</div>';
       }
       // sempre habilitado — licença e férias só indicam status
-      html += '<button class="proc-btn" onclick="abrirPainelIdx('+globalIdx+')" style="' + (!p.ativo?'border-color:#c3c2b7;':'') + '">';
-      html += '<div class="proc-btn-nome">' + p.nome + '</div>';
-      html += '<div class="proc-btn-nucleo">' + p.acervo + ' processos</div>';
+      var corGrupo = g.cor;
+      var btnStyle = 'border-left:3px solid '+corGrupo+';' + (!p.ativo?'background:#f8f7f5;':'');
+      html += '<button class="proc-btn" onclick="abrirPainelIdx('+globalIdx+')" style="'+btnStyle+'">';
+      html += '<div class="proc-btn-nome" style="color:'+corGrupo+';font-weight:600">' + p.nome + '</div>';
+      html += '<div class="proc-btn-nucleo" style="color:#52514e">' + p.acervo + ' processos</div>';
       if (statusTxt) html += statusTxt;
       html += '</button>';
     });
