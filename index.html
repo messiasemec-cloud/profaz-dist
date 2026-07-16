@@ -1028,6 +1028,7 @@ async function buscarProcesso() {
     if (!d.encontrado) {
       box.style.cssText += ';background:#faeeda;border:0.5px solid #FAC775;color:#633806';
       box.innerHTML = '⚠ Processo não encontrado na base — preencha o fluxo manualmente. Será registrado como novo ao confirmar.';
+      filtrarTipos(false, false);
 
     } else {
       box.style.cssText += ';background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
