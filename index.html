@@ -1278,6 +1278,14 @@ async function distribuir() {
 
   if (!num)    { showFb('Informe o número do processo.','err'); return; }
   if (!fluxo)  { showFb('Selecione o fluxo.','err'); return; }
+  // bloqueia Juntada/Tramitação temporária sem busca confirmada
+  const resultadoBusca = document.getElementById('resultado-busca');
+  const buscaFeita = resultadoBusca && resultadoBusca.style.display !== 'none';
+  const buscaConfirmada = resultadoBusca && resultadoBusca.innerHTML.includes('✓');
+  if ((tipo === 'Juntada' || tipo === 'Tramitação temporária') && (!buscaFeita || !buscaConfirmada)) {
+    showFb('Para registrar uma ' + tipo + ' é necessário buscar o processo primeiro para confirmar que ele existe na base.','err');
+    return;
+  }
   // valida embargo se campo visível
   const fgEmb = document.getElementById('fg-embargo');
   if (fgEmb && fgEmb.style.display !== 'none') {
