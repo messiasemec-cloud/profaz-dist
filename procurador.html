@@ -137,6 +137,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
 
+    <!-- TABELA RESUMO -->
+    <div class="card">
+      <div class="ch">Resumo por período</div>
+      <div class="cb" style="padding:0">
+        <table id="tabela-resumo" style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:#f8f7f5">
+              <th style="padding:10px 20px;text-align:left;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Período</th>
+              <th style="padding:10px 16px;text-align:center;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Preventos<br><span style="font-size:10px;font-weight:400">(Juntada)</span></th>
+              <th style="padding:10px 16px;text-align:center;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Redistribuídos</th>
+              <th style="padding:10px 16px;text-align:center;font-weight:500;color:#0a8a7a;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Novos<br><span style="font-size:10px;font-weight:400">(1ª dist.)</span></th>
+              <th style="padding:10px 16px;text-align:center;font-weight:600;color:#1a3a5c;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Total</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-resumo-body">
+            <tr><td colspan="5" style="padding:20px;text-align:center;color:#898781">Carregando...</td></tr>
+          </tbody>
+        </table>
+        <div style="padding:10px 20px 14px;font-size:12px;color:#898781;font-style:italic;border-top:0.5px solid rgba(0,0,0,.06)">
+          ℹ Preventos (Juntada) não são contabilizados para fins de equalização — apenas processos novos (Primeira distribuição) e redistribuições alteram o acervo.
+        </div>
+      </div>
+    </div>
+
     <!-- HISTÓRICO MENSAL -->
     <div class="card">
       <div class="ch">Processos recebidos por mês</div>
@@ -349,11 +373,57 @@ async function carregarHistorico(nome, mesAtual) {
         && h.tipo !== 'Juntada' && h.tipo !== 'Tramitação temporária';
     }).length;
 
+    renderTabelaResumo(d.historico);
     renderGrafico(d.historico);
     renderTimeline(d.historico);
   } catch(e) {
     document.getElementById('chart-bars').innerHTML = '<div style="color:#e34948;font-size:13px">Erro ao carregar histórico.</div>';
   }
+}
+
+function renderTabelaResumo(historico) {
+  const agora = new Date();
+  const iniSem = new Date(agora);
+  iniSem.setDate(agora.getDate() - ((agora.getDay() + 1) % 7)); // sexta anterior
+  iniSem.setHours(12,0,0,0);
+  const iniMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+  const iniAno = new Date(agora.getFullYear(), 0, 1);
+
+  function contar(filtro) {
+    var preventos=0, redistrib=0, novos=0;
+    historico.forEach(function(h) {
+      if (!h.data) return;
+      var dt = new Date(h.data);
+      if (isNaN(dt.getTime())) return;
+      if (!filtro(dt)) return;
+      if (h.tipo === 'Juntada' || h.tipo === 'Tramitação temporária') preventos++;
+      else if (h.tipo === 'Redistribuição') redistrib++;
+      else if (h.tipo === 'Primeira distribuição') novos++;
+    });
+    return {preventos, redistrib, novos, total: preventos+redistrib+novos};
+  }
+
+  var periodos = [
+    {label:'Esta semana',  filtro: function(dt){return dt>=iniSem;}},
+    {label:'Este mês',     filtro: function(dt){return dt>=iniMes;}},
+    {label:'Este ano',     filtro: function(dt){return dt>=iniAno;}},
+    {label:'<strong>Total</strong>', filtro: function(dt){return true;}},
+  ];
+
+  var html = '';
+  periodos.forEach(function(p, i) {
+    var c = contar(p.filtro);
+    var isTot = i === periodos.length-1;
+    var trStyle = isTot ? 'background:#f0faf8;font-weight:600;border-top:1.5px solid #9FE1CB' : '';
+    html += '<tr style="border-bottom:0.5px solid rgba(0,0,0,.06);' + trStyle + '">';
+    html += '<td style="padding:10px 20px;color:#1a3a5c">' + p.label + '</td>';
+    html += '<td style="padding:10px 16px;text-align:center;color:#52514e">' + (c.preventos||'—') + '</td>';
+    html += '<td style="padding:10px 16px;text-align:center;color:#52514e">' + (c.redistrib||'—') + '</td>';
+    html += '<td style="padding:10px 16px;text-align:center;color:#085041;font-weight:500">' + (c.novos||'—') + '</td>';
+    html += '<td style="padding:10px 16px;text-align:center;color:#1a3a5c;font-weight:600">' + (c.total||'—') + '</td>';
+    html += '</tr>';
+  });
+  document.getElementById('tabela-resumo-body').innerHTML = html;
 }
 
 function renderGrafico(historico) {
