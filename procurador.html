@@ -472,14 +472,20 @@ function renderTimeline(historico) {
     return;
   }
   document.getElementById('timeline').innerHTML = ultimos.map(function(h) {
-    var fl = (h.fluxo||'').toLowerCase();
-    var bcls = fl.includes('execução') ? 'bef' : fl.includes('conhecimento') ? 'bcon' : 'badm';
-    var fluxoCurto = fl.includes('execução') ? 'EF' : fl.includes('conhecimento') ? 'Conhecimento' : 'Adm';
+    var tipo = (h.tipo||'').trim();
+    var bcls, btxt;
+    if (tipo === 'Juntada' || tipo === 'Tramitação temporária') {
+      bcls = 'bcon'; btxt = 'Prevento';
+    } else if (tipo === 'Redistribuição') {
+      bcls = 'badm'; btxt = 'Redistribuído';
+    } else {
+      bcls = 'bef'; btxt = 'Novo';
+    }
     var dataFmt = fmtData(h.data);
     return '<div class="tl-item">' +
       '<div class="tl-data">' + dataFmt + '</div>' +
-      '<div><div class="tl-num">' + (h.num_processo||'—') + '</div><div class="tl-fluxo">' + (h.tipo||'') + '</div></div>' +
-      '<div style="text-align:right"><span class="tl-badge ' + bcls + '">' + fluxoCurto + '</span></div>' +
+      '<div><div class="tl-num">' + (h.num_processo||'—') + '</div><div class="tl-fluxo" style="color:#898781">' + (h.fluxo||'') + '</div></div>' +
+      '<div style="text-align:right"><span class="tl-badge ' + bcls + '">' + btxt + '</span></div>' +
     '</div>';
   }).join('');
 }
