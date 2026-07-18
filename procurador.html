@@ -156,7 +156,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </tbody>
         </table>
         <div style="padding:10px 20px 14px;font-size:12px;color:#898781;font-style:italic;border-top:0.5px solid rgba(0,0,0,.06)">
-          ℹ Preventos (Juntada) não são contabilizados para fins de equalização — apenas processos novos (Primeira distribuição) e redistribuições alteram o acervo.
+          Preventos (Juntada) não são contabilizados para fins de equalização — apenas processos novos (Primeira distribuição) e redistribuições alteram o acervo.
         </div>
       </div>
     </div>
@@ -169,9 +169,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="loading"><span class="spin"></span></div>
         </div>
         <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#0a8a7a"></div>Conhecimento</div>
-          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#1a3a5c"></div>EF (em transição)</div>
-          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#4a3aa7"></div>Administrativo</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#0a8a7a"></div>Novos</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#1a3a5c"></div>Preventos</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#e07020"></div>Redistribuídos</div>
         </div>
       </div>
     </div>
@@ -427,38 +427,38 @@ function renderTabelaResumo(historico) {
 }
 
 function renderGrafico(historico) {
-  // agrupa por mês e tipo
+  // agrupa por mês e tipo (Novo/Prevento/Redistribuído)
   var mensal = {};
   historico.forEach(function(h) {
-    if (!h.data || h.tipo === 'Juntada' || h.tipo === 'Tramitação temporária') return;
+    if (!h.data) return;
     var dt = new Date(h.data);
     if (isNaN(dt.getTime())) return;
     var mes = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0');
-    if (!mensal[mes]) mensal[mes] = {con:0,ef:0,adm:0};
-    var fl = (h.fluxo||'').toLowerCase();
-    if (fl.includes('execução fiscal')) mensal[mes].ef++;
-    else if (fl.includes('conhecimento')) mensal[mes].con++;
-    else mensal[mes].adm++;
+    if (!mensal[mes]) mensal[mes] = {novo:0,prevento:0,redistrib:0};
+    var tipo = (h.tipo||'').trim();
+    if (tipo === 'Primeira distribuição') mensal[mes].novo++;
+    else if (tipo === 'Juntada' || tipo === 'Tramitação temporária') mensal[mes].prevento++;
+    else if (tipo === 'Redistribuição') mensal[mes].redistrib++;
   });
 
-  var meses = Object.keys(mensal).sort().slice(-8); // últimos 8 meses
+  var meses = Object.keys(mensal).sort().slice(-8);
   if (!meses.length) {
     document.getElementById('chart-bars').innerHTML = '<div style="color:#898781;font-size:13px">Sem dados de distribuição registrados.</div>';
     return;
   }
-  var maxVal = Math.max.apply(null, meses.map(function(m){ return mensal[m].con+mensal[m].ef+mensal[m].adm; })) || 1;
+  var maxVal = Math.max.apply(null, meses.map(function(m){ return mensal[m].novo+mensal[m].prevento+mensal[m].redistrib; })) || 1;
 
   document.getElementById('chart-bars').innerHTML = meses.map(function(m) {
     var d = mensal[m];
-    var total = d.con + d.ef + d.adm;
+    var total = d.novo + d.prevento + d.redistrib;
     var hTotal = Math.round(total/maxVal*80);
     var label = m.split('-')[1] + '/' + m.split('-')[0].slice(2);
     return '<div class="bar-wrap">' +
       '<div class="bar-val">' + (total||'') + '</div>' +
       '<div style="width:100%;display:flex;flex-direction:column;height:' + hTotal + 'px;border-radius:4px 4px 0 0;overflow:hidden">' +
-        '<div style="flex:' + d.adm + ';background:#4a3aa7;min-height:' + (d.adm?2:0) + 'px"></div>' +
-        '<div style="flex:' + d.ef  + ';background:#1a3a5c;min-height:' + (d.ef ?2:0) + 'px"></div>' +
-        '<div style="flex:' + d.con + ';background:#0a8a7a;min-height:' + (d.con?2:0) + 'px"></div>' +
+        '<div style="flex:' + d.redistrib + ';background:#e07020;min-height:' + (d.redistrib?2:0) + 'px"></div>' +
+        '<div style="flex:' + d.prevento  + ';background:#1a3a5c;min-height:' + (d.prevento ?2:0) + 'px"></div>' +
+        '<div style="flex:' + d.novo      + ';background:#0a8a7a;min-height:' + (d.novo?2:0) + 'px"></div>' +
       '</div>' +
       '<div class="bar-label">' + label + '</div>' +
     '</div>';
