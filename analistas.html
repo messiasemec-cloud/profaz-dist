@@ -265,25 +265,8 @@ async function confirmar() {
   const btn = document.getElementById('btn-conf');
   btn.disabled = true; btn.textContent = 'Registrando...';
   try {
-    // Registro 1: analista fez a triagem
-    const params1 = new URLSearchParams({
-      acao: 'distribuir',
-      num_processo: numProcesso,
-      fluxo: fluxoProcesso,
-      tipo: 'Primeira distribuição',
-      motivo: '',
-      nome_proc: analista,
-      titular: 'Não',
-      distribuidor: analista,
-      nucleo: 'EF',
-      etapa: 'triagem'
-    });
-    const r1 = await fetch(URL_AS + '?' + params1);
-    const d1 = await r1.json();
-    if (!d1.ok) throw new Error(d1.erro);
-
-    // Registro 2: procurador escolhido como titular
-    const params2 = new URLSearchParams({
+    // Registro único: procurador como titular, analista como distribuidor
+    const params = new URLSearchParams({
       acao: 'distribuir',
       num_processo: numProcesso,
       fluxo: fluxoProcesso,
@@ -295,7 +278,7 @@ async function confirmar() {
       nucleo: 'EF',
       etapa: 'titular'
     });
-    const r2 = await fetch(URL_AS + '?' + params2);
+    const r2 = await fetch(URL_AS + '?' + params);
     const d2 = await r2.json();
     if (!d2.ok) throw new Error(d2.erro);
 
