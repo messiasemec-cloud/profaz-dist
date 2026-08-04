@@ -1206,6 +1206,31 @@ async function buscarProcesso() {
         // sem etapa de analista
         document.getElementById('fg-etapa').style.display = 'none';
 
+        const idxTitOrig = d.titular_original ? procs.findIndex(function(p){return p.nome===d.titular_original;}) : -1;
+
+        if (d.nucleo === 'Conhecimento' && d.titular_original && d.titular_original_ativo) {
+          // ── TITULAR ORIGINAL JÁ VOLTOU DE FÉRIAS/LICENÇA (só Conhecimento) ──
+          // Processo estava com quem cobriu temporariamente; volta direto
+          // pro dono de direito (prevento), sem passar pela fila.
+          titularAtual = d.titular_original;
+          abaAtiva = 'Conhecimento';
+          document.querySelectorAll('.aba-btn').forEach(function(b){
+            b.textContent.trim().startsWith('Conhecimento') ? b.classList.add('ativa') : b.classList.remove('ativa');
+          });
+          document.getElementById('info-nucleo').textContent = 'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.';
+          document.getElementById('info-nucleo').style.display = 'block';
+          const selTipoOrig = document.getElementById('inp-tipo');
+          for (let i = 0; i < selTipoOrig.options.length; i++) {
+            if (selTipoOrig.options[i].text === 'Juntada') { selTipoOrig.selectedIndex = i; break; }
+          }
+          renderKPIs('Conhecimento', null);
+          renderOps('Conhecimento');
+          if (idxTitOrig >= 0) selProcIdx(idxTitOrig);
+          box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+          box.innerHTML = `✓ Titular original <strong>${d.titular_original}</strong> já retornou · volta direto para ele, sem fila`;
+
+        } else {
+
         // Se titular é de outro grupo → redistribuição para fila do fluxo
         const _idxCheck = d.tem_titular ? procs.findIndex(function(p){return p.nome===d.titular;}) : -1;
         const _procCheck = _idxCheck>=0 ? procs[_idxCheck] : null;
@@ -1322,6 +1347,7 @@ async function buscarProcesso() {
 
           box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong> · Sem titular — próximo da fila ${d.nucleo}`;
         }
+        } // fecha o else do bloco titular_original
       }
     }
   } catch(e) {
