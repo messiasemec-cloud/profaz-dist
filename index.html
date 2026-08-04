@@ -371,6 +371,24 @@ function setAba(nucleo, btn) {
   abaAtiva = nucleo;
   document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('ativa'));
   btn.classList.add('ativa');
+
+  // sincroniza o campo Fluxo com a aba escolhida, pra nunca gravar um
+  // processo novo com fluxo de um núcleo diferente do destinatário selecionado.
+  const selFluxo = document.getElementById('inp-fluxo');
+  const FLUXO_PADRAO = { EF: 'Execução fiscal', Conhecimento: 'Processo de conhecimento fiscal' };
+  if (FLUXO_PADRAO[nucleo]) {
+    for (let i = 0; i < selFluxo.options.length; i++) {
+      if (selFluxo.options[i].text === FLUXO_PADRAO[nucleo]) { selFluxo.selectedIndex = i; break; }
+    }
+  } else {
+    // Administrativo/PTAC têm vários fluxos possíveis — não escolhe por
+    // você, mas limpa pra evitar herdar um fluxo de EF/Conhecimento.
+    const fluxoAtual = selFluxo.value.toLowerCase();
+    if (fluxoAtual.includes('execução fiscal') || fluxoAtual.includes('conhecimento')) {
+      selFluxo.selectedIndex = 0;
+    }
+  }
+
   // atualiza título formulário info
   const infos = {
     EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',
@@ -1331,6 +1349,19 @@ async function distribuir() {
 
   if (!num)    { showFb('Informe o número do processo.','err'); return; }
   if (!fluxo)  { showFb('Selecione o fluxo.','err'); return; }
+
+  // trava de segurança: o fluxo selecionado precisa bater com o núcleo/aba
+  // ativo, senão o processo fica salvo com um fluxo que não corresponde ao
+  // destinatário escolhido (ex: registrar em Conhecimento com fluxo de EF).
+  const fluxoLower = fluxo.toLowerCase();
+  const nucleoDoFluxo = fluxoLower.includes('execução fiscal') ? 'EF'
+                       : fluxoLower.includes('conhecimento')   ? 'Conhecimento'
+                       : null;
+  if (nucleoDoFluxo && nucleoDoFluxo !== abaAtiva) {
+    showFb(`O fluxo selecionado ("${fluxo}") é de ${nucleoDoFluxo}, mas a aba ativa é ${abaAtiva}. Corrija o fluxo antes de confirmar.`, 'err');
+    return;
+  }
+
   // bloqueia Juntada/Tramitação temporária sem busca confirmada
   const resultadoBusca = document.getElementById('resultado-busca');
   const buscaFeita = resultadoBusca && resultadoBusca.style.display !== 'none';
