@@ -203,6 +203,11 @@ async function buscar() {
       res.className = 'resultado rerr';
       res.innerHTML = '✗ Este processo não é de Execução Fiscal (<strong>' + d.fluxo + '</strong>). Só processos de EF podem ser encaminhados por esta página.';
       document.getElementById('sec-procs').style.display = 'none';
+    } else if (d.em_triagem && d.analista_triagem && d.analista_triagem !== analista) {
+      // Já está em triagem com o OUTRO analista — só ele pode concluir.
+      res.className = 'resultado rerr';
+      res.innerHTML = '✗ Este processo já está em triagem com <strong>' + d.analista_triagem + '</strong>. Só ' + d.analista_triagem + ' pode encaminhá-lo. Ele volta a ficar disponível para qualquer analista assim que ' + d.analista_triagem + ' escolher o procurador titular.';
+      document.getElementById('sec-procs').style.display = 'none';
     } else {
       res.className = 'resultado rok';
       res.innerHTML = '✓ <strong>' + d.fluxo + '</strong>' + (d.titular ? ' · Titular anterior: <strong>' + d.titular + '</strong>' : ' · Sem titular anterior');
