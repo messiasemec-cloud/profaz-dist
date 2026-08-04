@@ -208,6 +208,11 @@ async function buscar() {
       res.className = 'resultado rerr';
       res.innerHTML = '✗ Este processo já está em triagem com <strong>' + d.analista_triagem + '</strong>. Só ' + d.analista_triagem + ' pode encaminhá-lo. Ele volta a ficar disponível para qualquer analista assim que ' + d.analista_triagem + ' escolher o procurador titular.';
       document.getElementById('sec-procs').style.display = 'none';
+    } else if (!d.em_triagem) {
+      // Ninguém enviou esse processo pra triagem — não há nada pra confirmar aqui.
+      res.className = 'resultado rerr';
+      res.innerHTML = '✗ Este processo não está em triagem no momento. Ele precisa ser enviado por um distribuidor primeiro (tela principal) antes de aparecer aqui.';
+      document.getElementById('sec-procs').style.display = 'none';
     } else {
       res.className = 'resultado rok';
       res.innerHTML = '✓ <strong>' + d.fluxo + '</strong>' + (d.titular ? ' · Titular anterior: <strong>' + d.titular + '</strong>' : ' · Sem titular anterior');
