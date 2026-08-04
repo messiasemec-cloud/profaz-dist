@@ -797,8 +797,11 @@ function modalFerias(idx) {
       <div class="modal-head-sub">${p.nome}</div>
     </div>
     <div class="modal-body">
+      <div style="font-size:11px;color:#898781;font-weight:500;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Data de início</div>
+      <input type="date" id="ferias-inicio" class="finput" style="margin-bottom:12px">
       <div style="font-size:11px;color:#898781;font-weight:500;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Data de retorno</div>
       <input type="date" id="ferias-retorno" class="finput">
+      <div style="font-size:11px;color:#898781;margin-top:8px">Sai da esteira de distribuição automaticamente 5 dias úteis antes do início.</div>
       <div class="modal-btns">
         <button class="modal-cancel" id="btn-cancel-ferias">Cancelar</button>
         <button class="modal-ok" id="btn-ok-ferias" style="background:#1a3a5c">Confirmar</button>
@@ -808,10 +811,13 @@ function modalFerias(idx) {
   document.body.appendChild(bg);
   bg.querySelector('#btn-cancel-ferias').onclick = () => bg.remove();
   bg.querySelector('#btn-ok-ferias').onclick = () => {
+    const ini = bg.querySelector('#ferias-inicio').value;
     const ret = bg.querySelector('#ferias-retorno').value;
+    if (!ini) { alert('Informe a data de início.'); return; }
     if (!ret) { alert('Informe a data de retorno.'); return; }
+    if (ret < ini) { alert('A data de retorno não pode ser antes da data de início.'); return; }
     bg.remove();
-    salvarStatus(p.nome, 'Férias', ret);
+    salvarStatus(p.nome, 'Férias', ret, ini);
   };
   bg.addEventListener('click', e => { if (e.target===bg) bg.remove(); });
 }
@@ -854,9 +860,9 @@ function criarModal(cor,titulo,sub,corpo,btnTxt,onOk) {
   return bg;
 }
 
-async function salvarStatus(nome, status, retorno) {
+async function salvarStatus(nome, status, retorno, inicio) {
   try {
-    const params = new URLSearchParams({acao:'toggle_status',nome,status,retorno});
+    const params = new URLSearchParams({acao:'toggle_status',nome,status,retorno,inicio: inicio || ''});
     const r = await fetch(URL_AS+'?'+params);
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
