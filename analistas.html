@@ -228,12 +228,11 @@ function renderProcs() {
     const ratio = med > 0 ? p.acervo/med : 1;
     const isPrimeiroAtivo = p.ativo && ativos.length > 0 && ativos[0].nome === p.nome;
     if (!p.ativo) {
-      const ret = p.retorno ? ' · retorno ' + fmtData(p.retorno) : '';
-      const bcls = p.status === 'Férias' ? 'bfer' : 'blic';
+      const info = infoFerias(p);
       return '<div class="pop" style="opacity:.5;cursor:not-allowed;background:#f8f7f5;pointer-events:none">' +
         '<div class="pop-nome" style="color:#898781">' + p.nome + '</div>' +
         '<div class="pop-ac">' + p.acervo + ' processos</div>' +
-        '<span class="badge ' + bcls + '">' + p.status + ret + '</span>' +
+        '<span class="badge ' + info.classe + '"' + (info.tooltip ? ' title="' + info.tooltip.replace(/"/g,'&quot;') + '"' : '') + '>' + info.texto + '</span>' +
       '</div>';
     }
     let bcls, btxt;
@@ -247,6 +246,29 @@ function renderProcs() {
       '<span class="badge ' + bcls + '">' + btxt + '</span>' +
     '</div>';
   }).join('');
+}
+
+// Distingue "Pré-férias" (dentro da carência de 5 dias úteis, mas o período
+// ainda não começou de fato) de "Férias" já em curso, pra exibição.
+function infoFerias(p) {
+  if (p.status !== 'Férias') {
+    return { texto: p.status, classe: 'blic', tooltip: '' };
+  }
+  const ret = p.retorno ? ' · retorno ' + fmtData(p.retorno) : '';
+  if (p.inicio_ferias) {
+    const partes = p.inicio_ferias.split('/');
+    const dataInicio = new Date(Number(partes[2]), Number(partes[1]) - 1, Number(partes[0]));
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    dataInicio.setHours(0,0,0,0);
+    if (hoje < dataInicio) {
+      return {
+        texto: 'Pré-férias · início ' + p.inicio_ferias.slice(0,5),
+        classe: 'bfer',
+        tooltip: 'Carência de 5 dias úteis antes do início das férias (' + p.inicio_ferias + ') · Portaria nº 0125/2025-GPG. Não recebe novos processos neste período.'
+      };
+    }
+  }
+  return { texto: 'Férias' + ret, classe: 'bfer', tooltip: '' };
 }
 
 function fmtData(s) {

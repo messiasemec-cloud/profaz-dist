@@ -300,6 +300,29 @@ let dist = '', procs = [], procSel = null, abaAtiva = 'EF', med = 0, titularAtua
 // ("próximo"). O acervo real exibido no dashboard nunca é alterado.
 // Ajuste a lista abaixo se o nome completo do Miguel na planilha for diferente.
 const NOMES_MEIA_CARGA = ['Miguel'];
+// Distingue "Pré-férias" (dentro da carência de 5 dias úteis, mas o período
+// ainda não começou de fato) de "Férias" já em curso, pra exibição.
+function infoFerias(p) {
+  if (p.status !== 'Férias') {
+    return { texto: p.status, classe: 'blic', tooltip: '' };
+  }
+  const ret = p.retorno ? ' - retorno ' + fmtData(p.retorno) : '';
+  if (p.inicio_ferias) {
+    const [d, m, a] = p.inicio_ferias.split('/');
+    const dataInicio = new Date(Number(a), Number(m) - 1, Number(d));
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    dataInicio.setHours(0,0,0,0);
+    if (hoje < dataInicio) {
+      return {
+        texto: 'Pré-férias - início ' + p.inicio_ferias.slice(0,5),
+        classe: 'bfer',
+        tooltip: 'Carência de 5 dias úteis antes do início das férias (' + p.inicio_ferias + ') - Portaria nº 0125/2025-GPG. Não recebe novos processos neste período.'
+      };
+    }
+  }
+  return { texto: 'Férias' + ret, classe: 'bfer', tooltip: '' };
+}
+
 function pesoOrdem(nome) {
   return NOMES_MEIA_CARGA.some(n => nome.trim().startsWith(n)) ? 2 : 1;
 }
@@ -575,12 +598,13 @@ function renderRow(p, i, cols, maxAc, ativos, media) {
   const cor   = cor7(p.nome);
   const isPrimeiroAtivo = p.ativo && ativos.length > 0 && ativos[0].nome === p.nome;
 
-  let badge, bcls;
+  let badge, bcls, badgeTip = '';
   const isTitular = titularAtual && p.nome === titularAtual;
   if (!p.ativo) {
-    const ret = p.retorno ? ' - retorno ' + fmtData(p.retorno) : '';
-    badge = p.status + ret;
-    bcls  = p.status === 'Férias' ? 'bfer' : 'blic';
+    const info = infoFerias(p);
+    badge = info.texto;
+    bcls  = info.classe;
+    badgeTip = info.tooltip;
   } else if (isTitular)        { badge = '← próximo (titular)'; bcls = 'bprox'; }
   else if (isPrimeiroAtivo && !titularAtual) { badge = '← próximo'; bcls = 'bprox'; }
   else if (ratio > 1.2)        { badge = 'Acima';     bcls = 'balto'; }
@@ -601,7 +625,7 @@ function renderRow(p, i, cols, maxAc, ativos, media) {
     <div class="cel">${p.acervo}</div>
     <div class="cels">${p.semana}</div>
     ${cols.split(' ').length > 5 ? `<div class="cels">${p.mes}</div>` : ''}
-    <div class="cels"><span class="badge ${bcls}">${badge}</span></div>
+    <div class="cels"><span class="badge ${bcls}"${badgeTip?` title="${badgeTip.replace(/"/g,'&quot;')}"`:''}>${badge}</span></div>
     <div onclick="event.stopPropagation()">
       <button class="badge ${scls}" style="cursor:pointer;border:0.5px solid currentColor;background:transparent;padding:3px 8px" onclick="abrirMenuStatus(${idx},this)">${p.status} ▾</button>
     </div>
@@ -644,12 +668,11 @@ function renderOps(nucleo) {
   document.getElementById('proc-ops').innerHTML = lista.map(p => {
     const idx = procs.indexOf(p);
     if (!p.ativo) {
-      const ret = p.retorno ? ' · retorno ' + fmtData(p.retorno) : '';
-      const scls = p.status === 'Férias' ? 'bfer' : 'blic';
+      const info = infoFerias(p);
       return `<div class="pop pop-inativo">
         <div class="pop-nome" style="color:#898781">${p.nome}</div>
         <div class="pop-ac">${p.acervo} processos</div>
-        <span class="badge ${scls}" style="margin-top:3px;font-size:10px">${p.status}${ret}</span>
+        <span class="badge ${info.classe}" style="margin-top:3px;font-size:10px"${info.tooltip?` title="${info.tooltip.replace(/"/g,'&quot;')}"`:''}>${info.texto}</span>
       </div>`;
     }
     const iFirst = ativosNucleo.length > 0 && ativosNucleo[0].nome === p.nome;
