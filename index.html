@@ -1399,6 +1399,8 @@ async function distribuir() {
     document.getElementById('inp-tipo').value = 'Primeira distribuição';
     document.getElementById('inp-motivo').value = '';
     document.getElementById('fg-motivo').style.display = 'none';
+    document.getElementById('resultado-busca').style.display = 'none';
+    filtrarTipos(true, false);
     procSel = null;
     titularAtual = null;
     posTriagem = false;
