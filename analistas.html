@@ -150,12 +150,13 @@ async function carregarProcs() {
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
     procs = d.procuradores.filter(function(p) { return p.nucleo === 'EF'; });
-    const ativos = procs.filter(function(p){return p.ativo;});
-    med = ativos.length ? Math.round(ativos.reduce(function(s,v){return s+v.acervo;},0)/ativos.length) : 0;
     const vals = procs.map(function(p) { return p.acervo; });
     med = vals.length ? Math.round(vals.reduce(function(s,v){return s+v;},0)/vals.length) : 0;
+    return true;
   } catch(e) {
     console.error('Erro ao carregar:', e);
+    showFb('Não foi possível carregar a lista de procuradores. Tentando de novo...', 'err');
+    return false;
   }
 }
 
@@ -173,6 +174,18 @@ async function buscar() {
 
   const btn = document.querySelector('.btn-buscar');
   btn.textContent = '⏳'; btn.disabled = true;
+
+  // garante que a lista de procuradores está carregada antes de mostrar
+  // o resultado — evita "Destinatário" vazio por condição de corrida ou
+  // falha silenciosa no carregamento inicial.
+  if (!procs || procs.length === 0) {
+    const ok = await carregarProcs();
+    if (!ok || procs.length === 0) {
+      showFb('Não foi possível carregar os procuradores. Verifique sua conexão e tente buscar novamente.', 'err');
+      btn.textContent = '🔍 Buscar'; btn.disabled = false;
+      return;
+    }
+  }
 
   try {
     const r = await fetch(URL_AS + '?acao=buscar_processo&num=' + encodeURIComponent(num));

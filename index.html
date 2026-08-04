@@ -519,6 +519,8 @@ function renderTabela(nucleo) {
         if (aEhAnalista && !bEhAnalista) return -1;
         if (bEhAnalista && !aEhAnalista) return 1;
         if (aEhAnalista && bEhAnalista) {
+          // acervo real decide primeiro; rodízio (ultimoAnalista) só desempata
+          if (a.acervo !== b.acervo) return a.acervo - b.acervo;
           if (ultimoAnalista === a.nome) return 1;
           if (ultimoAnalista === b.nome) return -1;
         }
@@ -624,6 +626,8 @@ function renderOps(nucleo) {
         if (aEhAnalista && !bEhAnalista) return -1;
         if (bEhAnalista && !aEhAnalista) return 1;
         if (aEhAnalista && bEhAnalista) {
+          // acervo real decide primeiro; rodízio (ultimoAnalista) só desempata
+          if (a.acervo !== b.acervo) return a.acervo - b.acervo;
           if (ultimoAnalista === a.nome) return 1;
           if (ultimoAnalista === b.nome) return -1;
         }
@@ -684,33 +688,46 @@ function modalEmbargo(d) {
 
   bg.querySelector('#btn-nao-embargo').onclick = function() {
     bg.remove();
-    resetEmbargo();
-    // segue fluxo EF normal
-    processarEF(d);
+    aplicarEmbargo(d, 'Não', true);
   };
   bg.querySelector('#btn-sim-embargo').onclick = function() {
     bg.remove();
-    resetEmbargo();
-    // vai para Conhecimento como redistribuição
-    abaAtiva = 'Conhecimento';
-    document.querySelectorAll('.aba-btn').forEach(function(b){
-      b.textContent.trim().startsWith('Conhecimento')?b.classList.add('ativa'):b.classList.remove('ativa');
-    });
-    document.getElementById('info-nucleo').textContent = 'Núcleo Conhecimento — embargo à execução.';
-    document.getElementById('info-nucleo').style.display = 'block';
-    document.getElementById('fg-etapa').style.display = 'none';
-    // tipo = Redistribuição
-    var selT = document.getElementById('inp-tipo');
-    for(var i=0;i<selT.options.length;i++){if(selT.options[i].text==='Redistribuição'){selT.selectedIndex=i;break;}}
-    document.getElementById('fg-motivo').style.display = 'none';
-    titularAtual = null;
-    renderKPIs('Conhecimento', null);
-    renderOps('Conhecimento');
-    var box = document.getElementById('resultado-busca');
-    box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
-    box.innerHTML = '✓ Embargo à Execução · Redistribuição → grupo <strong>Conhecimento</strong> · próximo da fila';
+    aplicarEmbargo(d, 'Sim', true);
   };
   bg.addEventListener('click', function(e){ if(e.target===bg) bg.remove(); });
+}
+
+// Aplica a decisão de embargo (Sim/Não) ao fluxo, e — se vier do modal —
+// grava a resposta no back-end pra não perguntar de novo nas próximas buscas
+// deste mesmo processo.
+function aplicarEmbargo(d, resposta, persistir) {
+  resetEmbargo();
+  if (persistir) {
+    fetch(URL_AS + '?' + new URLSearchParams({ acao: 'marcar_embargo', num_processo: d.num_processo, embargo: resposta }))
+      .catch(function(e){ console.error('Falha ao registrar embargo:', e); });
+  }
+  if (resposta === 'Não') {
+    // segue fluxo EF normal
+    processarEF(d);
+    return;
+  }
+  // Sim → vai para Conhecimento como redistribuição
+  abaAtiva = 'Conhecimento';
+  document.querySelectorAll('.aba-btn').forEach(function(b){
+    b.textContent.trim().startsWith('Conhecimento')?b.classList.add('ativa'):b.classList.remove('ativa');
+  });
+  document.getElementById('info-nucleo').textContent = 'Núcleo Conhecimento — embargo à execução.';
+  document.getElementById('info-nucleo').style.display = 'block';
+  document.getElementById('fg-etapa').style.display = 'none';
+  var selT = document.getElementById('inp-tipo');
+  for(var i=0;i<selT.options.length;i++){if(selT.options[i].text==='Redistribuição'){selT.selectedIndex=i;break;}}
+  document.getElementById('fg-motivo').style.display = 'none';
+  titularAtual = null;
+  renderKPIs('Conhecimento', null);
+  renderOps('Conhecimento');
+  var box = document.getElementById('resultado-busca');
+  box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+  box.innerHTML = '✓ Embargo à Execução · Redistribuição → grupo <strong>Conhecimento</strong> · próximo da fila';
 }
 
 function processarEF(d) {
@@ -1045,7 +1062,13 @@ async function buscarProcesso() {
 
       if (ehEF) {
         // ── FLUXO EF ─────────────────────────────────────────────
-        // Se processo já está na base (juntada EF) → pergunta se é embargo
+        // Se processo já está na base (juntada EF) e ainda não foi respondido
+        // se é embargo → pergunta. Se já foi respondido antes, aplica direto.
+        if (d.encontrado && (d.embargo === 'Sim' || d.embargo === 'Não')) {
+          aplicarEmbargo(d, d.embargo, false);
+          btn.textContent = '🔍 Buscar'; btn.disabled = false;
+          return;
+        }
         if (d.encontrado) {
           // Mostra modal de embargo
           modalEmbargo(d);
