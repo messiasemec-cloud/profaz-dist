@@ -278,13 +278,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <option>Foro íntimo do procurador(a) designado(a)</option>
             </select>
           </div>
-          <div class="fg">
-            <label>Titular?</label>
-            <select id="inp-titular">
-              <option value="Sim">Sim</option>
-              <option value="Não">Não</option>
-            </select>
-          </div>
           <div class="fg full">
             <label>Destinatário *</label>
             <div class="proc-ops" id="proc-ops">
@@ -1281,7 +1274,7 @@ async function distribuir() {
   const fluxo  = document.getElementById('inp-fluxo').value;
   const tipo   = document.getElementById('inp-tipo').value;
   const motivo = document.getElementById('inp-motivo').value;
-  const tit    = document.getElementById('inp-titular').value;
+  const tit    = (tipo === 'Tramitação temporária') ? 'Não' : 'Sim'; // definido automaticamente pelo tipo
   const etapa  = abaAtiva === 'EF' ? document.getElementById('inp-etapa').value : 'titular';
 
   if (!num)    { showFb('Informe o número do processo.','err'); return; }
