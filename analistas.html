@@ -254,7 +254,7 @@ function infoFerias(p) {
   if (p.status !== 'Férias') {
     return { texto: p.status, classe: 'blic', tooltip: '' };
   }
-  const ret = p.retorno ? ' · retorno ' + fmtData(p.retorno) : '';
+  const ret = p.retorno ? ' · até ' + fmtData(p.retorno) : '';
   if (p.inicio_ferias) {
     const partes = p.inicio_ferias.split('/');
     const dataInicio = new Date(Number(partes[2]), Number(partes[1]) - 1, Number(partes[0]));

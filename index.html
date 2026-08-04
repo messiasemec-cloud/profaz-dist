@@ -307,7 +307,7 @@ function infoFerias(p) {
   if (p.status !== 'Férias') {
     return { texto: p.status, classe: 'blic', tooltip: '' };
   }
-  const ret = p.retorno ? ' - retorno ' + fmtData(p.retorno) : '';
+  const ret = p.retorno ? ' - até ' + fmtData(p.retorno) : '';
   if (p.inicio_ferias) {
     const [d, m, a] = p.inicio_ferias.split('/');
     const dataInicio = new Date(Number(a), Number(m) - 1, Number(d));
@@ -793,7 +793,7 @@ function processarEF(d) {
   var idxTitEF = d.tem_titular ? procs.findIndex(function(p){return p.nome===d.titular;}) : -1;
   var procTitEF = idxTitEF>=0 ? procs[idxTitEF] : null;
   var aviso = procTitEF && !procTitEF.ativo
-    ? ' · <em style="color:#1a3a5c">ℹ Titular de '+procTitEF.status+(procTitEF.retorno?' · retorno '+fmtData(procTitEF.retorno):'')+'</em>'
+    ? ' · <em style="color:#1a3a5c">ℹ Titular de '+procTitEF.status+(procTitEF.retorno?' · até '+fmtData(procTitEF.retorno):'')+'</em>'
     : '';
   var box = document.getElementById('resultado-busca');
   box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
@@ -841,7 +841,7 @@ function modalFerias(idx) {
     <div class="modal-body">
       <div style="font-size:11px;color:#898781;font-weight:500;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Data de início</div>
       <input type="date" id="ferias-inicio" class="finput" style="margin-bottom:12px">
-      <div style="font-size:11px;color:#898781;font-weight:500;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Data de retorno</div>
+      <div style="font-size:11px;color:#898781;font-weight:500;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Fim das férias (último dia)</div>
       <input type="date" id="ferias-retorno" class="finput">
       <div style="font-size:11px;color:#898781;margin-top:8px">Sai da esteira de distribuição automaticamente 5 dias úteis antes do início.</div>
       <div class="modal-btns">
@@ -1170,7 +1170,7 @@ async function buscarProcesso() {
             for (let i = 0; i < selTipo.options.length; i++) {
               if (selTipo.options[i].text === 'Tramitação temporária') { selTipo.selectedIndex = i; break; }
             }
-                      const ret = procTitEF.retorno ? ` · retorno ${procTitEF.retorno}` : '';
+                      const ret = procTitEF.retorno ? ` · até ${procTitEF.retorno}` : '';
             box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
             box.innerHTML = `⚠ Já passou pela triagem · Titular <strong>${d.titular}</strong> de ${procTitEF.status}${ret} · Tramitação temporária → próximo da fila EF`;
 
@@ -1195,7 +1195,7 @@ async function buscarProcesso() {
         
           const infoTit = d.tem_titular ? ` · Titular: <strong>${d.titular}</strong>` : ' · Sem titular';
           const aviso = procTitEF && !titEFDisponivel
-            ? ` · <em style="color:#1a3a5c">ℹ Titular de ${procTitEF.status}${procTitEF.retorno ? ' · retorno '+procTitEF.retorno : ''}</em>`
+            ? ` · <em style="color:#1a3a5c">ℹ Titular de ${procTitEF.status}${procTitEF.retorno ? ' · até '+procTitEF.retorno : ''}</em>`
             : '';
           box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
           box.innerHTML = `✓ Processo encontrado · <strong>${d.fluxo}</strong>${infoTit}${aviso} · → Analistas (triagem)`;
@@ -1292,7 +1292,7 @@ async function buscarProcesso() {
             renderKPIs(abaFluxo, null);
                       renderOps(abaFluxo);
 
-            const retornoInfo = procTit.retorno ? ' · retorno ' + fmtData(procTit.retorno) : '';
+            const retornoInfo = procTit.retorno ? ' · até ' + fmtData(procTit.retorno) : '';
             box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
             box.innerHTML = `⚠ Titular <strong>${d.titular}</strong> está de ${procTit.status}${retornoInfo} · Tipo alterado para <strong>Tramitação temporária</strong> · Escolha quem vai cobrir na fila de ${abaFluxo}`;
 
