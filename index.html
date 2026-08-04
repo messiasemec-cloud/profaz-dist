@@ -359,7 +359,7 @@ function setAba(nucleo, btn) {
   const infos = {
     EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',
     Conhecimento: 'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',
-    Administrativo: 'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.',
+    Administrativo: 'Administrativo — processos tipo PXXXXXXX. Distribuído entre os procuradores fixos do núcleo.',
     PTAC: 'PTAC — Projeto especial. Titular: Raimundo Gomes de Almeida Neto.'
   };
   const info = document.getElementById('info-nucleo');
@@ -385,7 +385,7 @@ function renderAba(nucleo, d) {
   const infos = {
     EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',
     Conhecimento: 'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',
-    Administrativo: 'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.',
+    Administrativo: 'Administrativo — processos tipo PXXXXXXX. Distribuído entre os procuradores fixos do núcleo.',
     PTAC: 'PTAC — Projeto especial. Titular: Raimundo Gomes de Almeida Neto.'
   };
   const info = document.getElementById('info-nucleo');
@@ -901,7 +901,7 @@ function onFluxoChange() {
     const infos = {
       EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',
       Conhecimento: 'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',
-      Administrativo: 'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.',
+      Administrativo: 'Administrativo — processos tipo PXXXXXXX. Distribuído entre os procuradores fixos do núcleo.',
       PTAC: 'PTAC — Projeto especial. Titular: Raimundo Gomes de Almeida Neto.'
     };
     document.getElementById('info-nucleo').textContent = infos[novaAba] || '';
@@ -1222,7 +1222,7 @@ async function buscarProcesso() {
                             (nucleoTit==='Administrativo'&&txt.startsWith('Administrativo'));
               ativo ? b.classList.add('ativa') : b.classList.remove('ativa');
             });
-            const infos = {EF:'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',Conhecimento:'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',Administrativo:'Administrativo — processos tipo PXXXXXXX. Titular: Maria Lindauria Lima Nascimento.'};
+            const infos = {EF:'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',Conhecimento:'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',Administrativo:'Administrativo — processos tipo PXXXXXXX. Distribuído entre os procuradores fixos do núcleo.'};
             document.getElementById('info-nucleo').textContent = infos[nucleoTit]||'';
             document.getElementById('info-nucleo').style.display = 'block';
             document.getElementById('fg-etapa').style.display = 'none';
