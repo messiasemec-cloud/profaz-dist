@@ -140,23 +140,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <!-- TABELA RESUMO -->
     <div class="card">
       <div class="ch">Resumo por período</div>
-      <div class="cb" style="padding:0">
+      <div class="cb" style="padding:0;overflow-x:auto">
         <table id="tabela-resumo" style="width:100%;border-collapse:collapse;font-size:13px">
           <thead>
             <tr style="background:#f8f7f5">
               <th style="padding:10px 20px;text-align:left;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Período</th>
-              <th style="padding:10px 16px;text-align:center;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Preventos<br><span style="font-size:10px;font-weight:400">(Juntada)</span></th>
-              <th style="padding:10px 16px;text-align:center;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Redistribuídos</th>
-              <th style="padding:10px 16px;text-align:center;font-weight:500;color:#0a8a7a;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Novos<br><span style="font-size:10px;font-weight:400">(1ª dist.)</span></th>
-              <th style="padding:10px 16px;text-align:center;font-weight:600;color:#1a3a5c;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Total</th>
+              <th style="padding:10px 14px;text-align:center;font-weight:500;color:#0a8a7a;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Novos<br><span style="font-size:10px;font-weight:400">(1ª dist.)</span></th>
+              <th style="padding:10px 14px;text-align:center;font-weight:500;color:#4a3aa7;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Redistrib.</th>
+              <th style="padding:10px 14px;text-align:center;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Juntada</th>
+              <th style="padding:10px 14px;text-align:center;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Tramit.<br><span style="font-size:10px;font-weight:400">temp.</span></th>
+              <th style="padding:10px 14px;text-align:center;font-weight:600;color:#1a3a5c;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Total<br><span style="font-size:10px;font-weight:400">recebido</span></th>
+              <th style="padding:10px 14px;text-align:center;font-weight:600;color:#085041;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Acervo ↑</th>
             </tr>
           </thead>
           <tbody id="tabela-resumo-body">
-            <tr><td colspan="5" style="padding:20px;text-align:center;color:#898781">Carregando...</td></tr>
+            <tr><td colspan="7" style="padding:20px;text-align:center;color:#898781">Carregando...</td></tr>
           </tbody>
         </table>
         <div style="padding:10px 20px 14px;font-size:12px;color:#898781;font-style:italic;border-top:0.5px solid rgba(0,0,0,.06)">
-          Preventos (Juntada) não são contabilizados para fins de equalização — apenas processos novos (Primeira distribuição) e redistribuições alteram o acervo.
+          <strong>Total recebido</strong> soma tudo que passou pela mão do procurador no período. <strong>Acervo ↑</strong> mostra só o que de fato aumentou o acervo para fins de equalização (Novos + Redistribuições) — Juntada e Tramitação temporária não contam para isso.
         </div>
       </div>
     </div>
@@ -365,12 +367,14 @@ async function carregarHistorico(nome, mesAtual) {
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
 
+    // Conta TODOS os tipos (incluindo Juntada/Tramitação temporária) — este
+    // KPI mede quanto passou pela pessoa no geral, não só o que altera o
+    // acervo pra fins de equalização (isso já é medido em "Meu acervo").
     document.getElementById('kv-mes').textContent = d.historico.filter(function(h) {
       if (!h.data) return false;
       const dt = new Date(h.data);
       const agora = new Date();
-      return dt.getMonth() === agora.getMonth() && dt.getFullYear() === agora.getFullYear()
-        && h.tipo !== 'Juntada' && h.tipo !== 'Tramitação temporária';
+      return dt.getMonth() === agora.getMonth() && dt.getFullYear() === agora.getFullYear();
     }).length;
 
     renderTabelaResumo(d.historico);
