@@ -80,6 +80,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bbaixo{background:#faeeda;color:#633806}
 .bprox{background:#1baf7a;color:#fff}
 .bfer{background:#e8eef5;color:#1a3a5c}
+.bprefer{background:#faeeda;color:#8a5a00;border:1px solid #eda100}
 .blic{background:#f3eef9;color:#4a3aa7}
 .bsm{font-size:12px;padding:5px 12px;border:0.5px solid #c3c2b7;border-radius:6px;background:#fff;cursor:pointer}
 
@@ -304,8 +305,8 @@ function infoFerias(p) {
     if (hoje < dataInicio) {
       return {
         texto: 'Pré-férias - início ' + p.inicio_ferias.slice(0,5),
-        classe: 'bfer',
-        tooltip: 'Carência de 5 dias úteis antes do início das férias (' + p.inicio_ferias + ') - Portaria nº 0125/2025-GPG. Não recebe novos processos neste período.'
+        classe: 'bprefer',
+        tooltip: 'Segundo a Portaria nº 125/2025-GPG/PGM, o procurador não recebe processos nos 5 (cinco) dias úteis que antecedem o início das férias (início em ' + p.inicio_ferias + ').'
       };
     }
   }
