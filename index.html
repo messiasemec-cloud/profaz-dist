@@ -82,6 +82,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bfer{background:#e8eef5;color:#1a3a5c}
 .bprefer{background:#faeeda;color:#8a5a00;border:1px solid #eda100}
 .blic{background:#f3eef9;color:#4a3aa7}
+.sbtn-ativo{color:#1baf7a}
+.sbtn-ferias{color:#1a3a5c}
+.sbtn-prefer{color:#8a5a00}
+.sbtn-licenca{color:#4a3aa7}
 .bsm{font-size:12px;padding:5px 12px;border:0.5px solid #c3c2b7;border-radius:6px;background:#fff;cursor:pointer}
 
 /* SEPARADOR ANALISTAS */
@@ -619,7 +623,11 @@ function renderRow(p, i, cols, maxAc, ativos, media) {
   else if (ratio < 0.8)        { badge = 'Abaixo';    bcls = 'bbaixo'; }
   else                          { badge = 'OK';         bcls = 'bok'; }
 
-  const scls = p.status === 'Férias' ? 'sbtn-ferias' : p.status === 'Licença' ? 'sbtn-licenca' : 'sbtn-ativo';
+  const MAPA_SBTN = { bfer: 'sbtn-ferias', bprefer: 'sbtn-prefer', blic: 'sbtn-licenca' };
+  const infoStatus = !p.ativo ? infoFerias(p) : null;
+  const scls = infoStatus ? (MAPA_SBTN[infoStatus.classe] || 'sbtn-ativo') : 'sbtn-ativo';
+  const statusTxt = infoStatus && infoStatus.texto.startsWith('Pré-férias') ? 'Pré-férias' : p.status;
+  const statusTip = infoStatus && infoStatus.tooltip ? ` title="${infoStatus.tooltip.replace(/"/g,'&quot;')}"` : '';
   const idx  = procs.indexOf(p);
 
   return `<div class="pr ${isPrimeiroAtivo?'prox':''} ${!p.ativo?'inativo':'clicavel'}" style="grid-template-columns:${cols}" onclick="${p.ativo?`selTab(${idx})`:'void(0)'}">
@@ -635,7 +643,7 @@ function renderRow(p, i, cols, maxAc, ativos, media) {
     ${cols.split(' ').length > 5 ? `<div class="cels">${p.mes}</div>` : ''}
     <div class="cels"><span class="badge ${bcls}"${badgeTip?` title="${badgeTip.replace(/"/g,'&quot;')}"`:''}>${badge}</span></div>
     <div onclick="event.stopPropagation()">
-      <button class="badge ${scls}" style="cursor:pointer;border:0.5px solid currentColor;background:transparent;padding:3px 8px" onclick="abrirMenuStatus(${idx},this)">${p.status} ▾</button>
+      <button class="badge ${scls}" style="cursor:pointer;border:0.5px solid currentColor;background:transparent;padding:3px 8px"${statusTip} onclick="abrirMenuStatus(${idx},this)">${statusTxt} ▾</button>
     </div>
   </div>`;
 }
