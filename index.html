@@ -718,23 +718,22 @@ function modalEmbargo(d) {
 
   bg.querySelector('#btn-nao-embargo').onclick = function() {
     bg.remove();
-    aplicarEmbargo(d, 'Não', true);
+    aplicarEmbargo(d, 'Não', false);
   };
   bg.querySelector('#btn-sim-embargo').onclick = function() {
     bg.remove();
-    aplicarEmbargo(d, 'Sim', true);
+    aplicarEmbargo(d, 'Sim', false);
   };
   bg.addEventListener('click', function(e){ if(e.target===bg) bg.remove(); });
 }
 
-// Aplica a decisão de embargo (Sim/Não) ao fluxo, e — se vier do modal —
-// grava a resposta no back-end pra não perguntar de novo nas próximas buscas
-// deste mesmo processo.
-function aplicarEmbargo(d, resposta, persistir) {
-  if (persistir) {
-    fetch(URL_AS + '?' + new URLSearchParams({ acao: 'marcar_embargo', num_processo: d.num_processo, embargo: resposta }))
-      .catch(function(e){ console.error('Falha ao registrar embargo:', e); });
-  }
+// Aplica a decisão de embargo (Sim/Não) ao fluxo — só na TELA. A resposta
+// só é gravada na planilha quando a distribuição for de fato confirmada
+// (distribuir()); se a pessoa clicou errado e não confirmar, uma busca
+// nova do mesmo processo mostra o modal de novo, permitindo corrigir.
+let embargoResposta = '';
+function aplicarEmbargo(d, resposta, jaVeioDoBanco) {
+  embargoResposta = jaVeioDoBanco ? '' : resposta; // já persistido antes → não precisa reenviar
   if (resposta === 'Não') {
     // segue fluxo EF normal
     processarEF(d);
@@ -1061,6 +1060,7 @@ async function buscarProcesso() {
 
   const btn = document.querySelector('button[onclick="buscarProcesso()"]');
   btn.textContent = '⏳'; btn.disabled = true;
+  embargoResposta = '';
 
   try {
     const r = await fetch(URL_AS + '?acao=buscar_processo&num=' + encodeURIComponent(num));
@@ -1094,7 +1094,7 @@ async function buscarProcesso() {
         // Se processo já está na base (juntada EF) e ainda não foi respondido
         // se é embargo → pergunta. Se já foi respondido antes, aplica direto.
         if (d.encontrado && (d.embargo === 'Sim' || d.embargo === 'Não')) {
-          aplicarEmbargo(d, d.embargo, false);
+          aplicarEmbargo(d, d.embargo, true);
           btn.textContent = '🔍 Buscar'; btn.disabled = false;
           return;
         }
@@ -1384,7 +1384,7 @@ async function distribuir() {
     const params = new URLSearchParams({
       acao:'distribuir', num_processo:num, fluxo, tipo, motivo,
       nome_proc:procSel, titular:tit, distribuidor:dist,
-      nucleo:abaAtiva, etapa
+      nucleo:abaAtiva, etapa, embargo_resp: embargoResposta
     });
     const r = await fetch(URL_AS+'?'+params);
     const d = await r.json();
@@ -1397,6 +1397,7 @@ async function distribuir() {
     document.getElementById('fg-motivo').style.display = 'none';
     document.getElementById('resultado-busca').style.display = 'none';
     processoConfirmado = false;
+    embargoResposta = '';
     filtrarTipos(true, false);
     procSel = null;
     titularAtual = null;
