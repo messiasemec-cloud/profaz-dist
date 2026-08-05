@@ -294,6 +294,22 @@ let processoConfirmado = false; // true assim que buscarProcesso() encontra o pr
 // ("próximo"). O acervo real exibido no dashboard nunca é alterado.
 // Ajuste a lista abaixo se o nome completo do Miguel na planilha for diferente.
 const NOMES_MEIA_CARGA = ['Miguel'];
+// Interpreta uma data vinda da planilha, aceitando tanto "dd/mm/aaaa" (texto)
+// quanto qualquer outro formato que o JS consiga entender (ex: célula que
+// ficou como Data de verdade em vez de texto). Retorna null se não conseguir.
+function parseDataBR(valor) {
+  if (!valor) return null;
+  const texto = String(valor).trim();
+  if (!texto) return null;
+  const m1 = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m1) {
+    const dt = new Date(Number(m1[3]), Number(m1[2]) - 1, Number(m1[1]));
+    return isNaN(dt.getTime()) ? null : dt;
+  }
+  const tentativa = new Date(texto);
+  return isNaN(tentativa.getTime()) ? null : tentativa;
+}
+
 // Distingue "Pré-férias" (dentro da carência de 5 dias úteis, mas o período
 // ainda não começou de fato) de "Férias" já em curso, pra exibição.
 function infoFerias(p) {
@@ -301,16 +317,15 @@ function infoFerias(p) {
     return { texto: p.status, classe: 'blic', tooltip: '' };
   }
   const ret = p.retorno ? ' - até ' + fmtData(p.retorno) : '';
-  if (p.inicio_ferias) {
-    const [d, m, a] = p.inicio_ferias.split('/');
-    const dataInicio = new Date(Number(a), Number(m) - 1, Number(d));
+  const dataInicio = parseDataBR(p.inicio_ferias);
+  if (dataInicio) {
     const hoje = new Date(); hoje.setHours(0,0,0,0);
     dataInicio.setHours(0,0,0,0);
     if (hoje < dataInicio) {
       return {
-        texto: 'Pré-férias - início ' + p.inicio_ferias.slice(0,5),
+        texto: 'Pré-férias - início ' + fmtData(p.inicio_ferias),
         classe: 'bprefer',
-        tooltip: 'Segundo a Portaria nº 125/2025-GPG/PGM, o procurador não recebe processos nos 5 (cinco) dias úteis que antecedem o início das férias (início em ' + p.inicio_ferias + ').'
+        tooltip: 'Segundo a Portaria nº 125/2025-GPG/PGM, o procurador não recebe processos nos 5 (cinco) dias úteis que antecedem o início das férias (início em ' + fmtData(p.inicio_ferias) + ').'
       };
     }
   }
