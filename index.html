@@ -239,18 +239,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <option>Solicitar extrato ou atualização de cálculo</option>
             </select>
           </div>
-          <div class="fg full" id="fg-embargo" style="display:none">
-            <label style="color:#633806;font-weight:500">⚖ Este processo é um Embargo à Execução? *</label>
-            <div style="display:flex;gap:12px;margin-top:6px">
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 14px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:14px;background:#fff" id="lbl-embargo-nao">
-                <input type="radio" name="embargo" value="nao" onchange="onEmbargoChange('nao')" style="cursor:pointer"> Não
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 14px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:14px;background:#fff" id="lbl-embargo-sim">
-                <input type="radio" name="embargo" value="sim" onchange="onEmbargoChange('sim')" style="cursor:pointer"> Sim
-              </label>
-            </div>
-            <div id="embargo-aviso" style="display:none;font-size:12px;color:#e34948;margin-top:4px">⚠ Responda se é embargo antes de confirmar.</div>
-          </div>
           <div class="fg">
             <label>Tipo de distribuição *</label>
             <select id="inp-tipo" onchange="toggleMotivo()">
@@ -743,7 +731,6 @@ function modalEmbargo(d) {
 // grava a resposta no back-end pra não perguntar de novo nas próximas buscas
 // deste mesmo processo.
 function aplicarEmbargo(d, resposta, persistir) {
-  resetEmbargo();
   if (persistir) {
     fetch(URL_AS + '?' + new URLSearchParams({ acao: 'marcar_embargo', num_processo: d.num_processo, embargo: resposta }))
       .catch(function(e){ console.error('Falha ao registrar embargo:', e); });
@@ -761,6 +748,15 @@ function aplicarEmbargo(d, resposta, persistir) {
   document.getElementById('info-nucleo').textContent = 'Núcleo Conhecimento — embargo à execução.';
   document.getElementById('info-nucleo').style.display = 'block';
   document.getElementById('fg-etapa').style.display = 'none';
+
+  // Troca o fluxo pra um tipo de Conhecimento — o processo passa a ser
+  // tratado como Conhecimento de verdade daqui pra frente (regras de
+  // prevenção, titular original etc. passam a valer), não só nessa tela.
+  var selFluxo = document.getElementById('inp-fluxo');
+  for (var k = 0; k < selFluxo.options.length; k++) {
+    if (selFluxo.options[k].text === 'Processo de conhecimento fiscal') { selFluxo.selectedIndex = k; break; }
+  }
+
   var selT = document.getElementById('inp-tipo');
   for(var i=0;i<selT.options.length;i++){if(selT.options[i].text==='Redistribuição'){selT.selectedIndex=i;break;}}
   document.getElementById('fg-motivo').style.display = 'none';
@@ -774,7 +770,6 @@ function aplicarEmbargo(d, resposta, persistir) {
 
 function processarEF(d) {
   // fluxo EF normal após confirmação "não é embargo"
-  titularAtual = null;
   abaAtiva = 'EF';
   document.querySelectorAll('.aba-btn').forEach(function(b){
     b.textContent.trim().startsWith('Execução')?b.classList.add('ativa'):b.classList.remove('ativa');
@@ -782,23 +777,69 @@ function processarEF(d) {
   document.getElementById('info-nucleo').textContent = 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.';
   document.getElementById('info-nucleo').style.display = 'block';
   document.getElementById('fg-motivo').style.display = 'none';
-  atualizarEtapa();
-  renderKPIs('EF', null);
-  renderOps('EF');
-  posTriagem = false;
   procSel = null;
   document.querySelectorAll('.pop').forEach(function(e){e.classList.remove('sel');});
   document.getElementById('btn-dist').disabled = true;
-  var infoTit = d.tem_titular ? ' · Titular original: <strong>'+d.titular+'</strong>' : ' · Sem titular';
+
+  var box = document.getElementById('resultado-busca');
   var idxTitEF = d.tem_titular ? procs.findIndex(function(p){return p.nome===d.titular;}) : -1;
   var procTitEF = idxTitEF>=0 ? procs[idxTitEF] : null;
-  var aviso = procTitEF && !procTitEF.ativo
-    ? ' · <em style="color:#1a3a5c">ℹ Titular de '+procTitEF.status+(procTitEF.retorno?' · até '+fmtData(procTitEF.retorno):'')+'</em>'
-    : '';
-  var box = document.getElementById('resultado-busca');
-  box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
-  box.innerHTML = '✓ Execução fiscal'+infoTit+aviso+' · → Analistas (triagem)';
-  renderTabela('EF');
+  var titEFDisponivel = procTitEF && procTitEF.ativo;
+  var titEFnoGrupoEF = procTitEF && procTitEF.nucleo === 'EF';
+
+  if (d.em_triagem) {
+    // ── JÁ ESTÁ EM TRIAGEM COM ALGUÉM — não deixa mandar pra outro analista.
+    // Só permite escolher o procurador titular final; enquanto isso não
+    // acontecer, uma nova busca desse mesmo número cai aqui de novo, não
+    // volta a oferecer os analistas como destino.
+    posTriagem = true; // analistas não aparecem como opção
+    var selEtapa = document.getElementById('inp-etapa');
+    for (var i = 0; i < selEtapa.options.length; i++) {
+      if (selEtapa.options[i].value === 'titular') { selEtapa.selectedIndex = i; break; }
+    }
+    document.getElementById('fg-etapa').style.display = 'flex';
+
+    if (d.tem_titular && titEFnoGrupoEF && titEFDisponivel) {
+      titularAtual = d.titular;
+      renderKPIs('EF', null);
+      renderOps('EF');
+      if (idxTitEF >= 0) selProcIdx(idxTitEF);
+      box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+      box.innerHTML = '✓ Em triagem · Volta para titular: <strong>'+d.titular+'</strong>';
+    } else if (d.tem_titular && titEFnoGrupoEF && !titEFDisponivel) {
+      titularAtual = null;
+      var selTipo = document.getElementById('inp-tipo');
+      for (var j = 0; j < selTipo.options.length; j++) {
+        if (selTipo.options[j].text === 'Tramitação temporária') { selTipo.selectedIndex = j; break; }
+      }
+      var ret = procTitEF.retorno ? ' · até '+fmtData(procTitEF.retorno) : '';
+      renderKPIs('EF', null);
+      renderOps('EF');
+      box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
+      box.innerHTML = '⚠ Em triagem · Titular <strong>'+d.titular+'</strong> de '+procTitEF.status+ret+' · Tramitação temporária → próximo da fila EF';
+    } else {
+      titularAtual = null;
+      renderKPIs('EF', null);
+      renderOps('EF');
+      box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+      box.innerHTML = '✓ Em triagem · Procuradores EF no topo — ainda não foi encaminhado por quem está com o processo';
+    }
+
+  } else {
+    // ── NOVA COMUNICAÇÃO — ninguém está com o processo agora, vai pros analistas
+    titularAtual = null;
+    posTriagem = false;
+    atualizarEtapa();
+    renderKPIs('EF', null);
+    renderOps('EF');
+
+    var infoTit = d.tem_titular ? ' · Titular original: <strong>'+d.titular+'</strong>' : ' · Sem titular';
+    var aviso = procTitEF && !titEFDisponivel
+      ? ' · <em style="color:#1a3a5c">ℹ Titular de '+procTitEF.status+(procTitEF.retorno?' · até '+fmtData(procTitEF.retorno):'')+'</em>'
+      : '';
+    box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
+    box.innerHTML = '✓ Execução fiscal'+infoTit+aviso+' · → Analistas (triagem)';
+  }
 }
 
 function abrirMenuStatus(idx, btn) {
@@ -969,67 +1010,6 @@ function onFluxoChange() {
   }
 
   atualizarEtapa();
-  toggleEmbargo();
-}
-
-function resetEmbargo() {
-  document.querySelectorAll('input[name="embargo"]').forEach(function(r){r.checked=false;});
-  var lnao = document.getElementById('lbl-embargo-nao');
-  var lsim = document.getElementById('lbl-embargo-sim');
-  var aviso = document.getElementById('embargo-aviso');
-  var fg = document.getElementById('fg-embargo');
-  if(lnao){lnao.style.borderColor='#c3c2b7';lnao.style.background='#fff';}
-  if(lsim){lsim.style.borderColor='#c3c2b7';lsim.style.background='#fff';}
-  if(aviso){aviso.style.display='none';}
-  if(fg){fg.style.display='none';}
-}
-
-function toggleEmbargo() {
-  const fluxo = document.getElementById('inp-fluxo').value.toLowerCase();
-  const ehEF = fluxo.includes('execução fiscal');
-  const fg = document.getElementById('fg-embargo');
-  if (fg) {
-    if (ehEF) {
-      fg.style.display = 'flex'; // mostra só quando EF manual
-    } else {
-      resetEmbargo(); // esconde e reseta para outros fluxos
-    }
-  }
-}
-
-function onEmbargoChange(val) {
-  // highlight selected option
-  document.getElementById('lbl-embargo-nao').style.borderColor = val==='nao' ? '#0a8a7a' : '#c3c2b7';
-  document.getElementById('lbl-embargo-nao').style.background  = val==='nao' ? '#e1f5ee' : '#fff';
-  document.getElementById('lbl-embargo-sim').style.borderColor = val==='sim' ? '#633806' : '#c3c2b7';
-  document.getElementById('lbl-embargo-sim').style.background  = val==='sim' ? '#faeeda' : '#fff';
-  document.getElementById('embargo-aviso').style.display = 'none';
-  const chk = val === 'sim';
-  if (chk) {
-    // muda para aba Conhecimento
-    const abaBtns = document.querySelectorAll('.aba-btn');
-    abaBtns.forEach(function(b) {
-      b.textContent.trim().startsWith('Conhecimento') ? b.classList.add('ativa') : b.classList.remove('ativa');
-    });
-    abaAtiva = 'Conhecimento';
-    document.getElementById('info-nucleo').textContent = 'Núcleo Conhecimento — embargo à execução vai para o próximo da fila de Conhecimento.';
-    document.getElementById('info-nucleo').style.display = 'block';
-    document.getElementById('fg-etapa').style.display = 'none';
-    renderKPIs('Conhecimento', null);
-    renderOps('Conhecimento');
-  } else {
-    // volta para EF
-    const abaBtns = document.querySelectorAll('.aba-btn');
-    abaBtns.forEach(function(b) {
-      b.textContent.trim().startsWith('Execução') ? b.classList.add('ativa') : b.classList.remove('ativa');
-    });
-    abaAtiva = 'EF';
-    document.getElementById('info-nucleo').textContent = 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas.';
-    document.getElementById('info-nucleo').style.display = 'block';
-    atualizarEtapa();
-    renderKPIs('EF', null);
-    renderOps('EF');
-  }
 }
 
 function filtrarTipos(encontrado, temTitular) {
@@ -1081,7 +1061,6 @@ async function buscarProcesso() {
 
   const btn = document.querySelector('button[onclick="buscarProcesso()"]');
   btn.textContent = '⏳'; btn.disabled = true;
-  resetEmbargo();
 
   try {
     const r = await fetch(URL_AS + '?acao=buscar_processo&num=' + encodeURIComponent(num));
@@ -1397,16 +1376,6 @@ async function distribuir() {
     showFb('Para registrar uma ' + tipo + ' é necessário buscar o processo primeiro para confirmar que ele existe na base.','err');
     return;
   }
-  // valida embargo se campo visível
-  const fgEmb = document.getElementById('fg-embargo');
-  if (fgEmb && fgEmb.style.display !== 'none') {
-    const embargoResp = document.querySelector('input[name="embargo"]:checked');
-    if (!embargoResp) {
-      document.getElementById('embargo-aviso').style.display = 'block';
-      showFb('Responda se é Embargo à Execução antes de confirmar.','err');
-      return;
-    }
-  }
   if (!procSel){ showFb('Selecione um destinatário.','err'); return; }
 
   const btn = document.getElementById('btn-dist');
@@ -1432,9 +1401,6 @@ async function distribuir() {
     procSel = null;
     titularAtual = null;
     posTriagem = false;
-    document.querySelectorAll('input[name="embargo"]').forEach(function(r){r.checked=false;});
-    var fgEmb2 = document.getElementById('fg-embargo');
-    if(fgEmb2) { fgEmb2.style.display='none'; }
     document.querySelectorAll('.pop').forEach(e=>e.classList.remove('sel'));
     document.getElementById('btn-dist').disabled = true;
     await carregar();
