@@ -349,6 +349,26 @@ function login(nome) {
 
 // ── CARREGAR ──────────────────────────────────────────────────────
 async function carregar() {
+  // Limpa a busca/formulário de distribuição em andamento — clicar em
+  // Atualizar deve voltar ao estado inicial, não deixar número/resultado
+  // de uma busca anterior parado na tela.
+  document.getElementById('inp-num').value = '';
+  document.getElementById('inp-fluxo').value = '';
+  document.getElementById('inp-tipo').value = 'Primeira distribuição';
+  document.getElementById('inp-motivo').value = '';
+  document.getElementById('fg-motivo').style.display = 'none';
+  document.getElementById('resultado-busca').style.display = 'none';
+  processoConfirmado = false;
+  embargoResposta = '';
+  perguntouEmbargoNovo = false;
+  titularPerdidoEmbargo = '';
+  procSel = null;
+  titularAtual = null;
+  posTriagem = false;
+  filtrarTipos(true, false);
+  const btnDist = document.getElementById('btn-dist');
+  if (btnDist) btnDist.disabled = true;
+
   document.getElementById('lista-acervo').innerHTML = '<div class="loading"><span class="spin"></span>Carregando...</div>';
   try {
     const r = await fetch(URL_AS + '?acao=dashboard');
