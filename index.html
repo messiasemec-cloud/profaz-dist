@@ -155,15 +155,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="cb">
       <div style="font-size:14px;font-weight:500;margin-bottom:14px">Quem está distribuindo agora?</div>
       <div class="btn-grid">
-        <button class="bsel" onclick="login('Gerliane Martins')" style="text-align:left">
+        <button class="bsel" onclick="pedirPin('Gerliane Martins', login)" style="text-align:left">
           <div style="font-weight:500">Gerliane Martins</div>
           <div style="font-size:11px;color:#898781;margin-top:2px">Serviço de Apoio Administrativo</div>
         </button>
-        <button class="bsel" onclick="login('Célia Gonçalves')" style="text-align:left">
+        <button class="bsel" onclick="pedirPin('Célia Gonçalves', login)" style="text-align:left">
           <div style="font-weight:500">Célia Gonçalves</div>
           <div style="font-size:11px;color:#898781;margin-top:2px">Assistente de Apoio à Gestão</div>
         </button>
-        <button class="bsel" onclick="login('José Erisvaldo')" style="text-align:left">
+        <button class="bsel" onclick="pedirPin('José Erisvaldo', login)" style="text-align:left">
           <div style="font-weight:500">José Erisvaldo</div>
           <div style="font-size:11px;color:#898781;margin-top:2px">Assistente de Apoio à Gestão</div>
         </button>
@@ -345,6 +345,100 @@ function login(nome) {
   document.getElementById('tela-login').style.display = 'none';
   document.getElementById('tela-principal').style.display = 'block';
   carregar();
+}
+
+// ── PIN — pede/cadastra o PIN antes de liberar o login de verdade ──
+async function pedirPin(nome, callback) {
+  try {
+    const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'status_pin', nome }));
+    const d = await r.json();
+    if (!d.ok) { alert('Erro: ' + (d.erro || 'falha ao checar PIN')); return; }
+    if (d.bloqueado) {
+      modalPin(nome, callback, 'bloqueado', d.minutos_restantes);
+    } else if (!d.tem_pin) {
+      modalPin(nome, callback, 'criar');
+    } else {
+      modalPin(nome, callback, 'verificar');
+    }
+  } catch(e) { alert('Erro ao checar PIN: ' + e.message); }
+}
+
+function modalPin(nome, callback, modo, minutos) {
+  document.querySelectorAll('.modal-bg').forEach(m => m.remove());
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg';
+  bg.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:999';
+
+  if (modo === 'bloqueado') {
+    bg.innerHTML = `<div class="modal-box" style="background:#fff;border-radius:12px;padding:24px;max-width:340px;width:90%">
+      <div style="font-weight:600;margin-bottom:8px;color:#791f1f">⚠ Muitas tentativas erradas</div>
+      <div style="font-size:13px;color:#52514e;margin-bottom:16px">PIN de <strong>${nome}</strong> bloqueado por segurança. Tenta de novo em ~${minutos} minuto${minutos>1?'s':''}.</div>
+      <button class="modal-cancel" id="btn-fechar-pin" style="width:100%;padding:10px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;cursor:pointer">Fechar</button>
+    </div>`;
+    document.body.appendChild(bg);
+    bg.querySelector('#btn-fechar-pin').onclick = () => bg.remove();
+    return;
+  }
+
+  if (modo === 'criar') {
+    bg.innerHTML = `<div class="modal-box" style="background:#fff;border-radius:12px;padding:24px;max-width:340px;width:90%">
+      <div style="font-weight:600;margin-bottom:8px">Criar PIN — ${nome}</div>
+      <div style="font-size:12px;color:#898781;margin-bottom:14px">Primeira vez entrando. Escolha um PIN de 4 dígitos pra confirmar sua identidade nas próximas vezes.</div>
+      <input id="pin-novo" type="password" inputmode="numeric" maxlength="4" placeholder="Novo PIN (4 dígitos)" style="width:100%;padding:10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:16px;letter-spacing:4px;text-align:center;margin-bottom:10px">
+      <input id="pin-confirma" type="password" inputmode="numeric" maxlength="4" placeholder="Confirme o PIN" style="width:100%;padding:10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:16px;letter-spacing:4px;text-align:center;margin-bottom:6px">
+      <div id="pin-erro" style="font-size:12px;color:#e34948;min-height:16px;margin-bottom:8px"></div>
+      <div style="display:flex;gap:8px">
+        <button class="modal-cancel" id="btn-cancel-pin" style="flex:1;padding:10px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;cursor:pointer">Cancelar</button>
+        <button class="modal-ok" id="btn-criar-pin" style="flex:1;padding:10px;border-radius:8px;border:none;background:#0a8a7a;color:#fff;cursor:pointer">Criar</button>
+      </div>
+    </div>`;
+    document.body.appendChild(bg);
+    bg.querySelector('#btn-cancel-pin').onclick = () => bg.remove();
+    bg.querySelector('#btn-criar-pin').onclick = async () => {
+      const p1 = bg.querySelector('#pin-novo').value.trim();
+      const p2 = bg.querySelector('#pin-confirma').value.trim();
+      const erroEl = bg.querySelector('#pin-erro');
+      if (!/^\d{4}$/.test(p1)) { erroEl.textContent = 'PIN precisa ter exatamente 4 dígitos.'; return; }
+      if (p1 !== p2) { erroEl.textContent = 'Os dois PINs não são iguais.'; return; }
+      try {
+        const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'definir_pin', nome, pin: p1 }));
+        const d = await r.json();
+        if (!d.ok) { erroEl.textContent = d.erro || 'Erro ao criar PIN.'; return; }
+        bg.remove();
+        callback(nome);
+      } catch(e) { erroEl.textContent = 'Erro: ' + e.message; }
+    };
+    return;
+  }
+
+  // modo === 'verificar'
+  bg.innerHTML = `<div class="modal-box" style="background:#fff;border-radius:12px;padding:24px;max-width:340px;width:90%">
+    <div style="font-weight:600;margin-bottom:8px">Digite seu PIN — ${nome}</div>
+    <input id="pin-digitado" type="password" inputmode="numeric" maxlength="4" placeholder="PIN (4 dígitos)" style="width:100%;padding:10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:16px;letter-spacing:4px;text-align:center;margin-bottom:6px" autofocus>
+    <div id="pin-erro" style="font-size:12px;color:#e34948;min-height:16px;margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px">
+      <button class="modal-cancel" id="btn-cancel-pin" style="flex:1;padding:10px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;cursor:pointer">Cancelar</button>
+      <button class="modal-ok" id="btn-ok-pin" style="flex:1;padding:10px;border-radius:8px;border:none;background:#0a8a7a;color:#fff;cursor:pointer">Entrar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(bg);
+  bg.querySelector('#btn-cancel-pin').onclick = () => bg.remove();
+  const tentarEntrar = async () => {
+    const pin = bg.querySelector('#pin-digitado').value.trim();
+    const erroEl = bg.querySelector('#pin-erro');
+    if (!/^\d{4}$/.test(pin)) { erroEl.textContent = 'Digite os 4 dígitos.'; return; }
+    try {
+      const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'verificar_pin', nome, pin }));
+      const d = await r.json();
+      if (!d.ok) { erroEl.textContent = d.erro || 'Erro ao verificar PIN.'; return; }
+      if (d.bloqueado) { bg.remove(); modalPin(nome, callback, 'bloqueado', d.minutos_restantes); return; }
+      if (!d.correto) { erroEl.textContent = 'PIN incorreto.' + (d.tentativas_restantes ? ' (' + d.tentativas_restantes + ' tentativa' + (d.tentativas_restantes>1?'s':'') + ' restante' + (d.tentativas_restantes>1?'s':'') + ')' : ''); return; }
+      bg.remove();
+      callback(nome);
+    } catch(e) { erroEl.textContent = 'Erro: ' + e.message; }
+  };
+  bg.querySelector('#btn-ok-pin').onclick = tentarEntrar;
+  bg.querySelector('#pin-digitado').addEventListener('keydown', e => { if (e.key === 'Enter') tentarEntrar(); });
 }
 
 // ── CARREGAR ──────────────────────────────────────────────────────
@@ -665,6 +759,13 @@ function renderRow(p, i, cols, maxAc, ativos, media) {
   const statusTip = infoStatus && infoStatus.tooltip ? ` title="${infoStatus.tooltip.replace(/"/g,'&quot;')}"` : '';
   const idx  = procs.indexOf(p);
 
+  // Analista/Distribuidor: não têm "acervo" de verdade (não são donos de
+  // processo, só executam ações) — o número em destaque vira o do mês
+  // corrente, que zera sozinho a cada mês, em vez de acumular pra sempre.
+  const ehFluxo = p.nucleo === 'Analista' || p.nucleo === 'Distribuidor';
+  const valorPrincipal = ehFluxo ? p.mes : p.acervo;
+  const notaFluxo = ehFluxo ? ' title="Contagem do mês — zera todo mês. Não é acervo acumulado, é volume de ações no período."' : '';
+
   return `<div class="pr ${isPrimeiroAtivo?'prox':''} ${!p.ativo?'inativo':'clicavel'}" style="grid-template-columns:${cols}" onclick="${p.ativo?`selTab(${idx})`:'void(0)'}">
     <div class="pi">
       <div class="av" style="background:${cor}22;color:${cor}">${ini(p.nome)}</div>
@@ -673,7 +774,7 @@ function renderRow(p, i, cols, maxAc, ativos, media) {
         <div class="pd"><div class="barra"><div class="bbg"><div class="bfill" style="width:${pct}%;background:${cor}"></div></div><span style="font-size:10px">${pct}%</span></div></div>
       </div>
     </div>
-    <div class="cel">${p.acervo}</div>
+    <div class="cel"${notaFluxo}>${valorPrincipal}${ehFluxo?' <span style="font-size:9px;font-weight:400;color:#898781">/mês</span>':''}</div>
     <div class="cels">${p.semana}</div>
     ${cols.split(' ').length > 5 ? `<div class="cels">${p.mes}</div>` : ''}
     <div class="cels"><span class="badge ${bcls}"${badgeTip?` title="${badgeTip.replace(/"/g,'&quot;')}"`:''}>${badge}</span></div>

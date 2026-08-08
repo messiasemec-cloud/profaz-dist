@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PROFAZ — Analistas</title>
+<title>PROFAZ — Meu Acervo</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f3f0;color:#0b0b0b;min-height:100vh}
@@ -15,50 +15,67 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .header-info p{font-size:12px;color:#52514e;margin:2px 0 0}
 .header-stripe{height:5px;background:linear-gradient(90deg,#0a8a7a 0%,#0a8a7a 40%,#e07020 40%,#e07020 75%,#1a7ab5 75%,#1a7ab5 80%,#e07020 80%,#e07020 95%,#0a8a7a 95%)}
 .huser{font-size:13px;color:#52514e;text-align:right}
-.main{max-width:760px;margin:0 auto;padding:24px 16px}
+.main{max-width:800px;margin:0 auto;padding:24px 16px}
 .card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;overflow:hidden;margin-bottom:20px}
 .cb{padding:20px}
-.ch{padding:14px 20px;border-bottom:0.5px solid rgba(0,0,0,.08);font-size:14px;font-weight:500}
-.btn-grid{display:flex;gap:10px;flex-wrap:wrap}
-.bsel{padding:10px 20px;border:0.5px solid #c3c2b7;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;transition:all .15s}
-.bsel:hover{border-color:#0a8a7a;background:#e1f5ee}
-.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
-.fg label{font-size:12px;color:#898781;font-weight:500}
-.fg input{padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:14px;outline:none;width:100%}
-.fg input:focus{border-color:#0a8a7a}
-.btn-buscar{padding:8px 16px;background:#0a8a7a;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;white-space:nowrap}
-.btn-buscar:hover{background:#076b5e}
-.resultado{border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:14px;display:none}
-.rok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
-.rerr{background:#fcebeb;border:0.5px solid #F09595;color:#791f1f}
-.rwar{background:#faeeda;border:0.5px solid #FAC775;color:#633806}
-.proc-ops{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px;margin-top:6px}
-.pop{padding:10px 12px;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;cursor:pointer;transition:all .12s}
-.pop:hover{border-color:#0a8a7a;background:#e1f5ee}
-.pop.sel{border-color:#0a8a7a;background:#e1f5ee}
-.pop-nome{font-size:12px;font-weight:500;line-height:1.3}
-.pop-ac{font-size:11px;color:#898781;margin-top:3px}
-.badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:20px;font-weight:500;margin-top:3px}
-.bprox{background:#1baf7a;color:#fff}
-.bok{background:#e1f5ee;color:#085041}
-.balto{background:#fcebeb;color:#791f1f}
-.bbaixo{background:#faeeda;color:#633806}
-.bfer{background:#e8eef5;color:#1a3a5c}
-.bprefer{background:#faeeda;color:#8a5a00;border:1px solid #eda100}
-.blic{background:#f3eef9;color:#4a3aa7}
-.btn-conf{width:100%;padding:12px;background:#0a8a7a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;margin-top:16px;transition:background .15s}
-.btn-conf:hover{background:#076b5e}
-.btn-conf:disabled{background:#888;cursor:not-allowed}
-.fb{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none}
-.fbok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
-.fberr{background:#fcebeb;border:0.5px solid #F09595;color:#791f1f}
-.loading{text-align:center;padding:30px;color:#898781;font-size:14px}
+.ch{padding:14px 20px;border-bottom:0.5px solid rgba(0,0,0,.08);font-size:14px;font-weight:500;color:#1a3a5c}
+
+/* LOGIN */
+.proc-grid{display:flex;flex-wrap:wrap;gap:10px}
+.proc-btn{padding:10px 12px;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;background:#fff;cursor:pointer;text-align:left;transition:all .15s;width:175px}
+.proc-btn:hover{border-color:#0a8a7a;background:#e1f5ee}
+.proc-btn-nome{font-size:13px;font-weight:500}
+.proc-btn-nucleo{font-size:11px;color:#898781;margin-top:2px}
+
+/* MENSAGEM SITUACIONAL */
+.msg-card{border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px}
+.msg-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.msg-texto{font-size:14px;line-height:1.6}
+.msg-titulo{font-weight:600;margin-bottom:4px}
+
+/* KPIs */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:10px;padding:14px 16px}
+.kl{font-size:11px;color:#898781;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.kv{font-size:26px;font-weight:500;color:#1a3a5c}
+.ks{font-size:12px;color:#898781;margin-top:3px}
+
+/* BARRA DE EQUALIZAÇÃO */
+.eq-container{margin-bottom:6px}
+.eq-label{display:flex;justify-content:space-between;font-size:12px;color:#898781;margin-bottom:6px}
+.eq-track{position:relative;height:12px;background:#e1e0d9;border-radius:6px;overflow:visible}
+.eq-fill{height:100%;border-radius:6px;transition:width .5s}
+.eq-media-line{position:absolute;top:-4px;width:2px;height:20px;background:#1a3a5c;border-radius:1px}
+.eq-media-label{position:absolute;top:-20px;font-size:10px;color:#1a3a5c;transform:translateX(-50%);white-space:nowrap}
+
+/* GRÁFICO MENSAL */
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:100px;padding:0 4px}
+.bar-wrap{display:flex;flex-direction:column;align-items:center;flex:1}
+.bar{width:100%;border-radius:4px 4px 0 0;min-height:2px;transition:height .4s}
+.bar-label{font-size:10px;color:#898781;margin-top:4px;text-align:center}
+.bar-val{font-size:10px;color:#1a3a5c;font-weight:500;margin-bottom:2px}
+
+/* LINHA DO TEMPO */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:grid;grid-template-columns:90px 1fr 120px;align-items:center;padding:10px 0;border-bottom:0.5px solid rgba(0,0,0,.06);font-size:13px}
+.tl-item:last-child{border-bottom:none}
+.tl-data{color:#898781;font-size:12px}
+.tl-num{font-weight:500;font-size:12px}
+.tl-fluxo{font-size:11px;color:#52514e;margin-top:2px}
+.tl-badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;text-align:right}
+.bef{background:#e1f5ee;color:#085041}
+.bcon{background:#e8eef5;color:#1a3a5c}
+.badm{background:#f3eef9;color:#4a3aa7}
+.bcomp{background:#fcebeb;color:#791f1f}
+
+.loading{text-align:center;padding:30px;color:#898781}
 .spin{display:inline-block;width:18px;height:18px;border:2px solid #e1e0d9;border-top-color:#0a8a7a;border-radius:50%;animation:spin .8s linear infinite;margin-right:6px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
+.btn-voltar{font-size:13px;color:#0a8a7a;cursor:pointer;background:none;border:none;padding:0;margin-bottom:16px;display:block}
+.btn-voltar:hover{text-decoration:underline}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="header-top">
     <div style="display:flex;align-items:center;gap:1.5rem">
@@ -66,7 +83,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="header-divider"></div>
       <div class="header-info">
         <h1>PROFAZ — Sistema Auxiliar de Distribuição Equitativa - SADE</h1>
-        <p>Encaminhamento dos Analistas</p>
+        <p>Meu acervo</p>
         <p><em>Desenvolvido por Emanuel Sales · Analista da PGM · PROFAZ</em></p>
       </div>
     </div>
@@ -79,47 +96,96 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <!-- LOGIN -->
   <div id="tela-login" class="card">
+    <div class="ch">Selecione seu nome</div>
     <div class="cb">
-      <div style="font-size:14px;font-weight:500;margin-bottom:14px">Quem está encaminhando?</div>
-      <div class="btn-grid">
-        <button class="bsel" onclick="pedirPin('David Bruno', login)" style="text-align:left">
-          <div style="font-weight:500">David Bruno</div>
-          <div style="font-size:11px;color:#898781;margin-top:2px">Analista da PGM</div>
-        </button>
-        <button class="bsel" onclick="pedirPin('João Pedro', login)" style="text-align:left">
-          <div style="font-weight:500">João Pedro</div>
-          <div style="font-size:11px;color:#898781;margin-top:2px">Analista da PGM</div>
-        </button>
+      <div class="proc-grid" id="proc-grid">
+        <div class="loading"><span class="spin"></span>Carregando...</div>
       </div>
     </div>
   </div>
 
-  <!-- PRINCIPAL -->
-  <div id="tela-principal" style="display:none">
+  <!-- PAINEL INDIVIDUAL -->
+  <div id="tela-painel" style="display:none">
+    <button class="btn-voltar" onclick="voltarLogin()">← Voltar</button>
 
+    <!-- MENSAGEM SITUACIONAL -->
+    <div id="msg-situacional"></div>
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi"><div class="kl">Meu acervo</div><div class="kv" id="kv-acervo">—</div><div class="ks">processos</div></div>
+      <div class="kpi"><div class="kl">Média do grupo</div><div class="kv" id="kv-media">—</div><div class="ks">processos</div></div>
+      <div class="kpi"><div class="kl">Recebidos este mês</div><div class="kv" id="kv-mes">—</div><div class="ks">processos</div></div>
+    </div>
+
+    <!-- BARRA DE EQUALIZAÇÃO -->
     <div class="card">
-      <div class="ch">Encaminhar processo para procurador EF</div>
+      <div class="ch" id="eq-titulo">Posição no grupo</div>
       <div class="cb">
-        <div id="fb" class="fb"></div>
-
-        <!-- Busca -->
-        <div class="fg">
-          <label>Número do processo *</label>
-          <div style="display:flex;gap:8px">
-            <input id="inp-num" type="text" placeholder="ex: 0001234-55.2024.8.06.0001" oninput="limparResultado()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscar();}">
-            <button class="btn-buscar" onclick="buscar()">🔍 Buscar</button>
+        <div class="eq-container">
+          <div class="eq-label">
+            <span id="eq-menor-label">Menor</span>
+            <span id="eq-maior-label">Maior</span>
           </div>
+          <div class="eq-track" id="eq-track">
+            <div class="eq-fill" id="eq-fill"></div>
+            <div class="eq-media-line" id="eq-media-line">
+              <div class="eq-media-label" id="eq-media-label">Média</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:#52514e;text-align:center" id="eq-desc"></div>
         </div>
+      </div>
+    </div>
 
-        <div id="resultado" class="resultado"></div>
-
-        <!-- Fila procuradores EF -->
-        <div id="sec-procs" style="display:none">
-          <div style="font-size:12px;color:#898781;font-weight:500;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Destinatário *</div>
-          <div class="proc-ops" id="proc-ops"></div>
-          <button class="btn-conf" id="btn-conf" onclick="confirmar()" disabled>Confirmar encaminhamento</button>
+    <!-- TABELA RESUMO -->
+    <div class="card">
+      <div class="ch">Resumo por período</div>
+      <div class="cb" style="padding:0;overflow-x:auto">
+        <table id="tabela-resumo" style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:#f8f7f5">
+              <th style="padding:10px 20px;text-align:left;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Período</th>
+              <th style="padding:10px 14px;text-align:center;font-weight:500;color:#0a8a7a;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Novos<br><span style="font-size:10px;font-weight:400">(1ª dist.)</span></th>
+              <th style="padding:10px 14px;text-align:center;font-weight:500;color:#4a3aa7;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Redistrib.</th>
+              <th style="padding:10px 14px;text-align:center;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Juntada</th>
+              <th style="padding:10px 14px;text-align:center;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Tramit.<br><span style="font-size:10px;font-weight:400">temp.</span></th>
+              <th style="padding:10px 14px;text-align:center;font-weight:600;color:#1a3a5c;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Total<br><span style="font-size:10px;font-weight:400">recebido</span></th>
+              <th style="padding:10px 14px;text-align:center;font-weight:600;color:#085041;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Acervo ↑</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-resumo-body">
+            <tr><td colspan="7" style="padding:20px;text-align:center;color:#898781">Carregando...</td></tr>
+          </tbody>
+        </table>
+        <div style="padding:10px 20px 14px;font-size:12px;color:#898781;font-style:italic;border-top:0.5px solid rgba(0,0,0,.06)">
+          <strong>Total recebido</strong> soma tudo que passou pela mão do procurador no período. <strong>Acervo ↑</strong> mostra só o que de fato aumentou o acervo para fins de equalização (Novos + Redistribuições) — Juntada e Tramitação temporária não contam para isso.
         </div>
+      </div>
+    </div>
 
+    <!-- HISTÓRICO MENSAL -->
+    <div class="card">
+      <div class="ch">Processos recebidos por mês</div>
+      <div class="cb">
+        <div class="chart-bars" id="chart-bars">
+          <div class="loading"><span class="spin"></span></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#0a8a7a"></div>Novos</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#1a3a5c"></div>Preventos</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#e07020"></div>Redistribuídos</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINHA DO TEMPO -->
+    <div class="card">
+      <div class="ch">Últimos processos recebidos</div>
+      <div class="cb" style="padding:0 20px">
+        <div class="timeline" id="timeline">
+          <div class="loading"><span class="spin"></span></div>
+        </div>
       </div>
     </div>
 
@@ -128,21 +194,82 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <script>
 const URL_AS = 'https://script.google.com/macros/s/AKfycbzt186mHh_LrKKI1gg5hofoQl_mwj5rRxkgZCjiCIcId2UVDtlbWHwdo05lSU9_hNCP/exec';
-let analista = '';
-let procs = [];
-let procSel = null;
-let numProcesso = '';
-let fluxoProcesso = '';
-let med = 0;
+let procAtual = null;
+let todosProcs = [];
 
-const cargosAn = {'David Bruno':'Analista da PGM','João Pedro':'Analista da PGM'};
-function login(nome) {
-  analista = nome;
-  const cargo = cargosAn[nome] || '';
-  document.getElementById('huser').innerHTML = '<div style="text-align:right"><div style="font-size:13px;color:#52514e"><strong>' + nome + '</strong></div>' + (cargo ? '<div style="font-size:11px;color:#898781">' + cargo + '</div>' : '') + '</div>';
-  document.getElementById('tela-login').style.display = 'none';
-  document.getElementById('tela-principal').style.display = 'block';
-  carregarProcs();
+// ── CARREGAR LISTA DE PROCURADORES ────────────────────────────────
+async function init() {
+  try {
+    const r = await fetch(URL_AS + '?acao=dashboard');
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro || JSON.stringify(d));
+    if (!d.procuradores || !d.procuradores.length) throw new Error('Nenhum procurador retornado');
+    todosProcs = d.procuradores;
+    renderLogin(d.procuradores);
+  } catch(e) {
+    document.getElementById('proc-grid').innerHTML = '<div style="color:#e34948;padding:10px">Erro ao carregar: ' + e.message + '</div>';
+  }
+}
+
+function renderLogin(procs) {
+  const grupos = [
+    {id:'EF',             label:'Execução Fiscal', cor:'#0a8a7a'},
+    {id:'Conhecimento',   label:'Conhecimento',     cor:'#1a3a5c'},
+    {id:'Administrativo', label:'Administrativo',   cor:'#4a3aa7'},
+    {id:'PTAC',           label:'PTAC',             cor:'#c45c00'},
+  ];
+
+  window._listaAll = procs;
+  var html = '';
+
+  grupos.forEach(function(g) {
+    var lista = [];
+    lista = procs.filter(function(p){ return p.nucleo===g.id; })
+      .sort(function(a,b){ return a.acervo-b.acervo; });
+    if (!lista.length) return;
+
+    html += '<div style="margin-bottom:20px">';
+    html += '<div style="font-size:12px;font-weight:600;color:'+g.cor+';text-transform:uppercase;letter-spacing:.06em;border-left:3px solid '+g.cor+';padding-left:10px;margin-bottom:10px">▸ '+g.label+'</div>';
+    html += '<div class="proc-grid">';
+
+    lista.forEach(function(p) {
+      var globalIdx = procs.indexOf(p);
+      var statusTxt = '';
+      if (!p.ativo) {
+        var ret = p.retorno ? ' · retorno ' + fmtDataLogin(p.retorno) : '';
+        statusTxt = '<div style="font-size:11px;color:#1a3a5c;margin-top:2px">' + p.status + ret + '</div>';
+      }
+      // sempre habilitado — licença e férias só indicam status
+      var corGrupo = g.cor;
+      var btnStyle = 'border-left:3px solid '+corGrupo+';' + (!p.ativo?'background:#f8f7f5;':'');
+      html += '<button class="proc-btn" onclick="abrirPainelIdx('+globalIdx+')" style="'+btnStyle+'">';
+      html += '<div class="proc-btn-nome" style="color:'+corGrupo+';font-weight:600">' + p.nome + '</div>';
+      html += '<div class="proc-btn-nucleo" style="color:#52514e">' + p.acervo + ' processos</div>';
+      if (statusTxt) html += statusTxt;
+      html += '</button>';
+    });
+
+    html += '</div></div>';
+  });
+
+  document.getElementById('proc-grid').innerHTML = html;
+}
+
+
+function fmtDataLogin(s) {
+  if(!s) return '';
+  var str = String(s);
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return str;
+  try { var dt=new Date(str); if(!isNaN(dt.getTime())) return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear(); } catch(e){}
+  return '';
+}
+
+
+function abrirPainelIdx(i) {
+  var lista = window._listaAll || window._listaCon;
+  if (lista && lista[i]) {
+    pedirPin(lista[i].nome, abrirPainel);
+  }
 }
 
 // ── PIN — pede/cadastra o PIN antes de liberar o login de verdade ──
@@ -238,219 +365,257 @@ function modalPin(nome, callback, modo, minutos) {
   bg.querySelector('#pin-digitado').addEventListener('keydown', function(e){ if (e.key === 'Enter') tentarEntrar(); });
 }
 
-async function carregarProcs() {
+function voltarLogin() {
+  document.getElementById('tela-login').style.display = 'block';
+  document.getElementById('tela-painel').style.display = 'none';
+  document.getElementById('huser').textContent = '';
+  procAtual = null;
+}
+
+// ── ABRIR PAINEL ──────────────────────────────────────────────────
+async function abrirPainel(nome) {
+  procAtual = nome;
+  document.getElementById('huser').innerHTML = '<div style="text-align:right"><div style="font-size:13px;color:#52514e"><strong>' + nome + '</strong></div><div style="font-size:11px;color:#898781">Procurador(a) do Município</div></div>';
+  document.getElementById('tela-login').style.display = 'none';
+  document.getElementById('tela-painel').style.display = 'block';
+
+  const proc = todosProcs.find(function(p) { return p.nome === nome; });
+  // calcula média do grupo do próprio procurador
+  var nucleoProc = proc ? proc.nucleo : 'Conhecimento';
+  var grupoFiltro = nucleoProc === 'EF' 
+    ? function(p){ return p.nucleo==='EF' && p.ativo; }
+    : function(p){ return p.nucleo===nucleoProc && p.ativo; };
+  const grupo = todosProcs.filter(grupoFiltro);
+  const acervos = grupo.map(function(p) { return p.acervo; });
+  const media  = acervos.length ? Math.round(acervos.reduce(function(s,v){return s+v;},0) / acervos.length) : 0;
+  const maximo = acervos.length ? Math.max.apply(null, acervos) : 0;
+  const minimo = acervos.length ? Math.min.apply(null, acervos) : 0;
+  const meuAcervo = proc ? proc.acervo : 0;
+  const diff = meuAcervo - media;
+
+  // título dinâmico
+  var tituloGrupo = nucleoProc === 'EF' ? 'Execução Fiscal' : nucleoProc;
+  document.getElementById('eq-titulo').textContent = 'Posição no grupo ' + tituloGrupo;
+  // KPIs
+  document.getElementById('kv-acervo').textContent = meuAcervo;
+  document.getElementById('kv-media').textContent  = media;
+
+  // Mensagem situacional
+  renderMensagem(meuAcervo, media, diff);
+
+  // Barra de equalização
+  renderBarra(meuAcervo, media, minimo, maximo);
+
+  // Histórico e timeline
+  await carregarHistorico(nome, proc ? proc.mes : 0);
+}
+
+function renderMensagem(acervo, media, diff) {
+  let cor, bg, titulo, texto;
+  if (Math.abs(diff) <= 10) {
+    cor='#085041'; bg='#e1f5ee';
+    titulo = '✓ Você está equilibrado com o grupo';
+    texto  = 'Seu acervo está próximo da média (' + media + ' processos). A distribuição seguirá normalmente.';
+  } else if (diff < 0) {
+    cor='#1a3a5c'; bg='#e8eef5';
+    titulo = 'Você está ' + Math.abs(diff) + ' processos abaixo da média';
+    texto  = 'Nas próximas distribuições receberá mais processos até equilibrar com o grupo.';
+  } else {
+    cor='#633806'; bg='#faeeda';
+    titulo = 'Você está ' + diff + ' processos acima da média';
+    texto  = 'Seu acervo está acima da média do grupo (' + media + '). Nas próximas distribuições pode receber menos processos temporariamente.';
+  }
+  document.getElementById('msg-situacional').innerHTML =
+    '<div class="msg-card" style="background:' + bg + ';border:0.5px solid ' + cor + '33">' +
+      '<div class="msg-dot" style="background:' + cor + '"></div>' +
+      '<div class="msg-texto" style="color:' + cor + '">' +
+        '<div class="msg-titulo">' + titulo + '</div>' +
+        texto +
+      '</div>' +
+    '</div>';
+}
+
+function renderBarra(acervo, media, minimo, maximo) {
+  // usa escala a partir de 0 para mostrar sempre barra visível
+  const escalaMax = maximo * 1.05 || 1;
+  const pctProc  = Math.max(3, Math.round(acervo  / escalaMax * 100));
+  const pctMedia = Math.round(media / escalaMax * 100);
+
+  const cor = acervo > media + 10 ? '#e07020' : acervo < media - 10 ? '#0a8a7a' : '#1baf7a';
+
+  document.getElementById('eq-fill').style.width  = pctProc + '%';
+  document.getElementById('eq-fill').style.background = cor;
+  document.getElementById('eq-media-line').style.left  = pctMedia + '%';
+  document.getElementById('eq-media-label').textContent = 'Média (' + media + ')';
+  document.getElementById('eq-menor-label').textContent = '0';
+  document.getElementById('eq-maior-label').textContent = 'Maior (' + maximo + ')';
+  var diff2 = acervo - media;
+  document.getElementById('eq-desc').textContent =
+    'Seu acervo: ' + acervo + ' processos  ·  Média do grupo: ' + media + '  ·  ' +
+    (diff2 >= 0 ? '+' : '') + diff2 + ' em relação à média';
+}
+
+async function carregarHistorico(nome, mesAtual) {
   try {
-    const r = await fetch(URL_AS + '?acao=dashboard');
+    const r = await fetch(URL_AS + '?acao=historico&nome=' + encodeURIComponent(nome));
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
-    procs = d.procuradores.filter(function(p) { return p.nucleo === 'EF'; });
-    const vals = procs.map(function(p) { return p.acervo; });
-    med = vals.length ? Math.round(vals.reduce(function(s,v){return s+v;},0)/vals.length) : 0;
-    return true;
+
+    // Conta tudo que é efetivamente "recebido" (passou pela mesa da pessoa).
+    // Compensação não é recebimento — é desconto de um processo que já
+    // tinha sido contado antes e virou embargo, então fica de fora daqui.
+    document.getElementById('kv-mes').textContent = d.historico.filter(function(h) {
+      if (!h.data) return false;
+      const dt = new Date(h.data);
+      const agora = new Date();
+      return dt.getMonth() === agora.getMonth() && dt.getFullYear() === agora.getFullYear()
+        && h.tipo !== 'Compensação';
+    }).length;
+
+    renderTabelaResumo(d.historico);
+    renderGrafico(d.historico);
+    renderTimeline(d.historico);
   } catch(e) {
-    console.error('Erro ao carregar:', e);
-    showFb('Não foi possível carregar a lista de procuradores. Tentando de novo...', 'err');
-    return false;
+    document.getElementById('chart-bars').innerHTML = '<div style="color:#e34948;font-size:13px">Erro ao carregar histórico.</div>';
   }
 }
 
-function limparResultado() {
-  document.getElementById('resultado').style.display = 'none';
-  document.getElementById('sec-procs').style.display = 'none';
-  document.getElementById('btn-conf').disabled = true;
-  procSel = null;
-  document.querySelectorAll('.pop').forEach(function(e){e.classList.remove('sel');});
-}
+function renderTabelaResumo(historico) {
+  const agora = new Date();
+  const iniSem = new Date(agora);
+  iniSem.setDate(agora.getDate() - ((agora.getDay() + 1) % 7)); // sexta anterior
+  iniSem.setHours(12,0,0,0);
+  const iniMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+  const iniAno = new Date(agora.getFullYear(), 0, 1);
 
-async function buscar() {
-  const num = document.getElementById('inp-num').value.trim();
-  if (!num) { showFb('Informe o número do processo.','err'); return; }
-
-  const btn = document.querySelector('.btn-buscar');
-  btn.textContent = '⏳'; btn.disabled = true;
-
-  // garante que a lista de procuradores está carregada antes de mostrar
-  // o resultado — evita "Destinatário" vazio por condição de corrida ou
-  // falha silenciosa no carregamento inicial.
-  if (!procs || procs.length === 0) {
-    const ok = await carregarProcs();
-    if (!ok || procs.length === 0) {
-      showFb('Não foi possível carregar os procuradores. Verifique sua conexão e tente buscar novamente.', 'err');
-      btn.textContent = '🔍 Buscar'; btn.disabled = false;
-      return;
-    }
+  function contar(filtro) {
+    var novos=0, redistrib=0, juntada=0, tempo=0, compensacoes=0;
+    historico.forEach(function(h) {
+      if (!h.data) return;
+      var dt = new Date(h.data);
+      if (isNaN(dt.getTime())) return;
+      if (!filtro(dt)) return;
+      if (h.tipo === 'Primeira distribuição') novos++;
+      else if (h.tipo === 'Redistribuição') redistrib++;
+      else if (h.tipo === 'Juntada') juntada++;
+      else if (h.tipo === 'Tramitação temporária') tempo++;
+      else if (h.tipo === 'Compensação') compensacoes++;
+    });
+    return {
+      novos, redistrib, juntada, tempo, compensacoes,
+      totalRecebido: novos + redistrib + juntada + tempo,
+      acervoSubiu: novos + redistrib - compensacoes,
+    };
   }
 
-  try {
-    const r = await fetch(URL_AS + '?acao=buscar_processo&num=' + encodeURIComponent(num));
-    const d = await r.json();
-    if (!d.ok) throw new Error(d.erro);
+  var periodos = [
+    {label:'Esta semana',  filtro: function(dt){return dt>=iniSem;}},
+    {label:'Este mês',     filtro: function(dt){return dt>=iniMes;}},
+    {label:'Este ano',     filtro: function(dt){return dt>=iniAno;}},
+    {label:'<strong>Total</strong>', filtro: function(dt){return true;}},
+  ];
 
-    const res = document.getElementById('resultado');
-    res.style.display = 'block';
-
-    if (!d.encontrado) {
-      res.className = 'resultado rwar';
-      res.innerHTML = '⚠ Processo não encontrado na base. Verifique o número e tente novamente.';
-      document.getElementById('sec-procs').style.display = 'none';
-    } else if (!d.fluxo.toLowerCase().includes('execução fiscal')) {
-      res.className = 'resultado rerr';
-      res.innerHTML = '✗ Este processo não é de Execução Fiscal (<strong>' + d.fluxo + '</strong>). Só processos de EF podem ser encaminhados por esta página.';
-      document.getElementById('sec-procs').style.display = 'none';
-    } else if (d.em_triagem && d.analista_triagem && d.analista_triagem !== analista) {
-      // Já está em triagem com o OUTRO analista — só ele pode concluir.
-      res.className = 'resultado rerr';
-      res.innerHTML = '✗ Este processo já está em triagem com <strong>' + d.analista_triagem + '</strong>. Só ' + d.analista_triagem + ' pode encaminhá-lo. Ele volta a ficar disponível para qualquer analista assim que ' + d.analista_triagem + ' escolher o procurador titular.';
-      document.getElementById('sec-procs').style.display = 'none';
-    } else if (!d.em_triagem) {
-      // Ninguém enviou esse processo pra triagem — não há nada pra confirmar aqui.
-      res.className = 'resultado rerr';
-      res.innerHTML = '✗ Este processo não está em triagem no momento. Ele precisa ser enviado por um distribuidor primeiro (tela principal) antes de aparecer aqui.';
-      document.getElementById('sec-procs').style.display = 'none';
-    } else {
-      res.className = 'resultado rok';
-      res.innerHTML = '✓ <strong>' + d.fluxo + '</strong>' + (d.titular ? ' · Titular anterior: <strong>' + d.titular + '</strong>' : ' · Sem titular anterior');
-      numProcesso = d.num_processo;
-      fluxoProcesso = d.fluxo;
-      renderProcs();
-      document.getElementById('sec-procs').style.display = 'block';
-    }
-  } catch(e) {
-    showFb('Erro: ' + e.message, 'err');
-  }
-  btn.textContent = '🔍 Buscar'; btn.disabled = false;
-}
-
-function renderProcs() {
-  const lista = procs.slice().sort(function(a,b){
-    if (a.ativo !== b.ativo) return b.ativo - a.ativo;
-    return a.acervo - b.acervo;
+  var html = '';
+  periodos.forEach(function(p, i) {
+    var c = contar(p.filtro);
+    var isTot = i === periodos.length-1;
+    var trStyle = isTot ? 'background:#f0faf8;font-weight:600;border-top:1.5px solid #9FE1CB' : '';
+    var acervoTxt = (c.acervoSubiu >= 0 ? '+' : '') + c.acervoSubiu;
+    var acervoCor = c.acervoSubiu > 0 ? '#085041' : c.acervoSubiu < 0 ? '#791f1f' : '#898781';
+    html += '<tr style="border-bottom:0.5px solid rgba(0,0,0,.06);' + trStyle + '">';
+    html += '<td style="padding:10px 20px;color:#1a3a5c">' + p.label + '</td>';
+    html += '<td style="padding:10px 14px;text-align:center;color:#085041;font-weight:500">' + (c.novos||'—') + '</td>';
+    html += '<td style="padding:10px 14px;text-align:center;color:#4a3aa7">' + (c.redistrib||'—') + '</td>';
+    html += '<td style="padding:10px 14px;text-align:center;color:#898781">' + (c.juntada||'—') + '</td>';
+    html += '<td style="padding:10px 14px;text-align:center;color:#898781">' + (c.tempo||'—') + '</td>';
+    html += '<td style="padding:10px 14px;text-align:center;color:#1a3a5c;font-weight:600">' + (c.totalRecebido||'—') + '</td>';
+    html += '<td style="padding:10px 14px;text-align:center;color:'+acervoCor+';font-weight:600">' + acervoTxt + (c.compensacoes?' <span style="font-weight:400;font-size:11px">('+c.compensacoes+' compensação'+(c.compensacoes>1?'ões':'')+')</span>':'') + '</td>';
+    html += '</tr>';
   });
-  const ativos = lista.filter(function(p){return p.ativo;});
-  document.getElementById('proc-ops').innerHTML = lista.map(function(p) {
-    const idx = procs.indexOf(p);
-    const ratio = med > 0 ? p.acervo/med : 1;
-    const isPrimeiroAtivo = p.ativo && ativos.length > 0 && ativos[0].nome === p.nome;
-    if (!p.ativo) {
-      const info = infoFerias(p);
-      return '<div class="pop" style="opacity:.5;cursor:not-allowed;background:#f8f7f5;pointer-events:none">' +
-        '<div class="pop-nome" style="color:#898781">' + p.nome + '</div>' +
-        '<div class="pop-ac">' + p.acervo + ' processos</div>' +
-        '<span class="badge ' + info.classe + '"' + (info.tooltip ? ' title="' + info.tooltip.replace(/"/g,'&quot;') + '"' : '') + '>' + info.texto + '</span>' +
-      '</div>';
-    }
-    let bcls, btxt;
-    if (isPrimeiroAtivo) { bcls='bprox'; btxt='← próximo'; }
-    else if (ratio > 1.2) { bcls='balto'; btxt='Acima'; }
-    else if (ratio < 0.8) { bcls='bbaixo'; btxt='Abaixo'; }
-    else { bcls='bok'; btxt='OK'; }
-    return '<div class="pop" data-idx="' + idx + '" onclick="selProc(' + idx + ')">' +
-      '<div class="pop-nome">' + p.nome + '</div>' +
-      '<div class="pop-ac">' + p.acervo + ' processos</div>' +
-      '<span class="badge ' + bcls + '">' + btxt + '</span>' +
+  document.getElementById('tabela-resumo-body').innerHTML = html;
+}
+
+function renderGrafico(historico) {
+  // agrupa por mês e tipo (Novo/Prevento/Redistribuído)
+  var mensal = {};
+  historico.forEach(function(h) {
+    if (!h.data) return;
+    var dt = new Date(h.data);
+    if (isNaN(dt.getTime())) return;
+    var mes = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0');
+    if (!mensal[mes]) mensal[mes] = {novo:0,prevento:0,redistrib:0};
+    var tipo = (h.tipo||'').trim();
+    if (tipo === 'Primeira distribuição') mensal[mes].novo++;
+    else if (tipo === 'Juntada' || tipo === 'Tramitação temporária') mensal[mes].prevento++;
+    else if (tipo === 'Redistribuição') mensal[mes].redistrib++;
+  });
+
+  var meses = Object.keys(mensal).sort().slice(-8);
+  if (!meses.length) {
+    document.getElementById('chart-bars').innerHTML = '<div style="color:#898781;font-size:13px">Sem dados de distribuição registrados.</div>';
+    return;
+  }
+  var maxVal = Math.max.apply(null, meses.map(function(m){ return mensal[m].novo+mensal[m].prevento+mensal[m].redistrib; })) || 1;
+
+  document.getElementById('chart-bars').innerHTML = meses.map(function(m) {
+    var d = mensal[m];
+    var total = d.novo + d.prevento + d.redistrib;
+    var hTotal = Math.round(total/maxVal*80);
+    var label = m.split('-')[1] + '/' + m.split('-')[0].slice(2);
+    return '<div class="bar-wrap">' +
+      '<div class="bar-val">' + (total||'') + '</div>' +
+      '<div style="width:100%;display:flex;flex-direction:column;height:' + hTotal + 'px;border-radius:4px 4px 0 0;overflow:hidden">' +
+        '<div style="flex:' + d.redistrib + ';background:#e07020;min-height:' + (d.redistrib?2:0) + 'px"></div>' +
+        '<div style="flex:' + d.prevento  + ';background:#1a3a5c;min-height:' + (d.prevento ?2:0) + 'px"></div>' +
+        '<div style="flex:' + d.novo      + ';background:#0a8a7a;min-height:' + (d.novo?2:0) + 'px"></div>' +
+      '</div>' +
+      '<div class="bar-label">' + label + '</div>' +
     '</div>';
   }).join('');
 }
 
-// Interpreta uma data vinda da planilha, aceitando tanto "dd/mm/aaaa" (texto)
-// quanto qualquer outro formato que o JS consiga entender (ex: célula que
-// ficou como Data de verdade em vez de texto). Retorna null se não conseguir.
-function parseDataBR(valor) {
-  if (!valor) return null;
-  const texto = String(valor).trim();
-  if (!texto) return null;
-  const m1 = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (m1) {
-    const dt = new Date(Number(m1[3]), Number(m1[2]) - 1, Number(m1[1]));
-    return isNaN(dt.getTime()) ? null : dt;
+function renderTimeline(historico) {
+  var ultimos = historico.slice(0, 10);
+  if (!ultimos.length) {
+    document.getElementById('timeline').innerHTML = '<div style="padding:16px 0;color:#898781;font-size:13px">Nenhum processo registrado.</div>';
+    return;
   }
-  const tentativa = new Date(texto);
-  return isNaN(tentativa.getTime()) ? null : tentativa;
-}
-
-// Distingue "Pré-férias" (dentro da carência de 5 dias úteis, mas o período
-// ainda não começou de fato) de "Férias" já em curso, pra exibição.
-function infoFerias(p) {
-  if (p.status !== 'Férias') {
-    return { texto: p.status, classe: 'blic', tooltip: '' };
-  }
-  const ret = p.retorno ? ' · até ' + fmtData(p.retorno) : '';
-  const dataInicio = parseDataBR(p.inicio_ferias);
-  if (dataInicio) {
-    const hoje = new Date(); hoje.setHours(0,0,0,0);
-    dataInicio.setHours(0,0,0,0);
-    if (hoje < dataInicio) {
-      return {
-        texto: 'Pré-férias · início ' + fmtData(p.inicio_ferias),
-        classe: 'bprefer',
-        tooltip: 'Segundo a Portaria nº 125/2025-GPG/PGM, o procurador não recebe processos nos 5 (cinco) dias úteis que antecedem o início das férias (início em ' + fmtData(p.inicio_ferias) + ').'
-      };
+  document.getElementById('timeline').innerHTML = ultimos.map(function(h) {
+    var tipo = (h.tipo||'').trim();
+    var bcls, btxt;
+    if (tipo === 'Juntada' || tipo === 'Tramitação temporária') {
+      bcls = 'bcon'; btxt = 'Prevento';
+    } else if (tipo === 'Redistribuição') {
+      bcls = 'badm'; btxt = 'Redistribuído';
+    } else if (tipo === 'Compensação') {
+      bcls = 'bcomp'; btxt = '− Compensação';
+    } else {
+      bcls = 'bef'; btxt = 'Novo';
     }
-  }
-  return { texto: 'Férias' + ret, classe: 'bfer', tooltip: '' };
+    var dataFmt = fmtData(h.data);
+    return '<div class="tl-item">' +
+      '<div class="tl-data">' + dataFmt + '</div>' +
+      '<div><div class="tl-num">' + (h.num_processo||'—') + '</div><div class="tl-fluxo" style="color:#898781">' + (h.fluxo||'') + '</div></div>' +
+      '<div style="text-align:right"><span class="tl-badge ' + bcls + '">' + btxt + '</span></div>' +
+    '</div>';
+  }).join('');
 }
 
 function fmtData(s) {
   if(!s) return '';
   var str = String(s);
-  if(/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return str;
+  // dd/MM/yyyy
+  if(/^\d{2}\/\d{2}\/\d{4}/.test(str)) return str.slice(0,10);
   try {
     var dt = new Date(str);
     if(!isNaN(dt.getTime())) {
-      var d = String(dt.getDate()).padStart(2,'0');
-      var m = String(dt.getMonth()+1).padStart(2,'0');
-      var a = dt.getFullYear();
-      return d+'/'+m+'/'+a;
+      return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear();
     }
   } catch(e) {}
-  return str;
+  return str.slice(0,10);
 }
 
-function selProc(idx) {
-  procSel = procs[idx].nome;
-  document.querySelectorAll('.pop').forEach(function(e){e.classList.remove('sel');});
-  var el = document.querySelector('.pop[data-idx="' + idx + '"]');
-  if (el) el.classList.add('sel');
-  document.getElementById('btn-conf').disabled = false;
-}
-
-async function confirmar() {
-  if (!procSel) { showFb('Selecione um destinatário.','err'); return; }
-  const btn = document.getElementById('btn-conf');
-  btn.disabled = true; btn.textContent = 'Registrando...';
-  try {
-    // Registro único: procurador como titular, analista como distribuidor
-    const params = new URLSearchParams({
-      acao: 'distribuir',
-      num_processo: numProcesso,
-      fluxo: fluxoProcesso,
-      tipo: 'Primeira distribuição',
-      motivo: '',
-      nome_proc: procSel,
-      titular: 'Sim',
-      distribuidor: analista,
-      nucleo: 'EF',
-      etapa: 'titular'
-    });
-    const r2 = await fetch(URL_AS + '?' + params);
-    const d2 = await r2.json();
-    if (!d2.ok) throw new Error(d2.erro);
-
-    showFb('✓ Processo encaminhado para ' + procSel, 'ok');
-    document.getElementById('inp-num').value = '';
-    limparResultado();
-    carregarProcs();
-  } catch(e) {
-    showFb('Erro: ' + e.message, 'err');
-  }
-  btn.disabled = false; btn.textContent = 'Confirmar encaminhamento';
-}
-
-function showFb(msg, tipo) {
-  const el = document.getElementById('fb');
-  el.innerHTML = msg; el.className = 'fb fb' + tipo; el.style.display = 'block';
-  setTimeout(function(){el.style.display='none';}, 6000);
-}
+init();
 </script>
 </body>
 </html>
