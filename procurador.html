@@ -588,6 +588,8 @@ function renderTimeline(historico) {
     var tipo = (h.tipo||'').trim();
     var motivo = (h.motivo||'').trim();
     var ehAvocadoCedat = tipo === 'Redistribuição' && /avocad/i.test(motivo);
+    var matchProcAdm = motivo.match(/\b((?:P|GR)\d+\/\d{4})\b/i);
+    var procAdmTxt = matchProcAdm ? matchProcAdm[1] : '';
     var bcls, btxt;
     if (tipo === 'Juntada' || tipo === 'Tramitação temporária') {
       bcls = 'bcon'; btxt = 'Prevento';
@@ -599,7 +601,7 @@ function renderTimeline(historico) {
       bcls = 'bef'; btxt = 'Novo';
     }
     var dataFmt = fmtData(h.data);
-    var fluxoTxt = (h.fluxo||'') + (ehAvocadoCedat ? ' - <strong style="color:#5a2a9e">Avocado pela CEDAT</strong>' : '');
+    var fluxoTxt = (h.fluxo||'') + (ehAvocadoCedat ? ' - <strong style="color:#5a2a9e">Avocado pela CEDAT' + (procAdmTxt ? ' devido ao processo ' + procAdmTxt : '') + '</strong>' : '');
     return '<div class="tl-item">' +
       '<div class="tl-data">' + dataFmt + '</div>' +
       '<div><div class="tl-num">' + (h.num_processo||'—') + '</div><div class="tl-fluxo" style="color:#898781">' + fluxoTxt + '</div></div>' +
