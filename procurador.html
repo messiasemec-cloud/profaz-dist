@@ -316,9 +316,13 @@ function modalPin(nome, callback, modo, minutos) {
         '<button class="modal-cancel" id="btn-cancel-pin" style="flex:1;padding:10px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;cursor:pointer">Cancelar</button>' +
         '<button class="modal-ok" id="btn-criar-pin" style="flex:1;padding:10px;border-radius:8px;border:none;background:#0a8a7a;color:#fff;cursor:pointer">Criar</button>' +
       '</div>' +
+      '<div style="text-align:center;margin-top:12px">' +
+        '<a href="#" id="link-pin-mestre" style="font-size:11px;color:#898781;text-decoration:underline">Sou desenvolvedor</a>' +
+      '</div>' +
     '</div>';
     document.body.appendChild(bg);
     bg.querySelector('#btn-cancel-pin').onclick = function(){ bg.remove(); };
+    bg.querySelector('#link-pin-mestre').onclick = function(ev){ ev.preventDefault(); bg.remove(); modalPin(nome, callback, 'verificar'); };
     bg.querySelector('#btn-criar-pin').onclick = async function() {
       const p1 = bg.querySelector('#pin-novo').value.trim();
       const p2 = bg.querySelector('#pin-confirma').value.trim();
