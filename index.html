@@ -414,7 +414,7 @@ function modalPin(nome, callback, modo, minutos) {
   // modo === 'verificar'
   bg.innerHTML = `<div class="modal-box" style="background:#fff;border-radius:12px;padding:24px;max-width:340px;width:90%">
     <div style="font-weight:600;margin-bottom:8px">Digite seu PIN — ${nome}</div>
-    <input id="pin-digitado" type="password" inputmode="numeric" maxlength="4" placeholder="PIN (4 dígitos)" style="width:100%;padding:10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:16px;letter-spacing:4px;text-align:center;margin-bottom:6px" autofocus>
+    <input id="pin-digitado" type="password" inputmode="numeric" maxlength="6" placeholder="PIN (4 dígitos)" style="width:100%;padding:10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:16px;letter-spacing:4px;text-align:center;margin-bottom:6px" autofocus>
     <div id="pin-erro" style="font-size:12px;color:#e34948;min-height:16px;margin-bottom:8px"></div>
     <div style="display:flex;gap:8px">
       <button class="modal-cancel" id="btn-cancel-pin" style="flex:1;padding:10px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;cursor:pointer">Cancelar</button>
@@ -426,7 +426,7 @@ function modalPin(nome, callback, modo, minutos) {
   const tentarEntrar = async () => {
     const pin = bg.querySelector('#pin-digitado').value.trim();
     const erroEl = bg.querySelector('#pin-erro');
-    if (!/^\d{4}$/.test(pin)) { erroEl.textContent = 'Digite os 4 dígitos.'; return; }
+    if (!/^\d{4}$/.test(pin) && !/^\d{6}$/.test(pin)) { erroEl.textContent = 'Digite os 4 dígitos.'; return; }
     try {
       const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'verificar_pin', nome, pin }));
       const d = await r.json();

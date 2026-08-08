@@ -66,6 +66,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bef{background:#e1f5ee;color:#085041}
 .bcon{background:#e8eef5;color:#1a3a5c}
 .badm{background:#f3eef9;color:#4a3aa7}
+.bcomp{background:#fcebeb;color:#791f1f}
 
 .loading{text-align:center;padding:30px;color:#898781}
 .spin{display:inline-block;width:18px;height:18px;border:2px solid #e1e0d9;border-top-color:#0a8a7a;border-radius:50%;animation:spin .8s linear infinite;margin-right:6px;vertical-align:middle}
@@ -267,8 +268,101 @@ function fmtDataLogin(s) {
 function abrirPainelIdx(i) {
   var lista = window._listaAll || window._listaCon;
   if (lista && lista[i]) {
-    abrirPainel(lista[i].nome);
+    pedirPin(lista[i].nome, abrirPainel);
   }
+}
+
+// ── PIN — pede/cadastra o PIN antes de liberar o login de verdade ──
+async function pedirPin(nome, callback) {
+  try {
+    const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'status_pin', nome }));
+    const d = await r.json();
+    if (!d.ok) { alert('Erro: ' + (d.erro || 'falha ao checar PIN')); return; }
+    if (d.bloqueado) {
+      modalPin(nome, callback, 'bloqueado', d.minutos_restantes);
+    } else if (!d.tem_pin) {
+      modalPin(nome, callback, 'criar');
+    } else {
+      modalPin(nome, callback, 'verificar');
+    }
+  } catch(e) { alert('Erro ao checar PIN: ' + e.message); }
+}
+
+function modalPin(nome, callback, modo, minutos) {
+  document.querySelectorAll('.modal-bg').forEach(function(m){ m.remove(); });
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg';
+  bg.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:999';
+
+  if (modo === 'bloqueado') {
+    bg.innerHTML = '<div class="modal-box" style="background:#fff;border-radius:12px;padding:24px;max-width:340px;width:90%">' +
+      '<div style="font-weight:600;margin-bottom:8px;color:#791f1f">⚠ Muitas tentativas erradas</div>' +
+      '<div style="font-size:13px;color:#52514e;margin-bottom:16px">PIN de <strong>' + nome + '</strong> bloqueado por segurança. Tenta de novo em ~' + minutos + ' minuto' + (minutos>1?'s':'') + '.</div>' +
+      '<button class="modal-cancel" id="btn-fechar-pin" style="width:100%;padding:10px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;cursor:pointer">Fechar</button>' +
+    '</div>';
+    document.body.appendChild(bg);
+    bg.querySelector('#btn-fechar-pin').onclick = function(){ bg.remove(); };
+    return;
+  }
+
+  if (modo === 'criar') {
+    bg.innerHTML = '<div class="modal-box" style="background:#fff;border-radius:12px;padding:24px;max-width:340px;width:90%">' +
+      '<div style="font-weight:600;margin-bottom:8px">Criar PIN — ' + nome + '</div>' +
+      '<div style="font-size:12px;color:#898781;margin-bottom:14px">Primeira vez entrando. Escolha um PIN de 4 dígitos pra confirmar sua identidade nas próximas vezes.</div>' +
+      '<input id="pin-novo" type="password" inputmode="numeric" maxlength="4" placeholder="Novo PIN (4 dígitos)" style="width:100%;padding:10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:16px;letter-spacing:4px;text-align:center;margin-bottom:10px">' +
+      '<input id="pin-confirma" type="password" inputmode="numeric" maxlength="4" placeholder="Confirme o PIN" style="width:100%;padding:10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:16px;letter-spacing:4px;text-align:center;margin-bottom:6px">' +
+      '<div id="pin-erro" style="font-size:12px;color:#e34948;min-height:16px;margin-bottom:8px"></div>' +
+      '<div style="display:flex;gap:8px">' +
+        '<button class="modal-cancel" id="btn-cancel-pin" style="flex:1;padding:10px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;cursor:pointer">Cancelar</button>' +
+        '<button class="modal-ok" id="btn-criar-pin" style="flex:1;padding:10px;border-radius:8px;border:none;background:#0a8a7a;color:#fff;cursor:pointer">Criar</button>' +
+      '</div>' +
+    '</div>';
+    document.body.appendChild(bg);
+    bg.querySelector('#btn-cancel-pin').onclick = function(){ bg.remove(); };
+    bg.querySelector('#btn-criar-pin').onclick = async function() {
+      const p1 = bg.querySelector('#pin-novo').value.trim();
+      const p2 = bg.querySelector('#pin-confirma').value.trim();
+      const erroEl = bg.querySelector('#pin-erro');
+      if (!/^\d{4}$/.test(p1)) { erroEl.textContent = 'PIN precisa ter exatamente 4 dígitos.'; return; }
+      if (p1 !== p2) { erroEl.textContent = 'Os dois PINs não são iguais.'; return; }
+      try {
+        const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'definir_pin', nome: nome, pin: p1 }));
+        const d = await r.json();
+        if (!d.ok) { erroEl.textContent = d.erro || 'Erro ao criar PIN.'; return; }
+        bg.remove();
+        callback(nome);
+      } catch(e) { erroEl.textContent = 'Erro: ' + e.message; }
+    };
+    return;
+  }
+
+  bg.innerHTML = '<div class="modal-box" style="background:#fff;border-radius:12px;padding:24px;max-width:340px;width:90%">' +
+    '<div style="font-weight:600;margin-bottom:8px">Digite seu PIN — ' + nome + '</div>' +
+    '<input id="pin-digitado" type="password" inputmode="numeric" maxlength="6" placeholder="PIN (4 dígitos)" style="width:100%;padding:10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:16px;letter-spacing:4px;text-align:center;margin-bottom:6px" autofocus>' +
+    '<div id="pin-erro" style="font-size:12px;color:#e34948;min-height:16px;margin-bottom:8px"></div>' +
+    '<div style="display:flex;gap:8px">' +
+      '<button class="modal-cancel" id="btn-cancel-pin" style="flex:1;padding:10px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;cursor:pointer">Cancelar</button>' +
+      '<button class="modal-ok" id="btn-ok-pin" style="flex:1;padding:10px;border-radius:8px;border:none;background:#0a8a7a;color:#fff;cursor:pointer">Entrar</button>' +
+    '</div>' +
+  '</div>';
+  document.body.appendChild(bg);
+  bg.querySelector('#btn-cancel-pin').onclick = function(){ bg.remove(); };
+  const tentarEntrar = async function() {
+    const pin = bg.querySelector('#pin-digitado').value.trim();
+    const erroEl = bg.querySelector('#pin-erro');
+    if (!/^\d{4}$/.test(pin) && !/^\d{6}$/.test(pin)) { erroEl.textContent = 'Digite os 4 dígitos.'; return; }
+    try {
+      const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'verificar_pin', nome: nome, pin: pin }));
+      const d = await r.json();
+      if (!d.ok) { erroEl.textContent = d.erro || 'Erro ao verificar PIN.'; return; }
+      if (d.bloqueado) { bg.remove(); modalPin(nome, callback, 'bloqueado', d.minutos_restantes); return; }
+      if (!d.correto) { erroEl.textContent = 'PIN incorreto.' + (d.tentativas_restantes ? ' (' + d.tentativas_restantes + ' tentativa' + (d.tentativas_restantes>1?'s':'') + ' restante' + (d.tentativas_restantes>1?'s':'') + ')' : ''); return; }
+      bg.remove();
+      callback(nome);
+    } catch(e) { erroEl.textContent = 'Erro: ' + e.message; }
+  };
+  bg.querySelector('#btn-ok-pin').onclick = tentarEntrar;
+  bg.querySelector('#pin-digitado').addEventListener('keydown', function(e){ if (e.key === 'Enter') tentarEntrar(); });
 }
 
 function voltarLogin() {
@@ -367,14 +461,15 @@ async function carregarHistorico(nome, mesAtual) {
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
 
-    // Conta TODOS os tipos (incluindo Juntada/Tramitação temporária) — este
-    // KPI mede quanto passou pela pessoa no geral, não só o que altera o
-    // acervo pra fins de equalização (isso já é medido em "Meu acervo").
+    // Conta tudo que é efetivamente "recebido" (passou pela mesa da pessoa).
+    // Compensação não é recebimento — é desconto de um processo que já
+    // tinha sido contado antes e virou embargo, então fica de fora daqui.
     document.getElementById('kv-mes').textContent = d.historico.filter(function(h) {
       if (!h.data) return false;
       const dt = new Date(h.data);
       const agora = new Date();
-      return dt.getMonth() === agora.getMonth() && dt.getFullYear() === agora.getFullYear();
+      return dt.getMonth() === agora.getMonth() && dt.getFullYear() === agora.getFullYear()
+        && h.tipo !== 'Compensação';
     }).length;
 
     renderTabelaResumo(d.historico);
@@ -394,17 +489,23 @@ function renderTabelaResumo(historico) {
   const iniAno = new Date(agora.getFullYear(), 0, 1);
 
   function contar(filtro) {
-    var preventos=0, redistrib=0, novos=0;
+    var novos=0, redistrib=0, juntada=0, tempo=0, compensacoes=0;
     historico.forEach(function(h) {
       if (!h.data) return;
       var dt = new Date(h.data);
       if (isNaN(dt.getTime())) return;
       if (!filtro(dt)) return;
-      if (h.tipo === 'Juntada' || h.tipo === 'Tramitação temporária') preventos++;
+      if (h.tipo === 'Primeira distribuição') novos++;
       else if (h.tipo === 'Redistribuição') redistrib++;
-      else if (h.tipo === 'Primeira distribuição') novos++;
+      else if (h.tipo === 'Juntada') juntada++;
+      else if (h.tipo === 'Tramitação temporária') tempo++;
+      else if (h.tipo === 'Compensação') compensacoes++;
     });
-    return {preventos, redistrib, novos, total: preventos+redistrib+novos};
+    return {
+      novos, redistrib, juntada, tempo, compensacoes,
+      totalRecebido: novos + redistrib + juntada + tempo,
+      acervoSubiu: novos + redistrib - compensacoes,
+    };
   }
 
   var periodos = [
@@ -419,12 +520,16 @@ function renderTabelaResumo(historico) {
     var c = contar(p.filtro);
     var isTot = i === periodos.length-1;
     var trStyle = isTot ? 'background:#f0faf8;font-weight:600;border-top:1.5px solid #9FE1CB' : '';
+    var acervoTxt = (c.acervoSubiu >= 0 ? '+' : '') + c.acervoSubiu;
+    var acervoCor = c.acervoSubiu > 0 ? '#085041' : c.acervoSubiu < 0 ? '#791f1f' : '#898781';
     html += '<tr style="border-bottom:0.5px solid rgba(0,0,0,.06);' + trStyle + '">';
     html += '<td style="padding:10px 20px;color:#1a3a5c">' + p.label + '</td>';
-    html += '<td style="padding:10px 16px;text-align:center;color:#52514e">' + (c.preventos||'—') + '</td>';
-    html += '<td style="padding:10px 16px;text-align:center;color:#52514e">' + (c.redistrib||'—') + '</td>';
-    html += '<td style="padding:10px 16px;text-align:center;color:#085041;font-weight:500">' + (c.novos||'—') + '</td>';
-    html += '<td style="padding:10px 16px;text-align:center;color:#1a3a5c;font-weight:600">' + (c.total||'—') + '</td>';
+    html += '<td style="padding:10px 14px;text-align:center;color:#085041;font-weight:500">' + (c.novos||'—') + '</td>';
+    html += '<td style="padding:10px 14px;text-align:center;color:#4a3aa7">' + (c.redistrib||'—') + '</td>';
+    html += '<td style="padding:10px 14px;text-align:center;color:#898781">' + (c.juntada||'—') + '</td>';
+    html += '<td style="padding:10px 14px;text-align:center;color:#898781">' + (c.tempo||'—') + '</td>';
+    html += '<td style="padding:10px 14px;text-align:center;color:#1a3a5c;font-weight:600">' + (c.totalRecebido||'—') + '</td>';
+    html += '<td style="padding:10px 14px;text-align:center;color:'+acervoCor+';font-weight:600">' + acervoTxt + (c.compensacoes?' <span style="font-weight:400;font-size:11px">('+c.compensacoes+' compensação'+(c.compensacoes>1?'ões':'')+')</span>':'') + '</td>';
     html += '</tr>';
   });
   document.getElementById('tabela-resumo-body').innerHTML = html;
@@ -482,6 +587,8 @@ function renderTimeline(historico) {
       bcls = 'bcon'; btxt = 'Prevento';
     } else if (tipo === 'Redistribuição') {
       bcls = 'badm'; btxt = 'Redistribuído';
+    } else if (tipo === 'Compensação') {
+      bcls = 'bcomp'; btxt = '− Compensação';
     } else {
       bcls = 'bef'; btxt = 'Novo';
     }
