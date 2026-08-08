@@ -66,7 +66,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bef{background:#e1f5ee;color:#085041}
 .bcon{background:#e8eef5;color:#1a3a5c}
 .badm{background:#f3eef9;color:#4a3aa7}
-.bavoc{background:#e8dcf5;color:#5a2a9e;border:1px solid #a875d9}
 .bcomp{background:#fcebeb;color:#791f1f}
 
 .loading{text-align:center;padding:30px;color:#898781}
@@ -590,9 +589,7 @@ function renderTimeline(historico) {
     var motivo = (h.motivo||'').trim();
     var ehAvocadoCedat = tipo === 'Redistribuição' && /avocad/i.test(motivo);
     var bcls, btxt;
-    if (ehAvocadoCedat) {
-      bcls = 'bavoc'; btxt = 'Avocado (CEDAT)';
-    } else if (tipo === 'Juntada' || tipo === 'Tramitação temporária') {
+    if (tipo === 'Juntada' || tipo === 'Tramitação temporária') {
       bcls = 'bcon'; btxt = 'Prevento';
     } else if (tipo === 'Redistribuição') {
       bcls = 'badm'; btxt = 'Redistribuído';
@@ -602,7 +599,7 @@ function renderTimeline(historico) {
       bcls = 'bef'; btxt = 'Novo';
     }
     var dataFmt = fmtData(h.data);
-    var fluxoTxt = (h.fluxo||'') + (ehAvocadoCedat ? ' - Avocado pela CEDAT' : '');
+    var fluxoTxt = (h.fluxo||'') + (ehAvocadoCedat ? ' - <strong style="color:#5a2a9e">Avocado pela CEDAT</strong>' : '');
     return '<div class="tl-item">' +
       '<div class="tl-data">' + dataFmt + '</div>' +
       '<div><div class="tl-num">' + (h.num_processo||'—') + '</div><div class="tl-fluxo" style="color:#898781">' + fluxoTxt + '</div></div>' +
