@@ -148,9 +148,17 @@ const URL_AS = 'https://script.google.com/macros/s/AKfycbzt186mHh_LrKKI1gg5hofoQ
 let usuarioAtual = '';
 let conferenciaAtual = []; // guarda o resultado da conferência pra usar na confirmação
 
+const cargosCedat = {
+  'André Felipe': 'Analista Fazendário SEFIN',
+  'Emanuel Sales': 'Analista da PGM',
+  'Letícia Melo': 'Assistente de Apoio à Gestão',
+  'Romário Nascimento': 'Analista da PGM'
+};
+
 function login(nome) {
   usuarioAtual = nome;
-  document.getElementById('huser').innerHTML = '<div style="text-align:right"><div style="font-size:13px;color:#52514e"><strong>' + nome + '</strong></div><div style="font-size:11px;color:#898781">CEDAT</div></div>';
+  const cargo = cargosCedat[nome] || '';
+  document.getElementById('huser').innerHTML = '<div style="text-align:right"><div style="font-size:13px;color:#52514e"><strong>' + nome + '</strong></div>' + (cargo ? '<div style="font-size:11px;color:#898781">' + cargo + '</div>' : '') + '</div>';
   document.getElementById('tela-login').style.display = 'none';
   document.getElementById('tela-principal').style.display = 'block';
 
