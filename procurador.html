@@ -140,12 +140,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <!-- TABELA RESUMO -->
     <div class="card">
-      <div class="ch">Resumo por período</div>
+      <div class="ch" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <span>Resumo por período</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <select id="sel-mes-resumo" style="display:none;font-size:12px;padding:5px 8px;border:0.5px solid #c3c2b7;border-radius:6px;color:#1a3a5c"></select>
+          <button class="btn-periodo" data-periodo="semana" onclick="mudarPeriodoResumo('semana')" style="font-size:12px;padding:5px 12px;border-radius:6px;border:0.5px solid #c3c2b7;background:#fff;color:#52514e;cursor:pointer">Semana</button>
+          <button class="btn-periodo" data-periodo="mes" onclick="mudarPeriodoResumo('mes')" style="font-size:12px;padding:5px 12px;border-radius:6px;border:0.5px solid #c3c2b7;background:#fff;color:#52514e;cursor:pointer">Mês</button>
+          <button class="btn-periodo" data-periodo="total" onclick="mudarPeriodoResumo('total')" style="font-size:12px;padding:5px 12px;border-radius:6px;border:0.5px solid #c3c2b7;background:#fff;color:#52514e;cursor:pointer">Total</button>
+        </div>
+      </div>
       <div class="cb" style="padding:0;overflow-x:auto">
         <table id="tabela-resumo" style="width:100%;border-collapse:collapse;font-size:13px">
           <thead>
             <tr style="background:#f8f7f5">
-              <th style="padding:10px 20px;text-align:left;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Período</th>
               <th style="padding:10px 14px;text-align:center;font-weight:500;color:#0a8a7a;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Novos<br><span style="font-size:10px;font-weight:400">(1ª dist.)</span></th>
               <th style="padding:10px 14px;text-align:center;font-weight:500;color:#4a3aa7;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Redistrib.</th>
               <th style="padding:10px 14px;text-align:center;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em">Juntada</th>
@@ -155,7 +162,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             </tr>
           </thead>
           <tbody id="tabela-resumo-body">
-            <tr><td colspan="7" style="padding:20px;text-align:center;color:#898781">Carregando...</td></tr>
+            <tr><td colspan="6" style="padding:20px;text-align:center;color:#898781">Carregando...</td></tr>
           </tbody>
         </table>
         <div style="padding:10px 20px 14px;font-size:12px;color:#898781;font-style:italic;border-top:0.5px solid rgba(0,0,0,.06)">
@@ -484,60 +491,100 @@ async function carregarHistorico(nome, mesAtual) {
   }
 }
 
-function renderTabelaResumo(historico) {
-  const agora = new Date();
-  const iniSem = new Date(agora);
-  iniSem.setDate(agora.getDate() - ((agora.getDay() + 1) % 7)); // sexta anterior
-  iniSem.setHours(12,0,0,0);
-  const iniMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
-  const iniAno = new Date(agora.getFullYear(), 0, 1);
+let historicoAtual = [];
+let periodoResumoAtivo = 'semana';
 
-  function contar(filtro) {
-    var novos=0, redistrib=0, juntada=0, tempo=0, compensacoes=0;
-    historico.forEach(function(h) {
-      if (!h.data) return;
-      var dt = new Date(h.data);
-      if (isNaN(dt.getTime())) return;
-      if (!filtro(dt)) return;
-      if (h.tipo === 'Primeira distribuição') novos++;
-      else if (h.tipo === 'Redistribuição') redistrib++;
-      else if (h.tipo === 'Juntada') juntada++;
-      else if (h.tipo === 'Tramitação temporária') tempo++;
-      else if (h.tipo === 'Compensação') compensacoes++;
-    });
-    return {
-      novos, redistrib, juntada, tempo, compensacoes,
-      totalRecebido: novos + redistrib + juntada + tempo,
-      acervoSubiu: novos + redistrib - compensacoes,
+function renderTabelaResumo(historico) {
+  historicoAtual = historico;
+
+  // monta a lista de meses que têm dado, do mais recente pro mais antigo
+  const mesesComDado = {};
+  historico.forEach(function(h) {
+    if (!h.data) return;
+    var dt = new Date(h.data);
+    if (isNaN(dt.getTime())) return;
+    var chave = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0');
+    mesesComDado[chave] = true;
+  });
+  var mesesOrdenados = Object.keys(mesesComDado).sort().reverse();
+
+  var sel = document.getElementById('sel-mes-resumo');
+  var agora = new Date();
+  var chaveAtual = agora.getFullYear() + '-' + String(agora.getMonth()+1).padStart(2,'0');
+  var nomesMes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  sel.innerHTML = mesesOrdenados.map(function(chave) {
+    var partes = chave.split('-');
+    var label = nomesMes[Number(partes[1])-1] + '/' + partes[0];
+    return '<option value="' + chave + '">' + label + '</option>';
+  }).join('');
+  // seleciona o mês atual se tiver dado, senão o mais recente disponível
+  if (mesesComDado[chaveAtual]) sel.value = chaveAtual;
+  else if (mesesOrdenados.length) sel.value = mesesOrdenados[0];
+
+  atualizarResumoPeriodo();
+}
+
+function mudarPeriodoResumo(periodo) {
+  periodoResumoAtivo = periodo;
+  atualizarResumoPeriodo();
+}
+
+function atualizarResumoPeriodo() {
+  document.querySelectorAll('.btn-periodo').forEach(function(b) {
+    var ativo = b.dataset.periodo === periodoResumoAtivo;
+    b.style.background = ativo ? '#0a8a7a' : '#fff';
+    b.style.color = ativo ? '#fff' : '#52514e';
+    b.style.borderColor = ativo ? '#0a8a7a' : '#c3c2b7';
+  });
+  document.getElementById('sel-mes-resumo').style.display = periodoResumoAtivo === 'mes' ? 'inline-block' : 'none';
+
+  const agora = new Date();
+  let filtro;
+  if (periodoResumoAtivo === 'semana') {
+    const iniSem = new Date(agora);
+    iniSem.setDate(agora.getDate() - ((agora.getDay() + 1) % 7));
+    iniSem.setHours(12,0,0,0);
+    filtro = function(dt){ return dt >= iniSem; };
+  } else if (periodoResumoAtivo === 'mes') {
+    const chave = document.getElementById('sel-mes-resumo').value;
+    filtro = function(dt){
+      var chaveDt = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0');
+      return chaveDt === chave;
     };
+  } else {
+    filtro = function(){ return true; };
   }
 
-  var periodos = [
-    {label:'Esta semana',  filtro: function(dt){return dt>=iniSem;}},
-    {label:'Este mês',     filtro: function(dt){return dt>=iniMes;}},
-    {label:'Este ano',     filtro: function(dt){return dt>=iniAno;}},
-    {label:'<strong>Total</strong>', filtro: function(dt){return true;}},
-  ];
-
-  var html = '';
-  periodos.forEach(function(p, i) {
-    var c = contar(p.filtro);
-    var isTot = i === periodos.length-1;
-    var trStyle = isTot ? 'background:#f0faf8;font-weight:600;border-top:1.5px solid #9FE1CB' : '';
-    var acervoTxt = (c.acervoSubiu >= 0 ? '+' : '') + c.acervoSubiu;
-    var acervoCor = c.acervoSubiu > 0 ? '#085041' : c.acervoSubiu < 0 ? '#791f1f' : '#898781';
-    html += '<tr style="border-bottom:0.5px solid rgba(0,0,0,.06);' + trStyle + '">';
-    html += '<td style="padding:10px 20px;color:#1a3a5c">' + p.label + '</td>';
-    html += '<td style="padding:10px 14px;text-align:center;color:#085041;font-weight:500">' + (c.novos||'—') + '</td>';
-    html += '<td style="padding:10px 14px;text-align:center;color:#4a3aa7">' + (c.redistrib||'—') + '</td>';
-    html += '<td style="padding:10px 14px;text-align:center;color:#898781">' + (c.juntada||'—') + '</td>';
-    html += '<td style="padding:10px 14px;text-align:center;color:#898781">' + (c.tempo||'—') + '</td>';
-    html += '<td style="padding:10px 14px;text-align:center;color:#1a3a5c;font-weight:600">' + (c.totalRecebido||'—') + '</td>';
-    html += '<td style="padding:10px 14px;text-align:center;color:'+acervoCor+';font-weight:600">' + acervoTxt + (c.compensacoes?' <span style="font-weight:400;font-size:11px">('+c.compensacoes+' compensação'+(c.compensacoes>1?'ões':'')+')</span>':'') + '</td>';
-    html += '</tr>';
+  var novos=0, redistrib=0, juntada=0, tempo=0, compensacoes=0;
+  historicoAtual.forEach(function(h) {
+    if (!h.data) return;
+    var dt = new Date(h.data);
+    if (isNaN(dt.getTime())) return;
+    if (!filtro(dt)) return;
+    if (h.tipo === 'Primeira distribuição') novos++;
+    else if (h.tipo === 'Redistribuição') redistrib++;
+    else if (h.tipo === 'Juntada') juntada++;
+    else if (h.tipo === 'Tramitação temporária') tempo++;
+    else if (h.tipo === 'Compensação') compensacoes++;
   });
+  var totalRecebido = novos + redistrib + juntada + tempo;
+  var acervoSubiu = novos + redistrib - compensacoes;
+  var acervoTxt = (acervoSubiu >= 0 ? '+' : '') + acervoSubiu;
+  var acervoCor = acervoSubiu > 0 ? '#085041' : acervoSubiu < 0 ? '#791f1f' : '#898781';
+
+  var html = '<tr>';
+  html += '<td style="padding:14px;text-align:center;color:#085041;font-weight:500">' + (novos||'—') + '</td>';
+  html += '<td style="padding:14px;text-align:center;color:#4a3aa7">' + (redistrib||'—') + '</td>';
+  html += '<td style="padding:14px;text-align:center;color:#898781">' + (juntada||'—') + '</td>';
+  html += '<td style="padding:14px;text-align:center;color:#898781">' + (tempo||'—') + '</td>';
+  html += '<td style="padding:14px;text-align:center;color:#1a3a5c;font-weight:600">' + (totalRecebido||'—') + '</td>';
+  html += '<td style="padding:14px;text-align:center;color:'+acervoCor+';font-weight:600">' + acervoTxt + (compensacoes?' <span style="font-weight:400;font-size:11px">('+compensacoes+' compensação'+(compensacoes>1?'ões':'')+')</span>':'') + '</td>';
+  html += '</tr>';
   document.getElementById('tabela-resumo-body').innerHTML = html;
 }
+
+document.getElementById('sel-mes-resumo').addEventListener('change', atualizarResumoPeriodo);
+
 
 function renderGrafico(historico) {
   // agrupa por mês e tipo (Novo/Prevento/Redistribuído)
