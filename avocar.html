@@ -247,16 +247,28 @@ document.getElementById('btn-confirmar-avocacao').onclick = async function() {
   const btn = this;
   btn.disabled = true; btn.textContent = 'Registrando...';
 
-  const resultados = [];
-  for (const item of conferenciaAtual) {
-    if (!item.podeConfirmar) { resultados.push({ num: item.num, ok: false, msg: 'Não processado (erro na conferência).' }); continue; }
+  // Manda todas as EF confirmáveis numa chamada só, pra garantir que o
+  // rodízio (quem recebe) seja decidido UMA vez só — todas as EF desse
+  // mesmo processo administrativo têm que ir pra mesma pessoa, já que ela
+  // é quem vai peticionar a extinção de todas, sem depender de mais ninguém.
+  const numsConfirmaveis = conferenciaAtual.filter(i => i.podeConfirmar).map(i => i.num);
+  const naoConfirmaveis = conferenciaAtual.filter(i => !i.podeConfirmar).map(i => i.num);
+
+  let resultados = naoConfirmaveis.map(num => ({ num, ok: false, msg: 'Não processado (erro na conferência).' }));
+
+  if (numsConfirmaveis.length) {
     try {
-      const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'avocar_ef', num: item.num, proc_adm: procAdm, distribuidor: usuarioAtual }));
+      const r = await fetch(URL_AS + '?' + new URLSearchParams({
+        acao: 'avocar_lote_ef', proc_adm: procAdm, distribuidor: usuarioAtual, nums: JSON.stringify(numsConfirmaveis)
+      }));
       const d = await r.json();
-      if (!d.ok) { resultados.push({ num: item.num, ok: false, msg: d.erro || 'Erro ao avocar.' }); continue; }
-      resultados.push({ num: item.num, ok: true, msg: d.mensagem });
+      if (!d.ok) {
+        resultados = resultados.concat(numsConfirmaveis.map(num => ({ num, ok: false, msg: d.erro || 'Erro ao avocar.' })));
+      } else {
+        resultados = resultados.concat(d.resultados.map(res => ({ num: res.num, ok: true, msg: `Agora com ${d.destino}.` })));
+      }
     } catch(e) {
-      resultados.push({ num: item.num, ok: false, msg: e.message });
+      resultados = resultados.concat(numsConfirmaveis.map(num => ({ num, ok: false, msg: e.message })));
     }
   }
 
