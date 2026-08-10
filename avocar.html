@@ -95,17 +95,49 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div id="tela-principal" style="display:none">
 
     <div class="desc">
-      <strong>Do que se trata esta página:</strong> quando um processo administrativo tem alguma repercussão numa execução fiscal vinculada (ex: extinção por deferimento de cancelamento), registre aqui os números das EF afetadas. O sistema vai redistribuir cada uma pro núcleo Administrativo (Natércia/Lindauria), avisando o procurador que teve o processo avocado.
+      <strong>Do que se trata esta página:</strong> registro de processos administrativos recebidos diretamente da CEDAT — com ou sem repercussão numa execução fiscal vinculada (ex: extinção por deferimento de cancelamento integral de CDAs). Quando há EF vinculada, o sistema redistribui cada uma pro núcleo Administrativo, avisando o procurador que teve o processo avocado.
     </div>
 
-    <!-- ETAPA 1: dados -->
-    <div class="card" id="etapa-dados">
-      <div class="ch">Processo administrativo e execuções fiscais vinculadas</div>
-      <div class="cb">
-        <div class="fg">
-          <label>Nº do processo administrativo</label>
-          <input id="inp-proc-adm" type="text" placeholder="ex: P00012345/2026">
+    <!-- DESTINO (travado, vindo da CEDAT) -->
+    <div class="card" id="card-destino">
+      <div class="cb" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-size:11px;color:#898781;text-transform:uppercase;letter-spacing:.04em">Processo administrativo</div>
+          <div id="destino-proc-adm" style="font-size:16px;font-weight:600;color:#1a3a5c">—</div>
         </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:#898781;text-transform:uppercase;letter-spacing:.04em">Será registrado para</div>
+          <div id="destino-nome" style="font-size:16px;font-weight:600;color:#0a5c52">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BIFURCAÇÃO: tem EF vinculada? -->
+    <div class="card" id="card-bifurcacao">
+      <div class="ch">Este processo tem execução fiscal vinculada?</div>
+      <div class="cb" style="display:flex;gap:10px">
+        <button class="btn-secondary" style="flex:1" onclick="escolherCaminho(false)">Não tem EF vinculada</button>
+        <button class="btn-primary" style="flex:1" onclick="escolherCaminho(true)">Tem EF vinculada</button>
+      </div>
+    </div>
+
+    <!-- CAMINHO "SEM EF" — registro simples -->
+    <div class="card" id="etapa-sem-ef" style="display:none">
+      <div class="ch">Confirmar registro</div>
+      <div class="cb">
+        <div style="font-size:13px;color:#52514e;margin-bottom:14px">Nenhuma EF será vinculada — só o processo administrativo em si será registrado.</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-secondary" style="flex:1" onclick="voltarBifurcacao()">← Voltar</button>
+          <button class="btn-primary" id="btn-confirmar-sem-ef" style="flex:1">Confirmar registro</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ETAPA 1: EF vinculadas -->
+    <div class="card" id="etapa-dados" style="display:none">
+      <div class="ch">Execuções fiscais vinculadas</div>
+      <div class="cb">
+        <button class="btn-secondary" onclick="voltarBifurcacao()" style="margin-bottom:14px;font-size:12px">← Voltar</button>
         <div class="fg">
           <label>Nº(s) das execuções fiscais vinculadas</label>
           <div id="ef-lista">
@@ -155,18 +187,74 @@ const cargosCedat = {
   'Romário Nascimento': 'Analista da PGM'
 };
 
-function login(nome) {
+let procAdmAtual = '';
+let destinoAtual = '';
+
+async function login(nome) {
   usuarioAtual = nome;
   const cargo = cargosCedat[nome] || '';
   document.getElementById('huser').innerHTML = '<div style="text-align:right"><div style="font-size:13px;color:#52514e"><strong>' + nome + '</strong></div>' + (cargo ? '<div style="font-size:11px;color:#898781">' + cargo + '</div>' : '') + '</div>';
   document.getElementById('tela-login').style.display = 'none';
   document.getElementById('tela-principal').style.display = 'block';
 
-  // pré-preenche o processo administrativo se vier na URL (?proc_adm=...)
+  // proc_adm e destino vêm da URL (a CEDAT já mostrou o nome antes de
+  // tramitar no Ágilis) — o destino fica TRAVADO, nunca recalculado aqui,
+  // pra nunca destoar do que já foi tramitado de verdade.
   const params = new URLSearchParams(window.location.search);
-  const procAdmUrl = params.get('proc_adm');
-  if (procAdmUrl) document.getElementById('inp-proc-adm').value = procAdmUrl;
+  procAdmAtual = params.get('proc_adm') || '';
+  destinoAtual = params.get('destino') || '';
+
+  if (!procAdmAtual) {
+    const manual = prompt('Nº do processo administrativo:');
+    procAdmAtual = (manual || '').trim();
+  }
+  document.getElementById('destino-proc-adm').textContent = procAdmAtual || '—';
+
+  if (!destinoAtual) {
+    // rede de segurança: só consulta se genuinamente não veio da URL
+    try {
+      const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'sugerir_proximo_adm' }));
+      const d = await r.json();
+      if (d.ok) destinoAtual = d.destino;
+    } catch(e) {}
+  }
+  document.getElementById('destino-nome').textContent = destinoAtual || '(erro ao definir destino)';
 }
+
+function escolherCaminho(temEF) {
+  document.getElementById('card-bifurcacao').style.display = 'none';
+  if (temEF) {
+    document.getElementById('etapa-dados').style.display = 'block';
+  } else {
+    document.getElementById('etapa-sem-ef').style.display = 'block';
+  }
+}
+
+function voltarBifurcacao() {
+  document.getElementById('etapa-dados').style.display = 'none';
+  document.getElementById('etapa-sem-ef').style.display = 'none';
+  document.getElementById('card-bifurcacao').style.display = 'block';
+}
+
+document.getElementById('btn-confirmar-sem-ef').onclick = async function() {
+  const btn = this;
+  btn.disabled = true; btn.textContent = 'Registrando...';
+  try {
+    const r = await fetch(URL_AS + '?' + new URLSearchParams({
+      acao: 'registrar_proc_adm_sem_ef', proc_adm: procAdmAtual, distribuidor: usuarioAtual, destino: destinoAtual
+    }));
+    const d = await r.json();
+    document.getElementById('etapa-sem-ef').style.display = 'none';
+    document.getElementById('etapa-resultado').style.display = 'block';
+    document.getElementById('resultado-corpo').innerHTML = d.ok
+      ? '<div class="status-row s-ok"><div>' + d.mensagem + '</div></div>'
+      : '<div class="status-row s-err"><div>' + (d.erro || 'Erro ao registrar.') + '</div></div>';
+  } catch(e) {
+    alert('Erro: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Confirmar registro';
+  }
+};
 
 document.getElementById('btn-add-ef').onclick = function() {
   const div = document.createElement('div');
@@ -177,8 +265,7 @@ document.getElementById('btn-add-ef').onclick = function() {
 };
 
 document.getElementById('btn-conferir').onclick = async function() {
-  const procAdm = document.getElementById('inp-proc-adm').value.trim();
-  if (!procAdm) { alert('Informe o número do processo administrativo.'); return; }
+  const procAdm = procAdmAtual;
   const efs = Array.from(document.querySelectorAll('.inp-ef')).map(i => i.value.trim()).filter(Boolean);
   if (!efs.length) { alert('Cole ao menos um número de EF.'); return; }
 
@@ -243,14 +330,13 @@ document.getElementById('btn-voltar-dados').onclick = function() {
 };
 
 document.getElementById('btn-confirmar-avocacao').onclick = async function() {
-  const procAdm = document.getElementById('inp-proc-adm').value.trim();
+  const procAdm = procAdmAtual;
   const btn = this;
   btn.disabled = true; btn.textContent = 'Registrando...';
 
-  // Manda todas as EF confirmáveis numa chamada só, pra garantir que o
-  // rodízio (quem recebe) seja decidido UMA vez só — todas as EF desse
-  // mesmo processo administrativo têm que ir pra mesma pessoa, já que ela
-  // é quem vai peticionar a extinção de todas, sem depender de mais ninguém.
+  // Manda todas as EF confirmáveis numa chamada só, usando o MESMO destino
+  // já travado e mostrado no topo da página — não deixa o servidor
+  // recalcular, pra nunca destoar do que já foi tramitado no Ágilis.
   const numsConfirmaveis = conferenciaAtual.filter(i => i.podeConfirmar).map(i => i.num);
   const naoConfirmaveis = conferenciaAtual.filter(i => !i.podeConfirmar).map(i => i.num);
 
@@ -259,7 +345,8 @@ document.getElementById('btn-confirmar-avocacao').onclick = async function() {
   if (numsConfirmaveis.length) {
     try {
       const r = await fetch(URL_AS + '?' + new URLSearchParams({
-        acao: 'avocar_lote_ef', proc_adm: procAdm, distribuidor: usuarioAtual, nums: JSON.stringify(numsConfirmaveis)
+        acao: 'avocar_lote_ef', proc_adm: procAdm, distribuidor: usuarioAtual,
+        nums: JSON.stringify(numsConfirmaveis), destino: destinoAtual
       }));
       const d = await r.json();
       if (!d.ok) {
@@ -282,10 +369,9 @@ document.getElementById('btn-confirmar-avocacao').onclick = async function() {
 };
 
 document.getElementById('btn-nova-avocacao').onclick = function() {
-  document.getElementById('inp-proc-adm').value = '';
   document.getElementById('ef-lista').innerHTML = '<div class="ef-row"><input type="text" class="inp-ef" placeholder="ex: 0001234-55.2024.8.06.0001"></div>';
   document.getElementById('etapa-resultado').style.display = 'none';
-  document.getElementById('etapa-dados').style.display = 'block';
+  document.getElementById('card-bifurcacao').style.display = 'block';
   conferenciaAtual = [];
 };
 
