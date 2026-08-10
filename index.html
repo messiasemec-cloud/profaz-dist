@@ -1054,42 +1054,17 @@ function processarEF(d) {
   var titEFnoGrupoEF = procTitEF && procTitEF.nucleo === 'EF';
 
   if (d.em_triagem) {
-    // ── JÁ ESTÁ EM TRIAGEM COM ALGUÉM — não deixa mandar pra outro analista.
-    // Só permite escolher o procurador titular final; enquanto isso não
-    // acontecer, uma nova busca desse mesmo número cai aqui de novo, não
-    // volta a oferecer os analistas como destino.
-    posTriagem = true; // analistas não aparecem como opção
-    var selEtapa = document.getElementById('inp-etapa');
-    for (var i = 0; i < selEtapa.options.length; i++) {
-      if (selEtapa.options[i].value === 'titular') { selEtapa.selectedIndex = i; break; }
-    }
-    document.getElementById('fg-etapa').style.display = 'flex';
-
-    if (d.tem_titular && titEFnoGrupoEF && titEFDisponivel) {
-      titularAtual = d.titular;
-      renderKPIs('EF', null);
-      renderOps('EF');
-      if (idxTitEF >= 0) selProcIdx(idxTitEF);
-      box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
-      box.innerHTML = '✓ Em triagem · Volta para titular: <strong>'+d.titular+'</strong>';
-    } else if (d.tem_titular && titEFnoGrupoEF && !titEFDisponivel) {
-      titularAtual = null;
-      var selTipo = document.getElementById('inp-tipo');
-      for (var j = 0; j < selTipo.options.length; j++) {
-        if (selTipo.options[j].text === 'Tramitação temporária') { selTipo.selectedIndex = j; break; }
-      }
-      var ret = procTitEF.retorno ? ' · até '+fmtData(procTitEF.retorno) : '';
-      renderKPIs('EF', null);
-      renderOps('EF');
-      box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
-      box.innerHTML = '⚠ Em triagem · Titular <strong>'+d.titular+'</strong> de '+procTitEF.status+ret+' · Tramitação temporária → próximo da fila EF';
-    } else {
-      titularAtual = null;
-      renderKPIs('EF', null);
-      renderOps('EF');
-      box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041';
-      box.innerHTML = '✓ Em triagem · Procuradores EF no topo — ainda não foi encaminhado por quem está com o processo';
-    }
+    // ── EM TRIAGEM — ninguém decide por aqui, ponto final. Mesmo que já
+    // tenha tido titular antes, pode ser uma fase diferente do processo
+    // (ex: citação vs. SISBAJUD), e cabe ao analista escolher de novo —
+    // não é automático voltar pro mesmo titular anterior. Só a tela de
+    // Analistas pode concluir isso.
+    titularAtual = null;
+    document.getElementById('btn-dist').disabled = true;
+    var infoAnterior = d.tem_titular ? ' · Titular anterior (referência): <strong>'+d.titular+'</strong>' : '';
+    var infoAnalista = d.analista_triagem ? ' com <strong>'+d.analista_triagem+'</strong>' : '';
+    box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
+    box.innerHTML = '⚠ Em triagem'+infoAnalista+' — aguardando o analista escolher o procurador para esta fase. Só pode ser concluído na tela de Analistas.'+infoAnterior;
 
   } else {
     // ── NOVA COMUNICAÇÃO — ninguém está com o processo agora, vai pros analistas
