@@ -626,7 +626,7 @@ function renderGrafico(historico) {
 }
 
 function renderTimeline(historico) {
-  var ultimos = historico.slice(0, 10);
+  var ultimos = historico.slice(0, 20);
   if (!ultimos.length) {
     document.getElementById('timeline').innerHTML = '<div style="padding:16px 0;color:#898781;font-size:13px">Nenhum processo registrado.</div>';
     return;
