@@ -14,52 +14,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .header-info h1{font-family:serif;font-size:16px;font-weight:600;color:#0a5c52;line-height:1.2;margin:0}
 .header-info p{font-size:12px;color:#52514e;margin:2px 0 0}
 .header-stripe{height:5px;background:linear-gradient(90deg,#0a8a7a 0%,#0a8a7a 40%,#e07020 40%,#e07020 75%,#1a7ab5 75%,#1a7ab5 80%,#e07020 80%,#e07020 95%,#0a8a7a 95%)}
-.main{max-width:1100px;margin:0 auto;padding:20px 16px}
-.bsm{font-size:12px;padding:5px 12px;border:0.5px solid #c3c2b7;border-radius:6px;background:#fff;cursor:pointer}
-.updated{font-size:11px;color:#898781;margin-top:4px;text-align:right}
-.semaforos{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
-.semaforo{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px}
-.sem-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0}
-.sem-verde{background:#1baf7a}.sem-amarelo{background:#eda100}.sem-vermelho{background:#e34948}
-.sem-titulo{font-size:13px;font-weight:500}.sem-msg{font-size:12px;color:#898781;margin-top:3px}
-.vol-title{font-size:14px;font-weight:500;color:#1a3a5c;margin-bottom:10px}
-.vol-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
-.vol-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;padding:14px 16px}
-.vol-label{font-size:11px;color:#898781;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
-.vol-val{font-size:28px;font-weight:500;color:#1a3a5c}
-.vol-sub{font-size:11px;color:#898781;margin-top:2px}
-.nucleo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.nucleo-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;overflow:hidden}
-.nucleo-header{padding:12px 16px;font-size:13px;font-weight:500;color:#fff}
-.nh-ef{background:#1a3a5c}.nh-con{background:#0a8a7a}.nh-adm{background:#4a3aa7}
-.nh-ptac{background:#c45c00}
-.nucleo-body{padding:12px 16px}
-.nucleo-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid rgba(0,0,0,.05);font-size:13px}
-.nucleo-row:last-child{border-bottom:none}
-.nucleo-num{font-weight:500;color:#1a3a5c}
+.main{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
 .card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;overflow:hidden;margin-bottom:20px}
-.ch{padding:14px 20px;border-bottom:0.5px solid rgba(0,0,0,.08);font-size:14px;font-weight:500}
-.th{display:grid;grid-template-columns:1fr 70px 70px 70px 70px 80px 100px 90px;padding:8px 20px;border-bottom:0.5px solid rgba(0,0,0,.08)}
-.th span{font-size:11px;color:#898781;font-weight:500;text-transform:uppercase;letter-spacing:.04em;text-align:center}
-.th span:first-child{text-align:left}
-.pr{display:grid;grid-template-columns:1fr 70px 70px 70px 70px 80px 100px 90px;padding:10px 20px;border-bottom:0.5px solid rgba(0,0,0,.06);align-items:center}
-.pr:last-child{border-bottom:none}
-.pr.inativo{opacity:.5}
-.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
-.pi{display:flex;align-items:center;gap:10px}
-.pn{font-size:13px;font-weight:500}
-.pd{font-size:11px;color:#898781}
-.cel{text-align:center;font-size:14px;font-weight:500}
-.cels{text-align:center;font-size:13px;color:#52514e}
-.badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:20px;font-weight:500}
-.bok{background:#e1f5ee;color:#085041}.balto{background:#fcebeb;color:#791f1f}
-.bbaixo{background:#faeeda;color:#633806}.bfer{background:#e8eef5;color:#1a3a5c}
-.blic{background:#f3eef9;color:#4a3aa7}
-.sep{background:#f0faf8;border-left:3px solid #0a8a7a;padding:7px 20px;font-size:12px;color:#0a5c52;font-weight:500}
-.sep-ef{background:#e8eef5;border-left-color:#1a3a5c;color:#1a3a5c}
-.loading{text-align:center;padding:40px;color:#898781}
-.spin{display:inline-block;width:18px;height:18px;border:2px solid #e1e0d9;border-top-color:#0a8a7a;border-radius:50%;animation:spin .8s linear infinite;margin-right:6px;vertical-align:middle}
+.ch{padding:14px 20px;border-bottom:0.5px solid rgba(0,0,0,.08);font-size:14px;font-weight:600;color:#1a3a5c;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.cb{padding:0}
+.busca{font-size:12px;padding:5px 10px;border:0.5px solid #c3c2b7;border-radius:14px;outline:none;width:170px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:9px 16px;text-align:left;font-weight:500;color:#898781;font-size:11px;text-transform:uppercase;letter-spacing:.04em;background:#f8f7f5}
+th.num,td.num{text-align:center}
+td{padding:9px 16px;border-top:0.5px solid rgba(0,0,0,.06)}
+tr:hover td{background:#fafaf8}
+.linha-inativa td{color:#b5b4ad}
+.loading{text-align:center;padding:20px;color:#898781;font-size:13px}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid #e1e0d9;border-top-color:#0a8a7a;border-radius:50%;animation:spin .8s linear infinite;margin-right:6px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
+.topo-periodo{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+.topo-periodo h2{font-size:18px;color:#1a3a5c}
+.btn-periodo{font-size:12px;padding:6px 16px;border-radius:20px;border:0.5px solid #c3c2b7;background:#fff;color:#52514e;cursor:pointer;font-weight:500}
+.btn-periodo.ativo{background:#0a8a7a;color:#fff;border-color:#0a8a7a}
+#sel-mes-dash{font-size:12px;padding:6px 12px;border:0.5px solid #c3c2b7;border-radius:20px;color:#1a3a5c;cursor:pointer;display:none}
+.total-geral{display:flex;align-items:baseline;gap:10px;padding:20px}
+.total-geral .num{font-size:36px;font-weight:700;color:#0a5c52}
+.total-geral .label{font-size:13px;color:#898781}
+.bar-row{display:flex;align-items:center;gap:10px;padding:6px 20px}
+.bar-nome{width:190px;font-size:12px;color:#1a3a5c;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;background:#f0efe9;border-radius:4px;height:16px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bar-val{width:34px;text-align:right;font-size:12px;font-weight:600;color:#1a3a5c;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -74,215 +55,246 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <p><em>Desenvolvido por Emanuel Sales · Analista da PGM · PROFAZ</em></p>
       </div>
     </div>
-    <div style="text-align:right">
-      <button class="bsm" onclick="carregar()">↻ Atualizar</button>
-      <div class="updated" id="updated"></div>
-    </div>
   </div>
   <div class="header-stripe"></div>
 </div>
 
 <div class="main">
-  <div class="semaforos" id="semaforos">
-    <div class="semaforo"><div class="sem-dot" style="background:#ccc"></div><div><div class="sem-titulo">Execução Fiscal</div><div class="sem-msg">Carregando...</div></div></div>
-    <div class="semaforo"><div class="sem-dot" style="background:#ccc"></div><div><div class="sem-titulo">Conhecimento</div><div class="sem-msg">Carregando...</div></div></div>
-  </div>
 
-  <div class="vol-title">Volume de distribuições registradas</div>
-  <div class="vol-grid">
-    <div class="vol-card"><div class="vol-label">Hoje</div><div class="vol-val" id="v-hoje">—</div><div class="vol-sub">processos</div></div>
-    <div class="vol-card"><div class="vol-label">Esta semana</div><div class="vol-val" id="v-semana">—</div><div class="vol-sub">processos</div></div>
-    <div class="vol-card"><div class="vol-label">Este mês</div><div class="vol-val" id="v-mes">—</div><div class="vol-sub">processos</div></div>
-    <div class="vol-card"><div class="vol-label">Este ano</div><div class="vol-val" id="v-ano">—</div><div class="vol-sub">processos</div></div>
-  </div>
-
-  <div class="nucleo-grid" id="nucleo-grid">
-    <div class="nucleo-card"><div class="nucleo-header nh-ef">Execução Fiscal</div><div class="nucleo-body"><div class="loading"><span class="spin"></span></div></div></div>
-    <div class="nucleo-card"><div class="nucleo-header nh-con">Conhecimento</div><div class="nucleo-body"><div class="loading"><span class="spin"></span></div></div></div>
-    <div class="nucleo-card"><div class="nucleo-header nh-adm">Administrativo</div><div class="nucleo-body"><div class="loading"><span class="spin"></span></div></div></div>
-    <div class="nucleo-card"><div class="nucleo-header nh-ptac">PTAC</div><div class="nucleo-body"><div class="loading"><span class="spin"></span></div></div></div>
-  </div>
-
-  <div class="card">
-    <div class="ch">Acervo atual por procurador</div>
-    <div class="th">
-      <span>Procurador(a)</span><span>Acervo</span><span>Semana</span><span>Mês</span><span>Ano</span><span>Total</span><span>Núcleo</span><span>Situação</span>
+  <div class="topo-periodo">
+    <h2>Visão geral</h2>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn-periodo" data-periodo="semana" onclick="mudarPeriodo('semana')">Semana</button>
+      <button class="btn-periodo" data-periodo="mes" onclick="mudarPeriodo('mes')">Mês</button>
+      <select id="sel-mes-dash"></select>
+      <button class="btn-periodo ativo" data-periodo="total" onclick="mudarPeriodo('total')">Total</button>
     </div>
-    <div id="lista"><div class="loading"><span class="spin"></span>Carregando...</div></div>
   </div>
+
+  <!-- DISTRIBUIDORES -->
+  <div class="card">
+    <div class="ch"><span>Distribuidores</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-distribuidores', this.value)"></div>
+    <div class="cb">
+      <table>
+        <thead><tr><th>Nome</th><th class="num">Distribuído no período</th></tr></thead>
+        <tbody id="tab-distribuidores"><tr><td colspan="2" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ANALISTAS -->
+  <div class="card">
+    <div class="ch"><span>Analistas</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-analistas', this.value)"></div>
+    <div class="cb">
+      <table>
+        <thead><tr><th>Nome</th><th class="num">EF triadas no período</th></tr></thead>
+        <tbody id="tab-analistas"><tr><td colspan="2" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GRUPO EF -->
+  <div class="card">
+    <div class="ch"><span>Grupo Execução Fiscal</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-ef', this.value)"></div>
+    <div class="cb">
+      <table>
+        <thead><tr>
+          <th>Nome</th><th class="num">Novos</th><th class="num">Redistrib.</th>
+          <th class="num">Preventos</th><th class="num">Total recebido</th><th class="num">Acervo ↑</th>
+        </tr></thead>
+        <tbody id="tab-ef"><tr><td colspan="6" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GRUPO CONHECIMENTO -->
+  <div class="card">
+    <div class="ch"><span>Grupo Conhecimento</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-con', this.value)"></div>
+    <div class="cb">
+      <table>
+        <thead><tr>
+          <th>Nome</th><th class="num">Novos</th><th class="num">Redistrib.</th>
+          <th class="num">Preventos</th><th class="num">Total recebido</th><th class="num">Acervo ↑</th>
+        </tr></thead>
+        <tbody id="tab-con"><tr><td colspan="6" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GRUPO ADMINISTRATIVO — NATIVO -->
+  <div class="card">
+    <div class="ch"><span>Grupo Administrativo — Processos nativos (P/GR)</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-adm-nativo', this.value)"></div>
+    <div class="cb">
+      <table>
+        <thead><tr><th>Nome</th><th class="num">Distribuído no período</th></tr></thead>
+        <tbody id="tab-adm-nativo"><tr><td colspan="2" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GRUPO ADMINISTRATIVO — EF AVOCADA -->
+  <div class="card">
+    <div class="ch"><span>Grupo Administrativo — EF avocadas pela CEDAT</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-adm-avocada', this.value)"></div>
+    <div class="cb">
+      <table>
+        <thead><tr><th>Nome</th><th class="num">EF avocadas no período</th></tr></thead>
+        <tbody id="tab-adm-avocada"><tr><td colspan="2" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TOTAL GERAL -->
+  <div class="card">
+    <div class="ch"><span>Total geral distribuído na PROFAZ</span></div>
+    <div class="total-geral">
+      <div class="num" id="total-geral-num">—</div>
+      <div class="label">processos distribuídos no período selecionado</div>
+    </div>
+  </div>
+
+  <!-- GRÁFICO DE BARRAS -->
+  <div class="card">
+    <div class="ch"><span>Quantidade por pessoa</span></div>
+    <div class="cb" id="grafico-barras" style="padding:16px 0">
+      <div class="loading"><span class="spin"></span>Carregando...</div>
+    </div>
+  </div>
+
 </div>
 
 <script>
 const URL_AS = 'https://script.google.com/macros/s/AKfycbzt186mHh_LrKKI1gg5hofoQl_mwj5rRxkgZCjiCIcId2UVDtlbWHwdo05lSU9_hNCP/exec';
+let periodoAtivo = 'total';
+let dadosAtuais = null;
+
+const CORES_NUCLEO = {
+  'EF': '#e07020', 'Conhecimento': '#1baf7a', 'Administrativo': '#4a3aa7',
+  'Analista': '#1a7ab5', 'Distribuidor': '#898781', 'PTAC': '#c39a3f'
+};
+
+function mudarPeriodo(p) {
+  periodoAtivo = p;
+  document.querySelectorAll('.btn-periodo').forEach(b => b.classList.toggle('ativo', b.dataset.periodo === p));
+  document.getElementById('sel-mes-dash').style.display = p === 'mes' ? 'inline-block' : 'none';
+  carregar();
+}
 
 async function carregar() {
   try {
-    const [rDash, rVol] = await Promise.all([
-      fetch(URL_AS+'?acao=dashboard').then(r=>r.json()),
-      fetch(URL_AS+'?acao=volume').then(r=>r.json())
-    ]);
-    if (rDash.ok) { renderSemaforos(rDash); renderTabela(rDash); }
-    if (rVol.ok)  { renderVolume(rVol); renderNucleos(rVol); }
-    document.getElementById('updated').textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
+    const params = { acao: 'dashboard_v2', periodo: periodoAtivo };
+    if (periodoAtivo === 'mes') params.mes = document.getElementById('sel-mes-dash').value || '';
+    const r = await fetch(URL_AS + '?' + new URLSearchParams(params));
+    const d = await r.json();
+    if (!d.ok) { alert(d.erro || 'Erro ao carregar dashboard.'); return; }
+    dadosAtuais = d;
+
+    // popula seletor de mês (uma vez, na primeira carga)
+    const sel = document.getElementById('sel-mes-dash');
+    if (!sel.options.length && d.meses_com_dado && d.meses_com_dado.length) {
+      const nomesMes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      sel.innerHTML = d.meses_com_dado.map(chave => {
+        const partes = chave.split('-');
+        const label = nomesMes[Number(partes[1])-1] + '/' + partes[0];
+        return '<option value="' + chave + '">' + label + '</option>';
+      }).join('');
+      const agora = new Date();
+      const chaveAtual = agora.getFullYear() + '-' + String(agora.getMonth()+1).padStart(2,'0');
+      if (d.meses_com_dado.includes(chaveAtual)) sel.value = chaveAtual;
+    }
+
+    renderTudo(d);
   } catch(e) {
-    document.getElementById('lista').innerHTML = '<div class="loading">Erro: '+e.message+'</div>';
+    alert('Erro ao carregar dashboard: ' + e.message);
   }
 }
 
-function renderSemaforos(d) {
-  const cfg = [
-    {id:'EF',          label:'Execução Fiscal'},
-    {id:'Conhecimento',label:'Conhecimento'},
-  ];
-  document.getElementById('semaforos').innerHTML = cfg.map(n => {
-    const procs = d.procuradores.filter(p=>p.nucleo===n.id&&p.ativo);
-    if (!procs.length) return `<div class="semaforo"><div class="sem-dot" style="background:#ccc"></div><div><div class="sem-titulo">${n.label}</div><div class="sem-msg">Sem dados</div></div></div>`;
-    const vals = procs.map(p=>p.acervo);
-    const diff = Math.max(...vals) - Math.min(...vals);
-    const [cor,msg] = diff<=30 ? ['sem-verde',`Equilibrado — variação de ${diff} processos`]
-                    : diff<=80 ? ['sem-amarelo',`Atenção — diferença de ${diff} processos`]
-                    :            ['sem-vermelho',`Desequilibrado — diferença de ${diff} processos`];
-    return `<div class="semaforo"><div class="sem-dot ${cor}"></div><div><div class="sem-titulo">${n.label}</div><div class="sem-msg">${msg}</div></div></div>`;
-  }).join('');
+document.getElementById('sel-mes-dash').addEventListener('change', carregar);
+
+function linhaSimples(nome, valor, ativo) {
+  return '<tr' + (ativo ? '' : ' class="linha-inativa"') + ' data-nome="' + nome.toLowerCase() + '">' +
+    '<td>' + nome + (ativo ? '' : ' <span style="font-size:10px;color:#b5b4ad">(inativo)</span>') + '</td>' +
+    '<td class="num">' + (valor || 0) + '</td></tr>';
 }
 
-function renderVolume(v) {
-  document.getElementById('v-hoje').textContent   = v.hoje   || 0;
-  document.getElementById('v-semana').textContent = v.semana || 0;
-  document.getElementById('v-mes').textContent    = v.mes    || 0;
-  document.getElementById('v-ano').textContent    = v.ano    || 0;
+function linhaCompleta(c, nome, ativo) {
+  const acervoSubiu = (c.novos||0) + (c.redistrib||0) - (c.compensacoes||0);
+  const acervoTxt = (acervoSubiu >= 0 ? '+' : '') + acervoSubiu;
+  const acervoCor = acervoSubiu > 0 ? '#085041' : acervoSubiu < 0 ? '#791f1f' : '#898781';
+  return '<tr' + (ativo ? '' : ' class="linha-inativa"') + ' data-nome="' + nome.toLowerCase() + '">' +
+    '<td>' + nome + (ativo ? '' : ' <span style="font-size:10px;color:#b5b4ad">(inativo)</span>') + '</td>' +
+    '<td class="num">' + (c.novos||0) + '</td>' +
+    '<td class="num">' + (c.redistrib||0) + '</td>' +
+    '<td class="num">' + (c.preventos||0) + '</td>' +
+    '<td class="num" style="font-weight:600">' + (c.total||0) + '</td>' +
+    '<td class="num" style="color:' + acervoCor + ';font-weight:600">' + acervoTxt + '</td></tr>';
 }
 
-function renderNucleos(v) {
-  const cfg = [
-    {id:'EF',cls:'nh-ef',label:'Execução Fiscal'},
-    {id:'Conhecimento',cls:'nh-con',label:'Conhecimento'},
-    {id:'Administrativo',cls:'nh-adm',label:'Administrativo'},
-    {id:'PTAC',cls:'nh-ptac',label:'PTAC'},
-  ];
-  document.getElementById('nucleo-grid').innerHTML = cfg.map(n => {
-    const d = v.porNucleo?.[n.id] || {};
-    return `<div class="nucleo-card">
-      <div class="nucleo-header ${n.cls}">${n.label}</div>
-      <div class="nucleo-body">
-        <div class="nucleo-row"><span>Hoje</span><span class="nucleo-num">${d.hoje||0}</span></div>
-        <div class="nucleo-row"><span>Esta semana</span><span class="nucleo-num">${d.semana||0}</span></div>
-        <div class="nucleo-row"><span>Este mês</span><span class="nucleo-num">${d.mes||0}</span></div>
-        <div class="nucleo-row"><span>Este ano</span><span class="nucleo-num">${d.ano||0}</span></div>
-      </div>
-    </div>`;
-  }).join('');
+function renderTudo(d) {
+  const nomes = Object.keys(d.contagem);
+
+  const distribuidores = nomes.filter(n => d.contagem[n].nucleo === 'Distribuidor');
+  const analistas       = nomes.filter(n => d.contagem[n].nucleo === 'Analista');
+  const efGrupo         = nomes.filter(n => d.contagem[n].nucleo === 'EF');
+  const conGrupo        = nomes.filter(n => d.contagem[n].nucleo === 'Conhecimento');
+  const admGrupo        = nomes.filter(n => d.contagem[n].nucleo === 'Administrativo');
+
+  document.getElementById('tab-distribuidores').innerHTML =
+    distribuidores.length ? distribuidores.map(n => linhaSimples(n, d.contagem[n].total, d.contagem[n].ativo)).join('')
+    : '<tr><td colspan="2" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
+
+  document.getElementById('tab-analistas').innerHTML =
+    analistas.length ? analistas.map(n => linhaSimples(n, d.contagem[n].total, d.contagem[n].ativo)).join('')
+    : '<tr><td colspan="2" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
+
+  document.getElementById('tab-ef').innerHTML =
+    efGrupo.length ? efGrupo.map(n => linhaCompleta(d.contagem[n], n, d.contagem[n].ativo)).join('')
+    : '<tr><td colspan="6" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
+
+  document.getElementById('tab-con').innerHTML =
+    conGrupo.length ? conGrupo.map(n => linhaCompleta(d.contagem[n], n, d.contagem[n].ativo)).join('')
+    : '<tr><td colspan="6" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
+
+  document.getElementById('tab-adm-nativo').innerHTML =
+    admGrupo.length ? admGrupo.map(n => linhaSimples(n, d.contagem[n].nativo, d.contagem[n].ativo)).join('')
+    : '<tr><td colspan="2" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
+
+  document.getElementById('tab-adm-avocada').innerHTML =
+    admGrupo.length ? admGrupo.map(n => linhaSimples(n, d.contagem[n].avocada, d.contagem[n].ativo)).join('')
+    : '<tr><td colspan="2" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
+
+  // total geral: soma de novos+redistrib de EF/Conhecimento/Administrativo
+  // (preventos e triagem não entram, pois não representam processo "novo" movimentado)
+  let totalGeral = 0;
+  [...efGrupo, ...conGrupo, ...admGrupo].forEach(n => {
+    const c = d.contagem[n];
+    totalGeral += (c.novos||0) + (c.redistrib||0);
+  });
+  document.getElementById('total-geral-num').textContent = totalGeral;
+
+  // gráfico de barras: todo mundo, ordenado do maior pro menor, usando o "total" de cada um
+  const paraGrafico = [...efGrupo, ...conGrupo, ...admGrupo, ...analistas, ...distribuidores]
+    .map(n => ({ nome: n, valor: d.contagem[n].total || 0, nucleo: d.contagem[n].nucleo }))
+    .filter(x => x.valor > 0)
+    .sort((a,b) => b.valor - a.valor);
+
+  const maxValor = Math.max(1, ...paraGrafico.map(x => x.valor));
+  document.getElementById('grafico-barras').innerHTML = paraGrafico.length ? paraGrafico.map(x => {
+    const cor = CORES_NUCLEO[x.nucleo] || '#898781';
+    const pct = Math.round((x.valor / maxValor) * 100);
+    return '<div class="bar-row">' +
+      '<div class="bar-nome" title="' + x.nome + '">' + x.nome + '</div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:' + cor + '"></div></div>' +
+      '<div class="bar-val">' + x.valor + '</div>' +
+    '</div>';
+  }).join('') : '<div style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</div>';
 }
 
-function renderTabela(d) {
-  const grupos = [
-    {id:'EF', label:'Execução Fiscal', cor:'#0a8a7a', temCard:true},
-    {id:'Conhecimento', label:'Conhecimento', cor:'#1a3a5c', temCard:true},
-    {id:'Administrativo', label:'Administrativo', cor:'#4a3aa7', temCard:false},
-    {id:'PTAC', label:'PTAC', cor:'#c45c00', temCard:false},
-  ];
-
-  let html = '';
-
-  for (const g of grupos) {
-    let lista;
-    if (g.id === 'EF') {
-      const analistas = d.procuradores.filter(p=>p.nucleo==='Analista').sort((a,b)=>a.ativo!==b.ativo?b.ativo-a.ativo:a.acervo-b.acervo);
-      const procEF    = d.procuradores.filter(p=>p.nucleo==='EF').sort((a,b)=>a.ativo!==b.ativo?b.ativo-a.ativo:a.acervo-b.acervo);
-      lista = analistas.concat(procEF);
-    } else {
-      lista = d.procuradores.filter(p=>p.nucleo===g.id).sort((a,b)=>a.ativo!==b.ativo?b.ativo-a.ativo:a.acervo-b.acervo);
-    }
-    if (!lista.length) continue;
-
-    const ativos = lista.filter(p=>p.ativo && p.nucleo!=='Analista');
-    const vals   = ativos.map(p=>p.acervo);
-    const total  = vals.reduce((s,v)=>s+v,0);
-    const media  = vals.length ? Math.round(total/vals.length) : 0;
-    const mx     = vals.length ? Math.max(...vals) : 0;
-    const mn     = vals.length ? Math.min(...vals) : 0;
-    const diff   = mx - mn;
-    const pMax   = ativos.find(p=>p.acervo===mx);
-    const pMin   = ativos.find(p=>p.acervo===mn);
-
-    html += '<div style="background:#f8f7f5;border-left:3px solid '+g.cor+';color:'+g.cor+';padding:9px 20px;font-size:13px;font-weight:600">▸ '+g.label+'</div>';
-
-    if (g.temCard && vals.length > 1) {
-      const [cor,msg] = diff<=30 ? ['#1baf7a','Equilibrado — variação de '+diff+' processos']
-                      : diff<=80 ? ['#eda100','Atenção — diferença de '+diff+' processos']
-                      :            ['#e34948','Desequilibrado — diferença de '+diff+' processos entre o maior ('+( pMax?pMax.nome.split(' ')[0]:'')+', '+mx+') e o menor ('+(pMin?pMin.nome.split(' ')[0]:'')+', '+mn+')'];
-      html += '<div style="margin:8px 16px;padding:10px 14px;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:10px;border:0.5px solid '+cor+'22;background:'+cor+'11">';
-      html += '<div style="width:8px;height:8px;border-radius:50%;background:'+cor+';flex-shrink:0"></div>';
-      html += '<span style="color:'+cor+'">'+msg+'</span></div>';
-      html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 16px 8px">';
-      html += '<div style="background:#f8f7f5;border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:#898781;text-transform:uppercase">Total</div><div style="font-size:20px;font-weight:500;color:#1a3a5c">'+total+'</div></div>';
-      html += '<div style="background:#f8f7f5;border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:#898781;text-transform:uppercase">Média</div><div style="font-size:20px;font-weight:500;color:#1a3a5c">'+media+'</div></div>';
-      html += '<div style="background:#f8f7f5;border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:#898781;text-transform:uppercase">Maior</div><div style="font-size:20px;font-weight:500;color:#1a3a5c">'+mx+'</div><div style="font-size:11px;color:#898781">'+(pMax?pMax.nome.split(' ')[0]:'')+'</div></div>';
-      html += '<div style="background:#f8f7f5;border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:#898781;text-transform:uppercase">Menor</div><div style="font-size:20px;font-weight:500;color:#1a3a5c">'+mn+'</div><div style="font-size:11px;color:#898781">'+(pMin?pMin.nome.split(' ')[0]:'')+'</div></div>';
-      html += '</div>';
-    }
-
-    if (g.id === 'EF') {
-      const analistas2 = lista.filter(p=>p.nucleo==='Analista');
-      const procEF2    = lista.filter(p=>p.nucleo==='EF');
-      if (analistas2.length) {
-        html += '<div style="background:#e8eef5;border-left:3px solid #1a3a5c;color:#1a3a5c;padding:7px 20px;font-size:12px">Analistas</div>';
-        html += analistas2.map(p=>rowHTML(p,d)).join('');
-        html += '<div style="background:#e8eef5;border-left:3px solid #1a3a5c;color:#1a3a5c;padding:7px 20px;font-size:12px">Procuradores EF</div>';
-      }
-      html += procEF2.map(p=>rowHTML(p,d)).join('');
-    } else {
-      html += lista.map(p=>rowHTML(p,d)).join('');
-    }
-  }
-
-  document.getElementById('lista').innerHTML = html;
+function filtrar(tabelaId, termo) {
+  const t = termo.trim().toLowerCase();
+  document.querySelectorAll('#' + tabelaId + ' tr[data-nome]').forEach(tr => {
+    tr.style.display = tr.dataset.nome.includes(t) ? '' : 'none';
+  });
 }
-
-
-function rowHTML(p, d) {
-  const cor = cor7(p.nome);
-  const grupoPrcs = d.procuradores.filter(x=>x.nucleo===p.nucleo&&x.ativo);
-  const media = grupoPrcs.length ? grupoPrcs.reduce((s,x)=>s+x.acervo,0)/grupoPrcs.length : 0;
-  const ratio = media>0 ? p.acervo/media : 1;
-  let badge,bcls;
-  if (!p.ativo) { badge=p.status+(p.retorno?' - retorno '+fmtData(p.retorno):''); bcls=p.status==='Férias'?'bfer':'blic'; }
-  else if (ratio>1.2) { badge='Acima'; bcls='balto'; }
-  else if (ratio<0.8) { badge='Abaixo'; bcls='bbaixo'; }
-  else { badge='OK'; bcls='bok'; }
-  const nucLabel = p.nucleo==='Analista'?'EF (analista)':p.nucleo;
-  return `<div class="pr ${!p.ativo?'inativo':''}">
-    <div class="pi">
-      <div class="av" style="background:${cor}22;color:${cor}">${ini(p.nome)}</div>
-      <div><div class="pn">${p.nome}</div><div class="pd">${nucLabel}</div></div>
-    </div>
-    <div class="cel">${p.acervo}</div>
-    <div class="cels">${p.semana||0}</div>
-    <div class="cels">${p.mes||0}</div>
-    <div class="cels">${p.ano||0}</div>
-    <div class="cels" title="Total recebido no geral, incluindo Juntada e Tramitação temporária">${p.total_recebido||0}</div>
-    <div class="cels" style="font-size:11px">${nucLabel}</div>
-    <div class="cels"><span class="badge ${bcls}">${badge}</span></div>
-  </div>`;
-}
-
-function fmtData(s) {
-  if(!s) return '';
-  var str = String(s);
-  if(/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return str;
-  try {
-    var dt = new Date(str);
-    if(!isNaN(dt.getTime())) {
-      var d = String(dt.getDate()).padStart(2,'0');
-      var m = String(dt.getMonth()+1).padStart(2,'0');
-      var a = dt.getFullYear();
-      return d+'/'+m+'/'+a;
-    }
-  } catch(e) {}
-  return str;
-}
-function ini(n){return n.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
-function cor7(s){const cs=['#2a78d6','#1baf7a','#eda100','#4a3aa7','#e34948','#e87ba4','#eb6834','#008370','#c45c00','#6b3fa0'];let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%cs.length;return cs[h];}
 
 carregar();
 </script>
