@@ -121,24 +121,16 @@ tr:hover td{background:#fafaf8}
     </div>
   </div>
 
-  <!-- GRUPO ADMINISTRATIVO — NATIVO -->
+  <!-- GRUPO ADMINISTRATIVO -->
   <div class="card">
-    <div class="ch"><span>Grupo Administrativo — Processos nativos (P/GR)</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-adm-nativo', this.value)"></div>
+    <div class="ch"><span>Grupo Administrativo</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-adm', this.value)"></div>
     <div class="cb">
       <table>
-        <thead><tr><th>Nome</th><th class="num">Distribuído no período</th></tr></thead>
-        <tbody id="tab-adm-nativo"><tr><td colspan="2" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- GRUPO ADMINISTRATIVO — EF AVOCADA -->
-  <div class="card">
-    <div class="ch"><span>Grupo Administrativo — EF avocadas pela CEDAT</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-adm-avocada', this.value)"></div>
-    <div class="cb">
-      <table>
-        <thead><tr><th>Nome</th><th class="num">EF avocadas no período</th></tr></thead>
-        <tbody id="tab-adm-avocada"><tr><td colspan="2" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
+        <thead><tr>
+          <th>Nome</th><th class="num">Novos</th><th class="num">Redistrib.</th>
+          <th class="num">Total recebido</th><th class="num">Acervo ↑</th>
+        </tr></thead>
+        <tbody id="tab-adm"><tr><td colspan="5" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -229,6 +221,23 @@ function linhaCompleta(c, nome, ativo) {
     '<td class="num" style="color:' + acervoCor + ';font-weight:600">' + acervoTxt + '</td></tr>';
 }
 
+// Administrativo: "Novos" = processos nativos (P/GR), "Redistrib." = EF
+// avocadas pela CEDAT. Não existe Preventos aqui (não há Juntada nesse
+// núcleo), então o acervo sobe sempre pelo total (nativo + avocada).
+function linhaAdm(c, nome, ativo) {
+  const novos = c.nativo || 0;
+  const redistrib = c.avocada || 0;
+  const totalRecebido = novos + redistrib;
+  const acervoTxt = (totalRecebido >= 0 ? '+' : '') + totalRecebido;
+  const acervoCor = totalRecebido > 0 ? '#085041' : '#898781';
+  return '<tr' + (ativo ? '' : ' class="linha-inativa"') + ' data-nome="' + nome.toLowerCase() + '">' +
+    '<td>' + nome + (ativo ? '' : ' <span style="font-size:10px;color:#b5b4ad">(inativo)</span>') + '</td>' +
+    '<td class="num">' + novos + '</td>' +
+    '<td class="num">' + redistrib + '</td>' +
+    '<td class="num" style="font-weight:600">' + totalRecebido + '</td>' +
+    '<td class="num" style="color:' + acervoCor + ';font-weight:600">' + acervoTxt + '</td></tr>';
+}
+
 function renderTudo(d) {
   const nomes = Object.keys(d.contagem);
 
@@ -254,13 +263,9 @@ function renderTudo(d) {
     conGrupo.length ? conGrupo.map(n => linhaCompleta(d.contagem[n], n, d.contagem[n].ativo)).join('')
     : '<tr><td colspan="6" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
 
-  document.getElementById('tab-adm-nativo').innerHTML =
-    admGrupo.length ? admGrupo.map(n => linhaSimples(n, d.contagem[n].nativo, d.contagem[n].ativo)).join('')
-    : '<tr><td colspan="2" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
-
-  document.getElementById('tab-adm-avocada').innerHTML =
-    admGrupo.length ? admGrupo.map(n => linhaSimples(n, d.contagem[n].avocada, d.contagem[n].ativo)).join('')
-    : '<tr><td colspan="2" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
+  document.getElementById('tab-adm').innerHTML =
+    admGrupo.length ? admGrupo.map(n => linhaAdm(d.contagem[n], n, d.contagem[n].ativo)).join('')
+    : '<tr><td colspan="5" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
 
   // total geral: soma de novos+redistrib de EF/Conhecimento/Administrativo
   // (preventos e triagem não entram, pois não representam processo "novo" movimentado)
