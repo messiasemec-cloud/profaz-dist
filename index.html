@@ -1658,6 +1658,22 @@ async function distribuir() {
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
     showFb('✓ '+d.mensagem+(d.conta_placar?'':' — não altera o placar'), 'ok');
+
+    // Atualização otimista: soma no acervo local do destinatário na hora,
+    // sem esperar o servidor — evita que a fila fique com número
+    // desatualizado por causa do tempo de resposta do carregar() logo a
+    // seguir. O carregar() abaixo ainda corrige/reconcilia com o servidor.
+    const contaPlacarLocal = tipo !== 'Juntada' && tipo !== 'Tramitação temporária' && etapa !== 'triagem';
+    if (contaPlacarLocal) {
+      const pAtualizado = procs.find(p => p.nome === procSel);
+      if (pAtualizado) {
+        pAtualizado.acervo = (pAtualizado.acervo || 0) + 1;
+        pAtualizado.semana = (pAtualizado.semana || 0) + 1;
+        pAtualizado.mes    = (pAtualizado.mes    || 0) + 1;
+        renderAcervo();
+      }
+    }
+
     document.getElementById('inp-num').value = '';
     document.getElementById('inp-fluxo').value = '';
     document.getElementById('inp-tipo').value = 'Primeira distribuição';
