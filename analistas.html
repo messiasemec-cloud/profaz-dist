@@ -46,6 +46,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bfer{background:#e8eef5;color:#1a3a5c}
 .bprefer{background:#faeeda;color:#8a5a00;border:1px solid #eda100}
 .blic{background:#f3eef9;color:#4a3aa7}
+.batest{background:#fbe4e8;color:#a6334c}
 .btn-conf{width:100%;padding:12px;background:#0a8a7a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;margin-top:16px;transition:background .15s}
 .btn-conf:hover{background:#076b5e}
 .btn-conf:disabled{background:#888;cursor:not-allowed}
@@ -375,6 +376,10 @@ function parseDataBR(valor) {
 // Distingue "Pré-férias" (dentro da carência de 5 dias úteis, mas o período
 // ainda não começou de fato) de "Férias" já em curso, pra exibição.
 function infoFerias(p) {
+  if (p.status === 'Atestado') {
+    const ret = p.retorno ? ' · até ' + fmtData(p.retorno) : '';
+    return { texto: 'Atestado' + ret, classe: 'batest', tooltip: '' };
+  }
   if (p.status !== 'Férias') {
     return { texto: p.status, classe: 'blic', tooltip: '' };
   }

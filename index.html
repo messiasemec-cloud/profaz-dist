@@ -82,10 +82,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bfer{background:#e8eef5;color:#1a3a5c}
 .bprefer{background:#faeeda;color:#8a5a00;border:1px solid #eda100}
 .blic{background:#f3eef9;color:#4a3aa7}
+.batest{background:#fbe4e8;color:#a6334c}
 .sbtn-ativo{color:#1baf7a}
 .sbtn-ferias{color:#1a3a5c}
 .sbtn-prefer{color:#8a5a00}
 .sbtn-licenca{color:#4a3aa7}
+.sbtn-atestado{color:#a6334c}
 .bsm{font-size:12px;padding:5px 12px;border:0.5px solid #c3c2b7;border-radius:6px;background:#fff;cursor:pointer}
 
 /* SEPARADOR ANALISTAS */
@@ -315,6 +317,10 @@ function parseDataBR(valor) {
 // Distingue "Pré-férias" (dentro da carência de 5 dias úteis, mas o período
 // ainda não começou de fato) de "Férias" já em curso, pra exibição.
 function infoFerias(p) {
+  if (p.status === 'Atestado') {
+    const ret = p.retorno ? ' - até ' + fmtData(p.retorno) : '';
+    return { texto: 'Atestado' + ret, classe: 'batest', tooltip: '' };
+  }
   if (p.status !== 'Férias') {
     return { texto: p.status, classe: 'blic', tooltip: '' };
   }
@@ -869,7 +875,7 @@ function renderRow(p, i, cols, maxAc, ativos, media) {
   else if (ratio < 0.8)        { badge = 'Abaixo';    bcls = 'bbaixo'; }
   else                          { badge = 'OK';         bcls = 'bok'; }
 
-  const MAPA_SBTN = { bfer: 'sbtn-ferias', bprefer: 'sbtn-prefer', blic: 'sbtn-licenca' };
+  const MAPA_SBTN = { bfer: 'sbtn-ferias', bprefer: 'sbtn-prefer', blic: 'sbtn-licenca', batest: 'sbtn-atestado' };
   const infoStatus = !p.ativo ? infoFerias(p) : null;
   const scls = infoStatus ? (MAPA_SBTN[infoStatus.classe] || 'sbtn-ativo') : 'sbtn-ativo';
   const statusTxt = infoStatus && infoStatus.texto.startsWith('Pré-férias') ? 'Pré-férias' : p.status;
@@ -1095,6 +1101,7 @@ function abrirMenuStatus(idx, btn) {
   const opts = [];
   if (p.status !== 'Ativo')   opts.push({label:'✓ Ativo',   fn:() => {fecharMenu(menu);confirmarAtivar(idx);}});
   if (p.status !== 'Férias')  opts.push({label:'🏖 Férias', fn:() => {fecharMenu(menu);modalFerias(idx);}});
+  if (p.status !== 'Atestado') opts.push({label:'🩺 Atestado', fn:() => {fecharMenu(menu);modalAtestado(idx);}});
   if (p.status !== 'Licença') opts.push({label:'📋 Licença',fn:() => {fecharMenu(menu);confirmarLicenca(idx);}});
   opts.forEach(o => {
     const div = document.createElement('div');
@@ -1142,6 +1149,41 @@ function modalFerias(idx) {
     if (ret < ini) { alert('A data de retorno não pode ser antes da data de início.'); return; }
     bg.remove();
     salvarStatus(p.nome, 'Férias', ret, ini);
+  };
+  bg.addEventListener('click', e => { if (e.target===bg) bg.remove(); });
+}
+
+function modalAtestado(idx) {
+  const p = procs[idx];
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg';
+  bg.innerHTML = `<div class="modal-box">
+    <div class="modal-head" style="background:#a6334c">
+      <div class="modal-head-title">🩺 Atestado</div>
+      <div class="modal-head-sub">${p.nome}</div>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:11px;color:#898781;font-weight:500;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Data de início</div>
+      <input type="date" id="atestado-inicio" class="finput" style="margin-bottom:12px">
+      <div style="font-size:11px;color:#898781;font-weight:500;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Fim do atestado (último dia)</div>
+      <input type="date" id="atestado-retorno" class="finput">
+      <div style="font-size:11px;color:#898781;margin-top:8px">Sai da esteira de distribuição imediatamente ao confirmar — sem carência, por ser emergencial.</div>
+      <div class="modal-btns">
+        <button class="modal-cancel" id="btn-cancel-atestado">Cancelar</button>
+        <button class="modal-ok" id="btn-ok-atestado" style="background:#a6334c">Confirmar</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(bg);
+  bg.querySelector('#btn-cancel-atestado').onclick = () => bg.remove();
+  bg.querySelector('#btn-ok-atestado').onclick = () => {
+    const ini = bg.querySelector('#atestado-inicio').value;
+    const ret = bg.querySelector('#atestado-retorno').value;
+    if (!ini) { alert('Informe a data de início.'); return; }
+    if (!ret) { alert('Informe a data de fim.'); return; }
+    if (ret < ini) { alert('A data de fim não pode ser antes da data de início.'); return; }
+    bg.remove();
+    salvarStatus(p.nome, 'Atestado', ret, ini);
   };
   bg.addEventListener('click', e => { if (e.target===bg) bg.remove(); });
 }
