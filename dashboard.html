@@ -73,7 +73,7 @@ tr:hover td{background:#fafaf8}
 
   <!-- DISTRIBUIDORES -->
   <div class="card">
-    <div class="ch"><span>Distribuidores</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-distribuidores', this.value)"></div>
+    <div class="ch" style="border-left:4px solid #898781"><span style="display:flex;align-items:center;gap:8px;color:#898781"><span style="width:8px;height:8px;border-radius:50%;background:#898781;display:inline-block;flex-shrink:0"></span>Distribuidores</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-distribuidores', this.value)"></div>
     <div class="cb">
       <table>
         <thead><tr><th>Nome</th><th class="num">Distribuído no período</th></tr></thead>
@@ -84,7 +84,7 @@ tr:hover td{background:#fafaf8}
 
   <!-- ANALISTAS -->
   <div class="card">
-    <div class="ch"><span>Analistas</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-analistas', this.value)"></div>
+    <div class="ch" style="border-left:4px solid #1a7ab5"><span style="display:flex;align-items:center;gap:8px;color:#1a7ab5"><span style="width:8px;height:8px;border-radius:50%;background:#1a7ab5;display:inline-block;flex-shrink:0"></span>Analistas</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-analistas', this.value)"></div>
     <div class="cb">
       <table>
         <thead><tr><th>Nome</th><th class="num">EF triadas no período</th></tr></thead>
@@ -95,35 +95,45 @@ tr:hover td{background:#fafaf8}
 
   <!-- GRUPO EF -->
   <div class="card">
-    <div class="ch"><span>Grupo Execução Fiscal</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-ef', this.value)"></div>
+    <div class="ch" style="border-left:4px solid #e07020"><span style="display:flex;align-items:center;gap:8px;color:#e07020"><span style="width:8px;height:8px;border-radius:50%;background:#e07020;display:inline-block;flex-shrink:0"></span>Grupo Execução Fiscal</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-ef', this.value)"></div>
     <div class="cb">
       <table>
         <thead><tr>
-          <th>Nome</th><th class="num">Novos</th><th class="num">Redistrib.</th>
-          <th class="num">Preventos</th><th class="num">Total recebido</th><th class="num">Acervo ↑</th>
+          <th>Nome</th>
+          <th class="num" style="color:#0a8a7a">Novos</th>
+          <th class="num" style="color:#4a3aa7">Redistrib.</th>
+          <th class="num" style="color:#898781">Preventos</th>
+          <th class="num" style="color:#a6334c">Temporários</th>
+          <th class="num">Total recebido</th>
+          <th class="num">Acervo ↑</th>
         </tr></thead>
-        <tbody id="tab-ef"><tr><td colspan="6" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
+        <tbody id="tab-ef"><tr><td colspan="7" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
       </table>
     </div>
   </div>
 
   <!-- GRUPO CONHECIMENTO -->
   <div class="card">
-    <div class="ch"><span>Grupo Conhecimento</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-con', this.value)"></div>
+    <div class="ch" style="border-left:4px solid #1baf7a"><span style="display:flex;align-items:center;gap:8px;color:#1baf7a"><span style="width:8px;height:8px;border-radius:50%;background:#1baf7a;display:inline-block;flex-shrink:0"></span>Grupo Conhecimento</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-con', this.value)"></div>
     <div class="cb">
       <table>
         <thead><tr>
-          <th>Nome</th><th class="num">Novos</th><th class="num">Redistrib.</th>
-          <th class="num">Preventos</th><th class="num">Total recebido</th><th class="num">Acervo ↑</th>
+          <th>Nome</th>
+          <th class="num" style="color:#0a8a7a">Novos</th>
+          <th class="num" style="color:#4a3aa7">Redistrib.</th>
+          <th class="num" style="color:#898781">Preventos</th>
+          <th class="num" style="color:#a6334c">Temporários</th>
+          <th class="num">Total recebido</th>
+          <th class="num">Acervo ↑</th>
         </tr></thead>
-        <tbody id="tab-con"><tr><td colspan="6" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
+        <tbody id="tab-con"><tr><td colspan="7" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
       </table>
     </div>
   </div>
 
   <!-- GRUPO ADMINISTRATIVO -->
   <div class="card">
-    <div class="ch"><span>Grupo Administrativo</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-adm', this.value)"></div>
+    <div class="ch" style="border-left:4px solid #4a3aa7"><span style="display:flex;align-items:center;gap:8px;color:#4a3aa7"><span style="width:8px;height:8px;border-radius:50%;background:#4a3aa7;display:inline-block;flex-shrink:0"></span>Grupo Administrativo</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-adm', this.value)"></div>
     <div class="cb">
       <table>
         <thead><tr>
@@ -217,6 +227,7 @@ function linhaCompleta(c, nome, ativo) {
     '<td class="num">' + (c.novos||0) + '</td>' +
     '<td class="num">' + (c.redistrib||0) + '</td>' +
     '<td class="num">' + (c.preventos||0) + '</td>' +
+    '<td class="num">' + (c.temporarios||0) + '</td>' +
     '<td class="num" style="font-weight:600">' + (c.total||0) + '</td>' +
     '<td class="num" style="color:' + acervoCor + ';font-weight:600">' + acervoTxt + '</td></tr>';
 }
@@ -257,11 +268,11 @@ function renderTudo(d) {
 
   document.getElementById('tab-ef').innerHTML =
     efGrupo.length ? efGrupo.map(n => linhaCompleta(d.contagem[n], n, d.contagem[n].ativo)).join('')
-    : '<tr><td colspan="6" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
+    : '<tr><td colspan="7" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
 
   document.getElementById('tab-con').innerHTML =
     conGrupo.length ? conGrupo.map(n => linhaCompleta(d.contagem[n], n, d.contagem[n].ativo)).join('')
-    : '<tr><td colspan="6" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
+    : '<tr><td colspan="7" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
 
   document.getElementById('tab-adm').innerHTML =
     admGrupo.length ? admGrupo.map(n => linhaAdm(d.contagem[n], n, d.contagem[n].ativo)).join('')
