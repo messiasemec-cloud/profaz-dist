@@ -1459,6 +1459,9 @@ async function buscarProcesso() {
             for (let i = 0; i < selTipo.options.length; i++) {
               if (selTipo.options[i].text === 'Tramitação temporária') { selTipo.selectedIndex = i; break; }
             }
+            // motivo automático — nunca digitado à mão, sempre no mesmo
+            // padrão, pra dar pra reconhecer depois na página do procurador
+            document.getElementById('inp-motivo').value = `Titular ${d.titular} indisponível (${procTitEF.status}) — cobertura temporária`;
                       const ret = procTitEF.retorno ? ` · até ${procTitEF.retorno}` : '';
             box.style.cssText = 'display:block;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:13px;background:#faeeda;border:0.5px solid #FAC775;color:#633806';
             box.innerHTML = `⚠ Já passou pela triagem · Titular <strong>${d.titular}</strong> de ${procTitEF.status}${ret} · Tramitação temporária → próximo da fila EF`;
@@ -1563,6 +1566,11 @@ async function buscarProcesso() {
             const selTipo = document.getElementById('inp-tipo');
             for (let i = 0; i < selTipo.options.length; i++) {
               if (selTipo.options[i].text === 'Tramitação temporária') { selTipo.selectedIndex = i; break; }
+            }
+            // motivo automático — mesmo padrão do lado EF, pra reconhecer
+            // depois na página do procurador ("Recebido devido X de Fulano")
+            if (procTit) {
+              document.getElementById('inp-motivo').value = `Titular ${procTit.nome} indisponível (${procTit.status}) — cobertura temporária`;
             }
 
             titularAtual = null; // não marca ninguém especificamente — fila normal
