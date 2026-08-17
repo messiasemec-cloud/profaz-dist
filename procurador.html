@@ -183,6 +183,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#0a8a7a"></div>Novos</div>
           <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#1a3a5c"></div>Preventos</div>
           <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#e07020"></div>Redistribuídos</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#52514e"><div style="width:10px;height:10px;border-radius:2px;background:#a6334c"></div>Temporários</div>
         </div>
       </div>
     </div>
@@ -588,17 +589,18 @@ document.getElementById('sel-mes-resumo').addEventListener('change', atualizarRe
 
 
 function renderGrafico(historico) {
-  // agrupa por mês e tipo (Novo/Prevento/Redistribuído)
+  // agrupa por mês e tipo (Novo/Prevento/Redistribuído/Temporário)
   var mensal = {};
   historico.forEach(function(h) {
     if (!h.data) return;
     var dt = new Date(h.data);
     if (isNaN(dt.getTime())) return;
     var mes = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0');
-    if (!mensal[mes]) mensal[mes] = {novo:0,prevento:0,redistrib:0};
+    if (!mensal[mes]) mensal[mes] = {novo:0,prevento:0,redistrib:0,temporario:0};
     var tipo = (h.tipo||'').trim();
     if (tipo === 'Primeira distribuição') mensal[mes].novo++;
-    else if (tipo === 'Juntada' || tipo === 'Tramitação temporária') mensal[mes].prevento++;
+    else if (tipo === 'Juntada') mensal[mes].prevento++;
+    else if (tipo === 'Tramitação temporária') mensal[mes].temporario++;
     else if (tipo === 'Redistribuição') mensal[mes].redistrib++;
   });
 
@@ -607,17 +609,18 @@ function renderGrafico(historico) {
     document.getElementById('chart-bars').innerHTML = '<div style="color:#898781;font-size:13px">Sem dados de distribuição registrados.</div>';
     return;
   }
-  var maxVal = Math.max.apply(null, meses.map(function(m){ return mensal[m].novo+mensal[m].prevento+mensal[m].redistrib; })) || 1;
+  var maxVal = Math.max.apply(null, meses.map(function(m){ return mensal[m].novo+mensal[m].prevento+mensal[m].redistrib+mensal[m].temporario; })) || 1;
 
   document.getElementById('chart-bars').innerHTML = meses.map(function(m) {
     var d = mensal[m];
-    var total = d.novo + d.prevento + d.redistrib;
+    var total = d.novo + d.prevento + d.redistrib + d.temporario;
     var hTotal = Math.round(total/maxVal*80);
     var label = m.split('-')[1] + '/' + m.split('-')[0].slice(2);
     return '<div class="bar-wrap">' +
       '<div class="bar-val">' + (total||'') + '</div>' +
       '<div style="width:100%;display:flex;flex-direction:column;height:' + hTotal + 'px;border-radius:4px 4px 0 0;overflow:hidden">' +
         '<div style="flex:' + d.redistrib + ';background:#e07020;min-height:' + (d.redistrib?2:0) + 'px"></div>' +
+        '<div style="flex:' + d.temporario + ';background:#a6334c;min-height:' + (d.temporario?2:0) + 'px"></div>' +
         '<div style="flex:' + d.prevento  + ';background:#1a3a5c;min-height:' + (d.prevento ?2:0) + 'px"></div>' +
         '<div style="flex:' + d.novo      + ';background:#0a8a7a;min-height:' + (d.novo?2:0) + 'px"></div>' +
       '</div>' +
