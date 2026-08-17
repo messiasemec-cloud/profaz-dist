@@ -615,7 +615,8 @@ function renderGrafico(historico) {
     var d = mensal[m];
     var total = d.novo + d.prevento + d.redistrib + d.temporario;
     var hTotal = Math.round(total/maxVal*80);
-    var label = m.split('-')[1] + '/' + m.split('-')[0].slice(2);
+    var nomesMesAbrev = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    var label = nomesMesAbrev[Number(m.split('-')[1]) - 1] + '/' + m.split('-')[0].slice(2);
     return '<div class="bar-wrap">' +
       '<div class="bar-val">' + (total||'') + '</div>' +
       '<div style="width:100%;display:flex;flex-direction:column;height:' + hTotal + 'px;border-radius:4px 4px 0 0;overflow:hidden">' +
