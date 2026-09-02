@@ -47,6 +47,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .eq-fill{height:100%;border-radius:6px;transition:width .5s}
 .eq-media-line{position:absolute;top:-4px;width:2px;height:20px;background:#1a3a5c;border-radius:1px}
 .eq-media-label{position:absolute;top:-20px;font-size:10px;color:#1a3a5c;transform:translateX(-50%);white-space:nowrap}
+.eq-media-label.abaixo{top:16px}
+.eq-media-label.borda-esq{transform:translateX(0)}
+.eq-media-label.borda-dir{transform:translateX(-100%)}
 
 /* GRÁFICO MENSAL */
 .chart-bars{display:flex;align-items:flex-end;gap:6px;height:100px;padding:0 4px}
@@ -460,6 +463,12 @@ function renderBarra(acervo, media, minimo, maximo) {
   document.getElementById('eq-fill').style.background = cor;
   document.getElementById('eq-media-line').style.left  = pctMedia + '%';
   document.getElementById('eq-media-label').textContent = 'Média (' + media + ')';
+  // quando a média fica muito perto de uma ponta, o rótulo colide com "Menor"/"Maior"
+  // acima da barra — nesses casos, joga o rótulo pra baixo da barra em vez de por cima.
+  var labelMedia = document.getElementById('eq-media-label');
+  labelMedia.classList.toggle('abaixo', pctMedia <= 12 || pctMedia >= 88);
+  labelMedia.classList.toggle('borda-esq', pctMedia <= 12);
+  labelMedia.classList.toggle('borda-dir', pctMedia >= 88);
   document.getElementById('eq-menor-label').textContent = '0';
   document.getElementById('eq-maior-label').textContent = 'Maior (' + maximo + ')';
   var diff2 = acervo - media;
