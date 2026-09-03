@@ -36,6 +36,9 @@ tr:hover td{background:#fafaf8}
 .total-geral{display:flex;align-items:baseline;gap:10px;padding:20px}
 .total-geral .num{font-size:36px;font-weight:700;color:#0a5c52}
 .total-geral .label{font-size:13px;color:#898781}
+.total-titularizacoes{display:flex;align-items:baseline;gap:10px;padding:20px;background:#fff2e0;border-radius:8px}
+.total-titularizacoes .num{font-size:36px;font-weight:700;color:#b5651d}
+.total-titularizacoes .label{font-size:13px;color:#8a5a2e}
 .bar-row{display:flex;align-items:center;gap:10px;padding:6px 20px}
 .bar-nome{width:190px;font-size:12px;color:#1a3a5c;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar-track{flex:1;background:#f0efe9;border-radius:4px;height:16px;overflow:hidden}
@@ -145,12 +148,21 @@ tr:hover td{background:#fafaf8}
     </div>
   </div>
 
+  <!-- TOTAL DE TITULARIZAÇÕES -->
+  <div class="card">
+    <div class="ch"><span>Total de Titularizações na PROFAZ</span></div>
+    <div class="total-titularizacoes">
+      <div class="num" id="total-titularizacoes-num">—</div>
+      <div class="label">processos novos + redistribuídos (EF, Conhecimento e Administrativo) no período selecionado</div>
+    </div>
+  </div>
+
   <!-- TOTAL GERAL -->
   <div class="card">
     <div class="ch"><span>Total geral distribuído na PROFAZ</span></div>
     <div class="total-geral">
       <div class="num" id="total-geral-num">—</div>
-      <div class="label">processos distribuídos no período selecionado</div>
+      <div class="label">processos de todos os tipos, somando o que os distribuidores processaram no período selecionado</div>
     </div>
   </div>
 
@@ -278,12 +290,20 @@ function renderTudo(d) {
     admGrupo.length ? admGrupo.map(n => linhaAdm(d.contagem[n], n, d.contagem[n].ativo)).join('')
     : '<tr><td colspan="5" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
 
-  // total geral: soma de novos+redistrib de EF/Conhecimento/Administrativo
+  // total de titularizações: soma de novos+redistrib de EF/Conhecimento/Administrativo
   // (preventos e triagem não entram, pois não representam processo "novo" movimentado)
-  let totalGeral = 0;
+  let totalTitularizacoes = 0;
   [...efGrupo, ...conGrupo, ...admGrupo].forEach(n => {
     const c = d.contagem[n];
-    totalGeral += (c.novos||0) + (c.redistrib||0);
+    totalTitularizacoes += (c.novos||0) + (c.redistrib||0);
+  });
+  document.getElementById('total-titularizacoes-num').textContent = totalTitularizacoes;
+
+  // total geral distribuído: soma do "total" de cada distribuidor (todos os tipos
+  // de processo que passaram pela mão deles, não só os que viraram titularização)
+  let totalGeral = 0;
+  distribuidores.forEach(n => {
+    totalGeral += d.contagem[n].total || 0;
   });
   document.getElementById('total-geral-num').textContent = totalGeral;
 
