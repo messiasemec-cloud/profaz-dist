@@ -344,6 +344,19 @@ function pesoOrdem(nome) {
   return NOMES_MEIA_CARGA.some(n => nome.trim().startsWith(n)) ? 2 : 1;
 }
 
+// Tramitação temporária não deve mexer no acervo real (correto, mantém a
+// regra atual) — mas usar o acervo pra decidir quem cobre o próximo
+// temporário faz a mesma pessoa (a de menor acervo) receber TODOS os
+// temporários em sequência, já que o acervo dela nunca sobe. Por isso,
+// quando o tipo selecionado é Tramitação temporária, a fila revezada usa
+// um contador separado (temporarios_recebidos), que sobe a cada temporário
+// recebido e nunca toca no acervo — mesmo raciocínio, fila paralela.
+function chaveOrdem(p) {
+  const emModoTemporario = document.getElementById('inp-tipo').value === 'Tramitação temporária';
+  const base = emModoTemporario ? (p.temporarios_recebidos || 0) : p.acervo;
+  return base * pesoOrdem(p.nome);
+}
+
 // ── LOGIN ─────────────────────────────────────────────────────────
 const cargos = {"Gerliane Martins": "Serviço de Apoio Administrativo", "Célia Gonçalves": "Assistente de Apoio à Gestão", "José Erisvaldo": "Assistente de Apoio à Gestão", "David Bruno": "Analista da PGM", "João Pedro": "Analista da PGM"};
 function login(nome) {
@@ -936,7 +949,7 @@ function renderOps(nucleo) {
         if (aEhAnalista && !bEhAnalista) return 1;
       }
     }
-    return (a.acervo * pesoOrdem(a.nome)) - (b.acervo * pesoOrdem(b.nome));
+    return chaveOrdem(a) - chaveOrdem(b);
   });
 
   const ativosNucleo = lista.filter(p => p.ativo);
@@ -957,9 +970,16 @@ function renderOps(nucleo) {
     else if (ratio > 1.2) { bcls = 'balto'; btxt = 'Acima'; }
     else if (ratio < 0.8) { bcls = 'bbaixo'; btxt = 'Abaixo'; }
     const analLabel = p.nucleo === 'Analista' ? ' <span style="font-size:10px;color:#0a8a7a">(analista)</span>' : '';
+    // Em modo Tramitação temporária, o número mostrado precisa ser o mesmo
+    // que decide a ordem (temporarios_recebidos) — senão a fila mostra uma
+    // pessoa em primeiro sem o número visível bater com o motivo.
+    const emModoTemporario = document.getElementById('inp-tipo').value === 'Tramitação temporária';
+    const numExibido = emModoTemporario
+      ? `${p.temporarios_recebidos || 0} temporário(s) recebido(s)`
+      : `${p.acervo} processos`;
     return `<div class="pop" data-idx="${idx}" onclick="selProcIdx(${idx})">
       <div class="pop-nome">${p.nome}${analLabel}</div>
-      <div class="pop-ac">${p.acervo} processos</div>
+      <div class="pop-ac">${numExibido}</div>
       <span class="badge ${bcls}" style="margin-top:3px;font-size:10px">${btxt}</span>
     </div>`;
   }).join('');
@@ -1352,6 +1372,9 @@ function toggleMotivo() {
   const t = document.getElementById('inp-tipo').value;
   document.getElementById('fg-motivo').style.display = t === 'Redistribuição' ? 'flex' : 'none';
   atualizarEtapa();
+  // troca manual do tipo também precisa atualizar a fila — se virou (ou saiu
+  // de) Tramitação temporária, o critério de ordenação/exibição muda.
+  if (abaAtiva && procs.length) renderOps(abaAtiva);
 }
 
 function atualizarEtapa() {
