@@ -124,7 +124,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
 
+  <!-- ENVIO EM LOTE -->
+  <div class="card">
+    <div class="ch">Envio em lote — vários processos de uma vez para o mesmo procurador</div>
+    <div class="cb">
+      <div id="fb-lote" class="fb"></div>
+
+      <div class="fg">
+        <label>Números dos processos (um por linha) *</label>
+        <textarea id="inp-lote" rows="6" placeholder="0001234-55.2024.8.06.0001&#10;0007654-11.2023.8.06.0001&#10;..." oninput="limparConferenciaLote()" style="padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:13px;outline:none;width:100%;font-family:monospace;resize:vertical"></textarea>
+        <div style="font-size:11px;color:#898781">Limite de 100 processos por lote.</div>
+      </div>
+
+      <div style="font-size:12px;color:#898781;font-weight:500;margin:12px 0 6px;text-transform:uppercase;letter-spacing:.04em">Destinatário *</div>
+      <div class="proc-ops" id="proc-ops-lote"></div>
+
+      <button class="btn-buscar" id="btn-conferir-lote" onclick="conferirLote()" style="margin-top:14px" disabled>Conferir lote</button>
+
+      <div id="preview-lote" style="display:none;margin-top:14px"></div>
+
+      <button class="btn-conf" id="btn-confirmar-lote" onclick="confirmarLote()" style="display:none;margin-top:10px">Confirmar envio</button>
+    </div>
   </div>
+
+  </div>
+
 </div>
 
 <script>
@@ -135,6 +159,8 @@ let procSel = null;
 let numProcesso = '';
 let fluxoProcesso = '';
 let med = 0;
+let loteDestino = null;
+let loteValidos = [];
 
 const cargosAn = {'David Bruno':'Analista da PGM','João Pedro':'Analista da PGM'};
 function login(nome) {
@@ -251,6 +277,7 @@ async function carregarProcs() {
     procs = d.procuradores.filter(function(p) { return p.nucleo === 'EF'; });
     const vals = procs.map(function(p) { return p.acervo; });
     med = vals.length ? Math.round(vals.reduce(function(s,v){return s+v;},0)/vals.length) : 0;
+    renderProcsLote();
     return true;
   } catch(e) {
     console.error('Erro ao carregar:', e);
@@ -459,6 +486,160 @@ function showFb(msg, tipo) {
   const el = document.getElementById('fb');
   el.innerHTML = msg; el.className = 'fb fb' + tipo; el.style.display = 'block';
   setTimeout(function(){el.style.display='none';}, 6000);
+}
+
+// ==================================================================
+// ENVIO EM LOTE
+// ==================================================================
+
+function showFbLote(msg, tipo) {
+  const el = document.getElementById('fb-lote');
+  el.innerHTML = msg; el.className = 'fb fb' + tipo; el.style.display = 'block';
+  setTimeout(function(){el.style.display='none';}, 6000);
+}
+
+function renderProcsLote() {
+  const lista = procs.slice().sort(function(a,b){
+    if (a.ativo !== b.ativo) return b.ativo - a.ativo;
+    return a.acervo - b.acervo;
+  });
+  const ativos = lista.filter(function(p){return p.ativo;});
+  document.getElementById('proc-ops-lote').innerHTML = lista.map(function(p) {
+    const idx = procs.indexOf(p);
+    const ratio = med > 0 ? p.acervo/med : 1;
+    const isPrimeiroAtivo = p.ativo && ativos.length > 0 && ativos[0].nome === p.nome;
+    if (!p.ativo) {
+      const info = infoFerias(p);
+      return '<div class="pop" style="opacity:.5;cursor:not-allowed;background:#f8f7f5;pointer-events:none">' +
+        '<div class="pop-nome" style="color:#898781">' + p.nome + '</div>' +
+        '<div class="pop-ac">' + p.acervo + ' processos</div>' +
+        '<span class="badge ' + info.classe + '"' + (info.tooltip ? ' title="' + info.tooltip.replace(/"/g,'&quot;') + '"' : '') + '>' + info.texto + '</span>' +
+      '</div>';
+    }
+    let bcls, btxt;
+    if (isPrimeiroAtivo) { bcls='bprox'; btxt='← próximo'; }
+    else if (ratio > 1.2) { bcls='balto'; btxt='Acima'; }
+    else if (ratio < 0.8) { bcls='bbaixo'; btxt='Abaixo'; }
+    else { bcls='bok'; btxt='OK'; }
+    return '<div class="pop" data-idx-lote="' + idx + '" onclick="selProcLote(' + idx + ')">' +
+      '<div class="pop-nome">' + p.nome + '</div>' +
+      '<div class="pop-ac">' + p.acervo + ' processos</div>' +
+      '<span class="badge ' + bcls + '">' + btxt + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function selProcLote(idx) {
+  loteDestino = procs[idx].nome;
+  document.querySelectorAll('#proc-ops-lote .pop').forEach(function(e){e.classList.remove('sel');});
+  const el = document.querySelector('#proc-ops-lote .pop[data-idx-lote="' + idx + '"]');
+  if (el) el.classList.add('sel');
+  atualizarBotaoConferir();
+}
+
+function limparConferenciaLote() {
+  document.getElementById('preview-lote').style.display = 'none';
+  document.getElementById('btn-confirmar-lote').style.display = 'none';
+  loteValidos = [];
+  atualizarBotaoConferir();
+}
+
+function atualizarBotaoConferir() {
+  const texto = document.getElementById('inp-lote').value.trim();
+  document.getElementById('btn-conferir-lote').disabled = !(texto && loteDestino);
+}
+
+function parseListaLote() {
+  return document.getElementById('inp-lote').value
+    .split(/[\n,;]+/)
+    .map(function(s){ return s.trim(); })
+    .filter(function(s){ return s.length > 0; });
+}
+
+async function conferirLote() {
+  const numeros = parseListaLote();
+  if (!numeros.length) { showFbLote('Cole ao menos um número de processo.', 'err'); return; }
+  if (!loteDestino) { showFbLote('Selecione um destinatário.', 'err'); return; }
+  if (numeros.length > 100) { showFbLote('Limite de 100 processos por lote (você colou ' + numeros.length + ').', 'err'); return; }
+
+  const btn = document.getElementById('btn-conferir-lote');
+  btn.disabled = true; btn.textContent = 'Conferindo...';
+  try {
+    const params = new URLSearchParams({
+      acao: 'conferir_lote_triagem',
+      numeros: JSON.stringify(numeros),
+      analista: analista
+    });
+    const r = await fetch(URL_AS + '?' + params);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+
+    loteValidos = d.validos;
+    renderPreviewLote(d.validos, d.invalidos);
+  } catch(e) {
+    showFbLote('Erro: ' + e.message, 'err');
+  }
+  btn.textContent = 'Conferir lote';
+  atualizarBotaoConferir();
+}
+
+function renderPreviewLote(validos, invalidos) {
+  const prev = document.getElementById('preview-lote');
+  let html = '';
+
+  if (validos.length) {
+    html += '<div class="resultado rok" style="display:block;margin-bottom:10px">' +
+      '✓ <strong>' + validos.length + ' processo(s) prontos</strong> para enviar a <strong>' + loteDestino + '</strong>:' +
+      '<div style="margin-top:6px;font-family:monospace;font-size:12px">' + validos.join(', ') + '</div>' +
+    '</div>';
+  }
+  if (invalidos.length) {
+    html += '<div class="resultado rwar" style="display:block">' +
+      '⚠ <strong>' + invalidos.length + ' processo(s) com problema</strong> — não serão enviados:' +
+      '<ul style="margin:6px 0 0 18px;padding:0">' +
+        invalidos.map(function(i){ return '<li><strong>' + i.num + '</strong> — ' + i.motivo + '</li>'; }).join('') +
+      '</ul>' +
+    '</div>';
+  }
+  prev.innerHTML = html;
+  prev.style.display = 'block';
+
+  const btnConfirmar = document.getElementById('btn-confirmar-lote');
+  if (validos.length) {
+    btnConfirmar.style.display = 'inline-block';
+    btnConfirmar.textContent = 'Confirmar envio dos ' + validos.length;
+  } else {
+    btnConfirmar.style.display = 'none';
+  }
+}
+
+async function confirmarLote() {
+  if (!loteValidos.length || !loteDestino) return;
+  const btn = document.getElementById('btn-confirmar-lote');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  try {
+    const params = new URLSearchParams({
+      acao: 'confirmar_lote_triagem',
+      numeros: JSON.stringify(loteValidos),
+      destino: loteDestino,
+      analista: analista
+    });
+    const r = await fetch(URL_AS + '?' + params);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+
+    showFbLote('✓ ' + d.mensagem, 'ok');
+    document.getElementById('inp-lote').value = '';
+    document.getElementById('preview-lote').style.display = 'none';
+    btn.style.display = 'none';
+    loteValidos = [];
+    loteDestino = null;
+    document.querySelectorAll('#proc-ops-lote .pop').forEach(function(e){e.classList.remove('sel');});
+    carregarProcs();
+  } catch(e) {
+    showFbLote('Erro: ' + e.message, 'err');
+  }
+  btn.disabled = false;
 }
 </script>
 </body>
