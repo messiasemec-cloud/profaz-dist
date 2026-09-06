@@ -25,6 +25,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .proc-btn:hover{border-color:#0a8a7a;background:#e1f5ee}
 .proc-btn-nome{font-size:13px;font-weight:500}
 .proc-btn-cargo{font-size:11px;color:#898781;margin-top:2px}
+.proc-ops{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px;margin-top:6px}
+.pop{padding:10px 12px;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;background:#fff;cursor:pointer;text-align:left;transition:all .15s}
+.pop:hover{border-color:#0a8a7a}
+.pop.sel{border-color:#0a8a7a;background:#e1f5ee;box-shadow:0 0 0 1.5px #0a8a7a inset}
+.pop-nome{font-size:12px;font-weight:500;line-height:1.3}
+.pop-ac{font-size:11px;color:#898781;margin-top:2px}
+.badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:20px;font-weight:500;margin-top:3px}
+.bprox{background:#1baf7a;color:#fff}
+.bok{background:#e1f5ee;color:#085041}
+.balto{background:#fcebeb;color:#791f1f}
+.bbaixo{background:#faeeda;color:#633806}
 .fg{margin-bottom:14px}
 .fg label{display:block;font-size:12px;color:#898781;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;font-weight:500}
 .fg input{width:100%;padding:10px 12px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:14px}
@@ -98,17 +109,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <strong>Do que se trata esta página:</strong> registro de processos administrativos recebidos diretamente da CEDAT — com ou sem repercussão numa execução fiscal vinculada (ex: extinção por deferimento de cancelamento integral de CDAs). Quando há EF vinculada, o sistema redistribui cada uma pro núcleo Administrativo, avisando o procurador que teve o processo avocado.
     </div>
 
-    <!-- DESTINO (travado, vindo da CEDAT) -->
+    <!-- DESTINO: escolha entre Natércia/Lindauria, com acervo e recomendação -->
     <div class="card" id="card-destino">
-      <div class="cb" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-size:11px;color:#898781;text-transform:uppercase;letter-spacing:.04em">Processo administrativo</div>
-          <div id="destino-proc-adm" style="font-size:16px;font-weight:600;color:#1a3a5c">—</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:11px;color:#898781;text-transform:uppercase;letter-spacing:.04em">Será registrado para</div>
-          <div id="destino-nome" style="font-size:16px;font-weight:600;color:#0a5c52">—</div>
-        </div>
+      <div class="cb">
+        <div style="font-size:11px;color:#898781;text-transform:uppercase;letter-spacing:.04em">Processo administrativo</div>
+        <div id="destino-proc-adm" style="font-size:16px;font-weight:600;color:#1a3a5c;margin-bottom:12px">—</div>
+
+        <div style="font-size:11px;color:#898781;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Registrar para</div>
+        <div class="proc-ops" id="proc-ops-adm"></div>
       </div>
     </div>
 
@@ -189,6 +197,7 @@ const cargosCedat = {
 
 let procAdmAtual = '';
 let destinoAtual = '';
+let candidatosAdm = [];
 
 async function login(nome) {
   usuarioAtual = nome;
@@ -197,12 +206,9 @@ async function login(nome) {
   document.getElementById('tela-login').style.display = 'none';
   document.getElementById('tela-principal').style.display = 'block';
 
-  // proc_adm e destino vêm da URL (a CEDAT já mostrou o nome antes de
-  // tramitar no Ágilis) — o destino fica TRAVADO, nunca recalculado aqui,
-  // pra nunca destoar do que já foi tramitado de verdade.
   const params = new URLSearchParams(window.location.search);
   procAdmAtual = params.get('proc_adm') || '';
-  destinoAtual = params.get('destino') || '';
+  const destinoUrl = params.get('destino') || '';
 
   if (!procAdmAtual) {
     const manual = prompt('Nº do processo administrativo:');
@@ -210,15 +216,57 @@ async function login(nome) {
   }
   document.getElementById('destino-proc-adm').textContent = procAdmAtual || '—';
 
-  if (!destinoAtual) {
-    // rede de segurança: só consulta se genuinamente não veio da URL
-    try {
-      const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'sugerir_proximo_adm' }));
-      const d = await r.json();
-      if (d.ok) destinoAtual = d.destino;
-    } catch(e) {}
+  // A decisão de quem recebe (Natércia ou Lindauria) nasce AQUI — ainda não
+  // foi tramitada no Ágilis. Por isso sempre mostramos as duas como opção
+  // real, com o acervo de cada uma, em vez de travar uma escolha automática.
+  document.getElementById('card-bifurcacao').style.display = 'none';
+  try {
+    const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'sugerir_proximo_adm' }));
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+    candidatosAdm = d.candidatos;
+    renderProcsAdm();
+    // se um link antigo já trouxer destino pré-escolhido, pré-seleciona
+    // (sem aviso — presume-se que já foi uma escolha consciente), mas
+    // continua permitindo trocar clicando na outra opção.
+    if (destinoUrl && candidatosAdm.some(c => c.nome === destinoUrl)) {
+      selecionarAdm(destinoUrl, true);
+    }
+  } catch(e) {
+    document.getElementById('proc-ops-adm').innerHTML = '<div style="color:#e34948;font-size:13px">Erro ao carregar procuradores: ' + e.message + '</div>';
   }
-  document.getElementById('destino-nome').textContent = destinoAtual || '(erro ao definir destino)';
+}
+
+function renderProcsAdm() {
+  const menorAcervo = Math.min(...candidatosAdm.map(c => c.acervo));
+  document.getElementById('proc-ops-adm').innerHTML = candidatosAdm.map(function(c) {
+    const isSugerido = c.acervo === menorAcervo;
+    const sel = c.nome === destinoAtual ? ' sel' : '';
+    return '<div class="pop' + sel + '" data-nome-adm="' + c.nome + '" onclick="selecionarAdm(\'' + c.nome.replace(/'/g,"\\'") + '\')">' +
+      '<div class="pop-nome">' + c.nome + '</div>' +
+      '<div class="pop-ac">' + c.acervo + ' processos</div>' +
+      '<span class="badge ' + (isSugerido ? 'bprox' : 'balto') + '">' + (isSugerido ? '← sugerido' : 'Acima da outra') + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function selecionarAdm(nome, semAviso) {
+  const escolhido = candidatosAdm.find(c => c.nome === nome);
+  const outro = candidatosAdm.find(c => c.nome !== nome);
+  if (!escolhido) return;
+
+  if (!semAviso && outro && escolhido.acervo > outro.acervo) {
+    const diff = escolhido.acervo - outro.acervo;
+    const confirma = confirm(
+      'Atenção: ' + escolhido.nome + ' já tem ' + escolhido.acervo + ' processos, ' +
+      diff + ' a mais que ' + outro.nome + ' (' + outro.acervo + ').\n\nConfirma mesmo assim?'
+    );
+    if (!confirma) return;
+  }
+
+  destinoAtual = nome;
+  renderProcsAdm();
+  document.getElementById('card-bifurcacao').style.display = 'block';
 }
 
 function escolherCaminho(temEF) {
