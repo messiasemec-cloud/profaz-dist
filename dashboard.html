@@ -171,7 +171,7 @@ tr:hover td{background:#fafaf8}
   <!-- TENDÊNCIA DIÁRIA (últimos 20 dias úteis) -->
   <div class="card">
     <div class="ch" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-      <span>Tendência diária — últimas 4 semanas (seg-sex)</span>
+      <span>Tendência diária — mês corrente (seg-sex)</span>
       <div id="filtro-nucleo-tendencia" style="display:flex;gap:6px">
         <button class="btn-toggle ativo" data-nucleo="EF" onclick="mudarNucleoTendencia('EF')">EF</button>
         <button class="btn-toggle" data-nucleo="Conhecimento" onclick="mudarNucleoTendencia('Conhecimento')">Conhecimento</button>
@@ -365,14 +365,14 @@ async function carregarTendencia() {
     const r = await fetch(URL_AS + '?' + params);
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
-    renderTendencia(d.dias);
+    renderTendencia(d.dias, d.semanas);
   } catch(e) {
     el.innerHTML = '<div style="color:#e34948;font-size:13px">Erro ao carregar: ' + e.message + '</div>';
   }
 }
 
-function renderTendencia(dias) {
-  const W = 760, H = 240, padL = 30, padB = 26, padT = 10;
+function renderTendencia(dias, semanas) {
+  const W = 760, H = 240, padL = 30, padB = 40, padT = 10;
   const larguraUtil = W - padL - 10;
   const alturaUtil = H - padT - padB;
   const n = dias.length;
@@ -381,20 +381,17 @@ function renderTendencia(dias) {
   const maxVal = Math.max(1, ...dias.map(d => d.quantidade));
   const cor = CORES_NUCLEO[nucleoTendenciaAtivo] || '#0a8a7a';
 
-  // média móvel de 5 dias (uma semana útil) pra linha de tendência
-  const mm5 = dias.map((d, i) => {
-    const janela = dias.slice(Math.max(0, i - 4), i + 1);
-    const soma = janela.reduce((s, x) => s + x.quantidade, 0);
-    return soma / janela.length;
-  });
-
   let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;font-family:inherit">';
 
-  // separador sutil entre semanas (a cada 5 dias)
-  for (let semana = 1; semana < 4; semana++) {
-    const x = padL + passo * (semana * 5);
-    svg += '<line x1="' + x + '" y1="' + padT + '" x2="' + x + '" y2="' + (H - padB) + '" stroke="#e0ddd4" stroke-width="1" stroke-dasharray="3,3"/>';
-  }
+  // separador sutil entre semanas de calendário reais
+  let acumulado = 0;
+  semanas.forEach((s, i) => {
+    acumulado += s.qtdDias;
+    if (i < semanas.length - 1) {
+      const x = padL + passo * acumulado;
+      svg += '<line x1="' + x + '" y1="' + padT + '" x2="' + x + '" y2="' + (H - padB) + '" stroke="#e0ddd4" stroke-width="1" stroke-dasharray="3,3"/>';
+    }
+  });
 
   // barras
   dias.forEach((d, i) => {
@@ -408,23 +405,18 @@ function renderTendencia(dias) {
     }
   });
 
-  // linha de tendência (média móvel de 5 dias)
-  const pontos = mm5.map((v, i) => {
-    const x = padL + passo * i + passo / 2;
-    const y = H - padB - (v / maxVal) * alturaUtil;
-    return x + ',' + y;
-  }).join(' ');
-  svg += '<polyline points="' + pontos + '" fill="none" stroke="#c00000" stroke-width="2"/>';
-  mm5.forEach((v, i) => {
-    const x = padL + passo * i + passo / 2;
-    const y = H - padB - (v / maxVal) * alturaUtil;
-    svg += '<circle cx="' + x + '" cy="' + y + '" r="2.5" fill="#c00000"/>';
+  // rótulo do intervalo de cada semana (ex: 07/08-11/08), centralizado
+  // embaixo do bloco de dias daquela semana
+  acumulado = 0;
+  semanas.forEach(s => {
+    const centroX = padL + passo * (acumulado + s.qtdDias / 2);
+    svg += '<text x="' + centroX + '" y="' + (H - padB + 28) + '" font-size="10" fill="#52514e" text-anchor="middle" font-weight="500">' + s.label + '</text>';
+    acumulado += s.qtdDias;
   });
 
   svg += '</svg>';
   svg += '<div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:#898781">' +
     '<span><span style="display:inline-block;width:10px;height:10px;background:' + cor + ';border-radius:2px;margin-right:4px;vertical-align:middle"></span>Processos no dia</span>' +
-    '<span><span style="display:inline-block;width:14px;height:2px;background:#c00000;margin-right:4px;vertical-align:middle"></span>Tendência (média móvel de 5 dias úteis)</span>' +
   '</div>';
 
   document.getElementById('grafico-tendencia').innerHTML = svg;
