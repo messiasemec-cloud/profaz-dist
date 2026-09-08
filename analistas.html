@@ -870,7 +870,10 @@ function limparConferenciaLote() {
 
 function atualizarBotaoConferir() {
   const texto = document.getElementById('inp-lote').value.trim();
-  document.getElementById('btn-conferir-lote').disabled = !(texto && loteDestino);
+  // só trava o botão se não tiver nem texto colado — a falta de
+  // destinatário é avisada explicitamente ao clicar, não escondida
+  // atrás de um botão desabilitado sem explicação.
+  document.getElementById('btn-conferir-lote').disabled = !texto;
 }
 
 function parseListaLote() {
@@ -883,7 +886,11 @@ function parseListaLote() {
 async function conferirLote() {
   const numeros = parseListaLote();
   if (!numeros.length) { showFbLote('Cole ao menos um número de processo.', 'err'); return; }
-  if (!loteDestino) { showFbLote('Selecione um destinatário.', 'err'); return; }
+  if (!loteDestino) {
+    showFbLote('⚠ Escolha um destinatário antes de conferir o lote — clique em um dos procuradores abaixo.', 'err');
+    document.getElementById('proc-ops-lote').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
   if (numeros.length > 100) { showFbLote('Limite de 100 processos por lote (você colou ' + numeros.length + ').', 'err'); return; }
 
   const btn = document.getElementById('btn-conferir-lote');
