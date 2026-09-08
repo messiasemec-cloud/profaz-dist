@@ -41,8 +41,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .item-num{font-size:13px;font-weight:600;color:#1a3a5c;margin-bottom:6px}
 .item-situacoes{display:flex;flex-wrap:wrap;gap:5px}
 .sit-btn{font-size:11px;padding:5px 10px;border-radius:14px;border:0.5px solid #c3c2b7;background:#fff;cursor:pointer;color:#52514e}
-.sit-btn:hover{border-color:#0a8a7a;color:#0a8a7a}
-.sit-btn.classificado{background:#0a8a7a;color:#fff;border-color:#0a8a7a}
+.sit-btn:hover{opacity:.8}
+.sit-btn.classificado{color:#fff}
+.grupo-fase-linha{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.fase-tag{font-size:9px;font-weight:700;color:#fff;padding:3px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;margin-top:2px}
+.fase-container{border:0.5px solid;border-radius:12px;padding:14px;margin-bottom:14px}
+.fase-titulo{font-size:13px;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em}
 .btn-buscar:hover{background:#076b5e}
 .resultado{border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:14px;display:none}
 .rok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
@@ -165,14 +169,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="bloco-btn" style="flex:none;padding:6px 12px" onclick="limparClassificacoes()">🗑 Limpar seleções</button>
       </div>
       <div class="cb">
-        <div id="blocos-fase1">
-          <div style="font-size:12px;color:#898781;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Fase 1</div>
-          <div class="blocos-grid" id="blocos-grid-fase1"></div>
-        </div>
-        <div id="blocos-fase24" style="margin-top:18px">
-          <div style="font-size:12px;color:#898781;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Fases 2, 3 e 4</div>
-          <div class="blocos-grid" id="blocos-grid-fase24"></div>
-        </div>
+        <div id="blocos-container"></div>
         <div id="blocos-vazio" style="font-size:13px;color:#898781">Nenhum processo classificado ainda.</div>
       </div>
     </div>
@@ -224,23 +221,39 @@ let loteValidos = [];
 // fecharem os nomes reais e a lista definitiva de situações.
 // ==================================================================
 const FASE1_SITUACOES = [
-  { id: 'peticao_inicial',   label: 'Petição inicial',                        responsavel: 'Procurador A' },
-  { id: 'emenda',            label: 'Necessidade de emenda',                  responsavel: 'Procurador B' },
-  { id: 'consulta',          label: 'Consulta / pesquisa de representante',   responsavel: 'Procurador A' },
-  { id: 'citacao',           label: 'Citação em andamento',                   responsavel: 'Procurador C' },
-  { id: 'pre_sisbajud',      label: 'Providências pré-Sisbajud',              responsavel: 'Procurador B' },
-  { id: 'pronto_sisbajud',   label: 'Pronto para o Sisbajud',                 responsavel: 'Procurador C' },
+  { id: 'peticao_inicial',   label: 'Petição inicial',                        responsavel: 'Procurador A', fase: 1 },
+  { id: 'consulta',          label: 'Consulta / pesquisa de representante',   responsavel: 'Procurador A', fase: 1 },
+  { id: 'citacao',           label: 'Citação em andamento',                   responsavel: 'Procurador C', fase: 1 },
+  { id: 'pre_sisbajud',      label: 'Providências pré-Sisbajud',              responsavel: 'Procurador B', fase: 1 },
+  { id: 'pronto_sisbajud',   label: 'Pronto para o Sisbajud',                 responsavel: 'Procurador C', fase: 1 },
 ];
 
 const FASE24_CATEGORIAS = [
-  { id: 'sisbajud_resultado',   label: 'Resultado do Sisbajud' },
-  { id: 'medidas_constritivas', label: 'Medidas constritivas', sub: [
+  { id: 'emenda',               label: 'Necessidade de emenda',       fase: 2 },
+  { id: 'sisbajud_resultado',   label: 'Resultado do Sisbajud',       fase: 2 },
+  { id: 'medidas_constritivas', label: 'Medidas constritivas',        fase: 2, sub: [
       'INFOJUD', 'RENAJUD', 'SERASAJUD', 'CNIB', 'SREI/ONR', 'SNIPER',
       'Penhora rosto dos autos', 'Redirecionamento', 'Penhora faturamento/cotas/imóvel'
     ] },
-  { id: 'impugnacao_recursos',  label: 'Impugnação / Recursos' },
-  { id: 'execucao_sentenca',    label: 'Execução de sentença (Fase 4)' },
+  { id: 'impugnacao_recursos',  label: 'Impugnação / Recursos',       fase: 3 },
+  { id: 'execucao_sentenca',    label: 'Execução de sentença',        fase: 4 },
 ];
+
+const CORES_FASE = {
+  1: { bg: '#e8f0fb', border: '#3b6fb0', texto: '#1e3f66', badge: '#3b6fb0' },
+  2: { bg: '#fdf1e2', border: '#c9791f', texto: '#7a4711', badge: '#c9791f' },
+  3: { bg: '#f2eafb', border: '#7b4fb5', texto: '#4a2d70', badge: '#7b4fb5' },
+  4: { bg: '#fbe9e9', border: '#c0392b', texto: '#7a231a', badge: '#c0392b' },
+};
+
+function faseDaSituacao(id) {
+  const f1 = FASE1_SITUACOES.find(s => s.id === id);
+  if (f1) return f1.fase;
+  const f24 = FASE24_CATEGORIAS.find(c => c.id === id);
+  if (f24) return f24.fase;
+  if (id.startsWith('medida_')) return 2; // sub-itens de medidas constritivas
+  return 1;
+}
 
 let filaClassificar = [];
 let blocos = {}; // { situacaoId: [num_processo, ...] }
@@ -300,25 +313,38 @@ function renderFilaClassificar() {
   }
   el.innerHTML = filaClassificar.map(function(p) {
     const idAtual = jaClassificado(p.num_processo);
-    const fase1Btns = FASE1_SITUACOES.map(function(s) {
-      const cls = idAtual === s.id ? 'sit-btn classificado' : 'sit-btn';
-      return '<button class="' + cls + '" onclick="classificar(\'' + p.num_processo + '\',\'' + s.id + '\')">' + s.label + '</button>';
-    }).join('');
     const subAberto = expandido[p.num_processo] === 'medidas_constritivas';
-    const fase24Btns = FASE24_CATEGORIAS.map(function(c) {
-      if (c.sub) {
-        const cls = (idAtual && idAtual.startsWith('medida_')) ? 'sit-btn classificado' : 'sit-btn';
-        return '<button class="' + cls + '" onclick="toggleSubMenu(\'' + p.num_processo + '\')">' + c.label + ' ▾</button>';
-      }
-      const cls = idAtual === c.id ? 'sit-btn classificado' : 'sit-btn';
-      return '<button class="' + cls + '" onclick="classificar(\'' + p.num_processo + '\',\'' + c.id + '\')">' + c.label + '</button>';
+
+    const grupoFase1 = '<div class="grupo-fase-linha"><span class="fase-tag" style="background:' + CORES_FASE[1].badge + '">Fase 1</span>' +
+      '<div class="item-situacoes">' + FASE1_SITUACOES.map(function(s) {
+        const cls = idAtual === s.id ? 'sit-btn classificado' : 'sit-btn';
+        const cor = CORES_FASE[1];
+        const estilo = idAtual === s.id ? 'background:' + cor.badge + ';border-color:' + cor.badge + ';color:#fff' : 'border-color:' + cor.border + ';color:' + cor.texto;
+        return '<button class="' + cls + '" style="' + estilo + '" onclick="classificar(\'' + p.num_processo + '\',\'' + s.id + '\')">' + s.label + '</button>';
+      }).join('') + '</div></div>';
+
+    const gruposF24 = [2,3,4].map(function(faseNum) {
+      const cats = FASE24_CATEGORIAS.filter(c => c.fase === faseNum);
+      const cor = CORES_FASE[faseNum];
+      const btns = cats.map(function(c) {
+        if (c.sub) {
+          const cls = (idAtual && idAtual.startsWith('medida_')) ? 'sit-btn classificado' : 'sit-btn';
+          const estilo = (idAtual && idAtual.startsWith('medida_')) ? 'background:' + cor.badge + ';border-color:' + cor.badge + ';color:#fff' : 'border-color:' + cor.border + ';color:' + cor.texto;
+          return '<button class="' + cls + '" style="' + estilo + '" onclick="toggleSubMenu(\'' + p.num_processo + '\')">' + c.label + ' ▾</button>';
+        }
+        const cls = idAtual === c.id ? 'sit-btn classificado' : 'sit-btn';
+        const estilo = idAtual === c.id ? 'background:' + cor.badge + ';border-color:' + cor.badge + ';color:#fff' : 'border-color:' + cor.border + ';color:' + cor.texto;
+        return '<button class="' + cls + '" style="' + estilo + '" onclick="classificar(\'' + p.num_processo + '\',\'' + c.id + '\')">' + c.label + '</button>';
+      }).join('');
+      const subMenu = (subAberto && faseNum === 2) ? '<div class="item-situacoes" style="margin-top:6px;padding-left:10px;border-left:2px solid ' + cor.border + '">' +
+        c_sub_html(p.num_processo, idAtual) + '</div>' : '';
+      return '<div class="grupo-fase-linha"><span class="fase-tag" style="background:' + cor.badge + '">Fase ' + faseNum + '</span>' +
+        '<div class="item-situacoes">' + btns + '</div>' + subMenu + '</div>';
     }).join('');
-    const subMenu = subAberto ? '<div class="item-situacoes" style="margin-top:6px;padding-left:10px;border-left:2px solid #e0ddd4">' +
-      c_sub_html(p.num_processo, idAtual) + '</div>' : '';
+
     return '<div class="item-classificar">' +
       '<div class="item-num">' + p.num_processo + '</div>' +
-      '<div class="item-situacoes">' + fase1Btns + fase24Btns + '</div>' +
-      subMenu +
+      grupoFase1 + gruposF24 +
     '</div>';
   }).join('');
 }
@@ -370,30 +396,31 @@ function responsavelSituacao(id) {
 }
 
 function renderBlocos() {
-  const idsFase1 = FASE1_SITUACOES.map(s => s.id);
-  const gridF1 = document.getElementById('blocos-grid-fase1');
-  const gridF24 = document.getElementById('blocos-grid-fase24');
+  const container = document.getElementById('blocos-container');
+  let html = '';
   let temAlgum = false;
 
-  gridF1.innerHTML = idsFase1.filter(id => blocos[id] && blocos[id].length).map(function(id) {
+  for (let faseNum = 1; faseNum <= 4; faseNum++) {
+    const idsDaFase = Object.keys(blocos).filter(id => blocos[id].length && faseDaSituacao(id) === faseNum);
+    if (!idsDaFase.length) continue;
     temAlgum = true;
-    return blocoCardHtml(id, true);
-  }).join('');
+    const cor = CORES_FASE[faseNum];
+    const cards = idsDaFase.map(id => blocoCardHtml(id, faseNum === 1)).join('');
+    html += '<div class="fase-container" style="background:' + cor.bg + ';border-color:' + cor.border + '">' +
+      '<div class="fase-titulo" style="color:' + cor.texto + '">Fase ' + faseNum + '</div>' +
+      '<div class="blocos-grid">' + cards + '</div>' +
+    '</div>';
+  }
 
-  gridF24.innerHTML = Object.keys(blocos).filter(id => !idsFase1.includes(id) && blocos[id].length).map(function(id) {
-    temAlgum = true;
-    return blocoCardHtml(id, false);
-  }).join('');
-
+  container.innerHTML = html;
   document.getElementById('blocos-vazio').style.display = temAlgum ? 'none' : 'block';
-  document.getElementById('blocos-fase1').style.display = gridF1.innerHTML ? 'block' : 'none';
-  document.getElementById('blocos-fase24').style.display = gridF24.innerHTML ? 'block' : 'none';
 }
 
 function blocoCardHtml(id, ehFase1) {
   const qtd = blocos[id].length;
-  const resp = ehFase1 ? '<div class="bloco-resp">→ ' + responsavelSituacao(id) + '</div>' : '';
-  return '<div class="bloco-card">' +
+  const cor = CORES_FASE[faseDaSituacao(id)];
+  const resp = ehFase1 ? '<div class="bloco-resp" style="color:' + cor.border + '">→ ' + responsavelSituacao(id) + '</div>' : '';
+  return '<div class="bloco-card" style="border-color:' + cor.border + '">' +
     '<div class="bloco-titulo">' + labelSituacao(id) + '</div>' +
     '<div class="bloco-qtd">' + qtd + ' processo(s)</div>' +
     resp +
