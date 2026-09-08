@@ -47,6 +47,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .fase-tag{font-size:9px;font-weight:700;color:#fff;padding:3px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;margin-top:2px}
 .fase-container{border:0.5px solid;border-radius:12px;padding:14px;margin-bottom:14px}
 .fase-titulo{font-size:13px;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em}
+.cedat-caixa{margin-top:18px;padding:12px 14px;border:1px dashed #c9791f;border-radius:10px;background:#fdf5ea;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.cedat-texto{font-size:12px;color:#7a4711;flex:1;min-width:200px}
+.cedat-btn{font-size:12px;padding:8px 14px;border-radius:8px;border:none;background:#c9791f;color:#fff;cursor:pointer;white-space:nowrap;font-weight:500}
+.cedat-btn:hover{background:#a8630f}
 .btn-buscar:hover{background:#076b5e}
 .resultado{border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:14px;display:none}
 .rok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
@@ -147,6 +151,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div style="font-size:12px;color:#898781;font-weight:500;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Destinatário *</div>
           <div class="proc-ops" id="proc-ops"></div>
           <button class="btn-conf" id="btn-conf" onclick="confirmar()" disabled>Confirmar encaminhamento</button>
+
+          <div class="cedat-caixa">
+            <div class="cedat-texto">Este processo não vai para procurador — precisa ir para a CEDAT e encerra por lá.</div>
+            <button class="cedat-btn" id="btn-cedat" onclick="encaminharParaCedat()">Encaminhar à CEDAT</button>
+          </div>
         </div>
 
       </div>
@@ -804,6 +813,33 @@ async function confirmar() {
     showFb('Erro: ' + e.message, 'err');
   }
   btn.disabled = false; btn.textContent = 'Confirmar encaminhamento';
+}
+
+async function encaminharParaCedat() {
+  if (!numProcesso) return;
+  const confirma = confirm('Confirma que o processo ' + numProcesso + ' vai para a CEDAT e NÃO vai para nenhum procurador? Essa ação encerra o processo aqui no PROFAZ.');
+  if (!confirma) return;
+
+  const btn = document.getElementById('btn-cedat');
+  btn.disabled = true; btn.textContent = 'Encaminhando...';
+  try {
+    const params = new URLSearchParams({
+      acao: 'encaminhar_cedat',
+      num_processo: numProcesso,
+      analista: analista
+    });
+    const r = await fetch(URL_AS + '?' + params);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+
+    showFb('✓ ' + d.mensagem, 'ok');
+    document.getElementById('inp-num').value = '';
+    limparResultado();
+    carregarProcs();
+  } catch(e) {
+    showFb('Erro: ' + e.message, 'err');
+  }
+  btn.disabled = false; btn.textContent = 'Encaminhar à CEDAT';
 }
 
 function showFb(msg, tipo) {
