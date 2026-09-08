@@ -27,6 +27,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .fg input{padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:14px;outline:none;width:100%}
 .fg input:focus{border-color:#0a8a7a}
 .btn-buscar{padding:8px 16px;background:#0a8a7a;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;white-space:nowrap}
+.btn-toggle{font-size:12px;padding:6px 16px;border-radius:20px;border:0.5px solid #c3c2b7;background:#fff;color:#52514e;cursor:pointer;font-weight:500}
+.btn-toggle.ativo{background:#0a8a7a;color:#fff;border-color:#0a8a7a}
+.blocos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.bloco-card{border:0.5px solid rgba(0,0,0,.08);border-radius:10px;padding:12px;background:#fafaf8}
+.bloco-titulo{font-size:13px;font-weight:600;color:#1a3a5c}
+.bloco-qtd{font-size:12px;color:#898781;margin:2px 0 6px}
+.bloco-resp{font-size:11px;color:#0a8a7a;font-weight:500;margin-bottom:8px}
+.bloco-btns{display:flex;gap:6px}
+.bloco-btn{flex:1;font-size:11px;padding:6px 8px;border-radius:6px;border:0.5px solid #c3c2b7;background:#fff;cursor:pointer;color:#52514e}
+.bloco-btn:hover{border-color:#0a8a7a;color:#0a8a7a}
+.item-classificar{border:0.5px solid rgba(0,0,0,.08);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.item-num{font-size:13px;font-weight:600;color:#1a3a5c;margin-bottom:6px}
+.item-situacoes{display:flex;flex-wrap:wrap;gap:5px}
+.sit-btn{font-size:11px;padding:5px 10px;border-radius:14px;border:0.5px solid #c3c2b7;background:#fff;cursor:pointer;color:#52514e}
+.sit-btn:hover{border-color:#0a8a7a;color:#0a8a7a}
+.sit-btn.classificado{background:#0a8a7a;color:#fff;border-color:#0a8a7a}
 .btn-buscar:hover{background:#076b5e}
 .resultado{border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:14px;display:none}
 .rok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
@@ -98,6 +114,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- PRINCIPAL -->
   <div id="tela-principal" style="display:none">
 
+    <!-- ABAS -->
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="btn-toggle ativo" data-aba="busca" onclick="mudarAbaPrincipal('busca')">Busca individual</button>
+      <button class="btn-toggle" data-aba="classificar" onclick="mudarAbaPrincipal('classificar')">Classificar processos</button>
+      <button class="btn-toggle" data-aba="lote" onclick="mudarAbaPrincipal('lote')">Envio em lote</button>
+    </div>
+
+    <div id="aba-busca">
     <div class="card">
       <div class="ch">Encaminhar processo para procurador EF</div>
       <div class="cb">
@@ -123,7 +147,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
       </div>
     </div>
+    </div>
 
+    <div id="aba-classificar" style="display:none">
+    <div class="card">
+      <div class="ch">Processos em triagem — classifique por fase/situação</div>
+      <div class="cb">
+        <div id="fb-classificar" class="fb"></div>
+        <button class="btn-buscar" onclick="carregarFilaClassificar()" style="margin-bottom:12px">🔄 Atualizar lista</button>
+        <div id="lista-classificar"><div class="loading"><span class="spin"></span>Carregando...</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch">Blocos montados</div>
+      <div class="cb">
+        <div id="blocos-fase1">
+          <div style="font-size:12px;color:#898781;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Fase 1</div>
+          <div class="blocos-grid" id="blocos-grid-fase1"></div>
+        </div>
+        <div id="blocos-fase24" style="margin-top:18px">
+          <div style="font-size:12px;color:#898781;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Fases 2, 3 e 4</div>
+          <div class="blocos-grid" id="blocos-grid-fase24"></div>
+        </div>
+        <div id="blocos-vazio" style="font-size:13px;color:#898781">Nenhum processo classificado ainda.</div>
+      </div>
+    </div>
+    </div>
+
+  <div id="aba-lote" style="display:none">
   <!-- ENVIO EM LOTE -->
   <div class="card">
     <div class="ch">Envio em lote — vários processos de uma vez para o mesmo procurador</div>
@@ -146,10 +198,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="btn-conf" id="btn-confirmar-lote" onclick="confirmarLote()" style="display:none;margin-top:10px">Confirmar envio</button>
     </div>
   </div>
+  </div>
 
   </div>
 
 </div>
+
 
 <script>
 const URL_AS = 'https://script.google.com/macros/s/AKfycbzt186mHh_LrKKI1gg5hofoQl_mwj5rRxkgZCjiCIcId2UVDtlbWHwdo05lSU9_hNCP/exec';
@@ -162,9 +216,225 @@ let med = 0;
 let loteDestino = null;
 let loteValidos = [];
 
+// ==================================================================
+// CLASSIFICAÇÃO POR FASE/SITUAÇÃO (EF) — nomes fictícios A/B/C até
+// fecharem os nomes reais e a lista definitiva de situações.
+// ==================================================================
+const FASE1_SITUACOES = [
+  { id: 'peticao_inicial',   label: 'Petição inicial',                        responsavel: 'Procurador A' },
+  { id: 'emenda',            label: 'Necessidade de emenda',                  responsavel: 'Procurador B' },
+  { id: 'consulta',          label: 'Consulta / pesquisa de representante',   responsavel: 'Procurador A' },
+  { id: 'citacao',           label: 'Citação em andamento',                   responsavel: 'Procurador C' },
+  { id: 'pre_sisbajud',      label: 'Providências pré-Sisbajud',              responsavel: 'Procurador B' },
+  { id: 'pronto_sisbajud',   label: 'Pronto para o Sisbajud',                 responsavel: 'Procurador C' },
+];
+
+const FASE24_CATEGORIAS = [
+  { id: 'sisbajud_resultado',   label: 'Resultado do Sisbajud' },
+  { id: 'medidas_constritivas', label: 'Medidas constritivas', sub: [
+      'INFOJUD', 'RENAJUD', 'SERASAJUD', 'CNIB', 'SREI/ONR', 'SNIPER',
+      'Penhora rosto dos autos', 'Redirecionamento', 'Penhora faturamento/cotas/imóvel'
+    ] },
+  { id: 'impugnacao_recursos',  label: 'Impugnação / Recursos' },
+  { id: 'execucao_sentenca',    label: 'Execução de sentença (Fase 4)' },
+];
+
+let filaClassificar = [];
+let blocos = {}; // { situacaoId: [num_processo, ...] }
+let expandido = {}; // controla qual item tem o sub-menu de medidas constritivas aberto
+
+function chaveStorage() {
+  return 'profaz_blocos_' + analista;
+}
+
+function salvarBlocos() {
+  try { localStorage.setItem(chaveStorage(), JSON.stringify(blocos)); } catch(e) {}
+}
+
+function carregarBlocosStorage() {
+  try {
+    const raw = localStorage.getItem(chaveStorage());
+    blocos = raw ? JSON.parse(raw) : {};
+  } catch(e) { blocos = {}; }
+}
+
+function mudarAbaPrincipal(aba) {
+  ['busca','classificar','lote'].forEach(a => {
+    document.getElementById('aba-' + a).style.display = (a === aba) ? 'block' : 'none';
+  });
+  document.querySelectorAll('[data-aba]').forEach(b => b.classList.toggle('ativo', b.dataset.aba === aba));
+  if (aba === 'classificar' && !filaClassificar.length) carregarFilaClassificar();
+}
+
+async function carregarFilaClassificar() {
+  const el = document.getElementById('lista-classificar');
+  el.innerHTML = '<div class="loading"><span class="spin"></span>Carregando...</div>';
+  try {
+    const params = new URLSearchParams({ acao: 'listar_em_triagem_analista', analista: analista });
+    const r = await fetch(URL_AS + '?' + params);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+    filaClassificar = d.processos;
+    renderFilaClassificar();
+    renderBlocos();
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e34948;font-size:13px">Erro: ' + e.message + '</div>';
+  }
+}
+
+function jaClassificado(num) {
+  for (const id in blocos) {
+    if (blocos[id].includes(num)) return id;
+  }
+  return null;
+}
+
+function renderFilaClassificar() {
+  const el = document.getElementById('lista-classificar');
+  if (!filaClassificar.length) {
+    el.innerHTML = '<div style="font-size:13px;color:#898781">Nenhum processo em triagem no momento.</div>';
+    return;
+  }
+  el.innerHTML = filaClassificar.map(function(p) {
+    const idAtual = jaClassificado(p.num_processo);
+    const fase1Btns = FASE1_SITUACOES.map(function(s) {
+      const cls = idAtual === s.id ? 'sit-btn classificado' : 'sit-btn';
+      return '<button class="' + cls + '" onclick="classificar(\'' + p.num_processo + '\',\'' + s.id + '\')">' + s.label + '</button>';
+    }).join('');
+    const subAberto = expandido[p.num_processo] === 'medidas_constritivas';
+    const fase24Btns = FASE24_CATEGORIAS.map(function(c) {
+      if (c.sub) {
+        const cls = (idAtual && idAtual.startsWith('medida_')) ? 'sit-btn classificado' : 'sit-btn';
+        return '<button class="' + cls + '" onclick="toggleSubMenu(\'' + p.num_processo + '\')">' + c.label + ' ▾</button>';
+      }
+      const cls = idAtual === c.id ? 'sit-btn classificado' : 'sit-btn';
+      return '<button class="' + cls + '" onclick="classificar(\'' + p.num_processo + '\',\'' + c.id + '\')">' + c.label + '</button>';
+    }).join('');
+    const subMenu = subAberto ? '<div class="item-situacoes" style="margin-top:6px;padding-left:10px;border-left:2px solid #e0ddd4">' +
+      c_sub_html(p.num_processo, idAtual) + '</div>' : '';
+    return '<div class="item-classificar">' +
+      '<div class="item-num">' + p.num_processo + '</div>' +
+      '<div class="item-situacoes">' + fase1Btns + fase24Btns + '</div>' +
+      subMenu +
+    '</div>';
+  }).join('');
+}
+
+function c_sub_html(num, idAtual) {
+  const cat = FASE24_CATEGORIAS.find(c => c.id === 'medidas_constritivas');
+  return cat.sub.map(function(nome) {
+    const subId = 'medida_' + nome.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+    const cls = idAtual === subId ? 'sit-btn classificado' : 'sit-btn';
+    return '<button class="' + cls + '" onclick="classificar(\'' + num + '\',\'' + subId + '\')">' + nome + '</button>';
+  }).join('');
+}
+
+function toggleSubMenu(num) {
+  expandido[num] = expandido[num] === 'medidas_constritivas' ? null : 'medidas_constritivas';
+  renderFilaClassificar();
+}
+
+function classificar(num, situacaoId) {
+  // tira do bloco anterior, se já estava em outro
+  const anterior = jaClassificado(num);
+  if (anterior && blocos[anterior]) {
+    blocos[anterior] = blocos[anterior].filter(n => n !== num);
+    if (!blocos[anterior].length) delete blocos[anterior];
+  }
+  if (!blocos[situacaoId]) blocos[situacaoId] = [];
+  blocos[situacaoId].push(num);
+  salvarBlocos();
+  renderFilaClassificar();
+  renderBlocos();
+}
+
+function labelSituacao(id) {
+  const f1 = FASE1_SITUACOES.find(s => s.id === id);
+  if (f1) return f1.label;
+  const f24 = FASE24_CATEGORIAS.find(c => c.id === id);
+  if (f24) return f24.label;
+  if (id.startsWith('medida_')) {
+    const cat = FASE24_CATEGORIAS.find(c => c.id === 'medidas_constritivas');
+    const nome = cat.sub.find(n => 'medida_' + n.toLowerCase().replace(/[^a-z0-9]+/g,'_') === id);
+    return nome || id;
+  }
+  return id;
+}
+
+function responsavelSituacao(id) {
+  const f1 = FASE1_SITUACOES.find(s => s.id === id);
+  return f1 ? f1.responsavel : null;
+}
+
+function renderBlocos() {
+  const idsFase1 = FASE1_SITUACOES.map(s => s.id);
+  const gridF1 = document.getElementById('blocos-grid-fase1');
+  const gridF24 = document.getElementById('blocos-grid-fase24');
+  let temAlgum = false;
+
+  gridF1.innerHTML = idsFase1.filter(id => blocos[id] && blocos[id].length).map(function(id) {
+    temAlgum = true;
+    return blocoCardHtml(id, true);
+  }).join('');
+
+  gridF24.innerHTML = Object.keys(blocos).filter(id => !idsFase1.includes(id) && blocos[id].length).map(function(id) {
+    temAlgum = true;
+    return blocoCardHtml(id, false);
+  }).join('');
+
+  document.getElementById('blocos-vazio').style.display = temAlgum ? 'none' : 'block';
+  document.getElementById('blocos-fase1').style.display = gridF1.innerHTML ? 'block' : 'none';
+  document.getElementById('blocos-fase24').style.display = gridF24.innerHTML ? 'block' : 'none';
+}
+
+function blocoCardHtml(id, ehFase1) {
+  const qtd = blocos[id].length;
+  const resp = ehFase1 ? '<div class="bloco-resp">→ ' + responsavelSituacao(id) + '</div>' : '';
+  return '<div class="bloco-card">' +
+    '<div class="bloco-titulo">' + labelSituacao(id) + '</div>' +
+    '<div class="bloco-qtd">' + qtd + ' processo(s)</div>' +
+    resp +
+    '<div class="bloco-btns">' +
+      '<button class="bloco-btn" onclick="copiarBloco(\'' + id + '\')">📋 Copiar</button>' +
+      '<button class="bloco-btn" onclick="enviarBlocoEmLote(\'' + id + '\')">Enviar em lote →</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function copiarBloco(id) {
+  const texto = blocos[id].join('\n');
+  navigator.clipboard.writeText(texto).then(function() {
+    showFbClassificar('✓ Números copiados (' + blocos[id].length + ' processos).', 'ok');
+  });
+}
+
+function showFbClassificar(msg, tipo) {
+  const el = document.getElementById('fb-classificar');
+  el.innerHTML = msg; el.className = 'fb fb' + tipo; el.style.display = 'block';
+  setTimeout(function(){el.style.display='none';}, 5000);
+}
+
+let blocoEmEnvio = null;
+
+function enviarBlocoEmLote(id) {
+  const numeros = blocos[id];
+  blocoEmEnvio = id;
+  mudarAbaPrincipal('lote');
+  document.getElementById('inp-lote').value = numeros.join('\n');
+  limparConferenciaLote();
+
+  const resp = responsavelSituacao(id);
+  if (resp) {
+    const idx = procs.findIndex(p => p.nome === resp);
+    if (idx >= 0) selProcLote(idx);
+  }
+}
+
 const cargosAn = {'David Bruno':'Analista da PGM','João Pedro':'Analista da PGM'};
 function login(nome) {
   analista = nome;
+  carregarBlocosStorage();
+  renderBlocos();
   const cargo = cargosAn[nome] || '';
   document.getElementById('huser').innerHTML = '<div style="text-align:right"><div style="font-size:13px;color:#52514e"><strong>' + nome + '</strong></div>' + (cargo ? '<div style="font-size:11px;color:#898781">' + cargo + '</div>' : '') + '</div>';
   document.getElementById('tela-login').style.display = 'none';
@@ -636,6 +906,17 @@ async function confirmarLote() {
     loteDestino = null;
     document.querySelectorAll('#proc-ops-lote .pop').forEach(function(e){e.classList.remove('sel');});
     carregarProcs();
+
+    // se veio de um bloco da aba Classificar, o bloco já foi enviado —
+    // some da lista de blocos montados e atualiza a fila (esses processos
+    // não estão mais em triagem)
+    if (blocoEmEnvio) {
+      delete blocos[blocoEmEnvio];
+      blocoEmEnvio = null;
+      salvarBlocos();
+      renderBlocos();
+      carregarFilaClassificar();
+    }
   } catch(e) {
     showFbLote('Erro: ' + e.message, 'err');
   }
