@@ -395,13 +395,26 @@ function responsavelSituacao(id) {
   return f1 ? f1.responsavel : null;
 }
 
+function ordemCanonicaFase(faseNum) {
+  if (faseNum === 1) return FASE1_SITUACOES.map(s => s.id);
+  const ordem = [];
+  FASE24_CATEGORIAS.filter(c => c.fase === faseNum).forEach(c => {
+    if (c.sub) {
+      c.sub.forEach(nome => ordem.push('medida_' + nome.toLowerCase().replace(/[^a-z0-9]+/g,'_')));
+    } else {
+      ordem.push(c.id);
+    }
+  });
+  return ordem;
+}
+
 function renderBlocos() {
   const container = document.getElementById('blocos-container');
   let html = '';
   let temAlgum = false;
 
   for (let faseNum = 1; faseNum <= 4; faseNum++) {
-    const idsDaFase = Object.keys(blocos).filter(id => blocos[id].length && faseDaSituacao(id) === faseNum);
+    const idsDaFase = ordemCanonicaFase(faseNum).filter(id => blocos[id] && blocos[id].length);
     if (!idsDaFase.length) continue;
     temAlgum = true;
     const cor = CORES_FASE[faseNum];
