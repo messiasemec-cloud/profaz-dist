@@ -51,6 +51,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .cedat-texto{font-size:12px;color:#7a4711;flex:1;min-width:200px}
 .cedat-btn{font-size:12px;padding:8px 14px;border-radius:8px;border:none;background:#c9791f;color:#fff;cursor:pointer;white-space:nowrap;font-weight:500}
 .cedat-btn:hover{background:#a8630f}
+.resumo-classificar{display:flex;gap:12px;margin-bottom:16px}
+.resumo-item{flex:1;background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:10px;padding:14px 16px;text-align:center}
+.resumo-num{font-size:26px;font-weight:700;color:#0a5c52}
+.resumo-label{font-size:11px;color:#898781;margin-top:2px;text-transform:uppercase;letter-spacing:.03em}
 .btn-buscar:hover{background:#076b5e}
 .resultado{border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:14px;display:none}
 .rok{background:#e1f5ee;border:0.5px solid #9FE1CB;color:#085041}
@@ -163,6 +167,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
 
     <div id="aba-classificar" style="display:none">
+    <div class="resumo-classificar" id="resumo-classificar" style="display:none">
+      <div class="resumo-item">
+        <div class="resumo-num" id="resumo-em-triagem">—</div>
+        <div class="resumo-label">em triagem agora</div>
+      </div>
+      <div class="resumo-item">
+        <div class="resumo-num" id="resumo-triados-mes">—</div>
+        <div class="resumo-label">triados este mês</div>
+      </div>
+    </div>
     <div class="card">
       <div class="ch">Processos em triagem — classifique por fase/situação</div>
       <div class="cb">
@@ -300,6 +314,9 @@ async function carregarFilaClassificar() {
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
     filaClassificar = d.processos;
+    document.getElementById('resumo-classificar').style.display = 'flex';
+    document.getElementById('resumo-em-triagem').textContent = d.em_triagem_agora;
+    document.getElementById('resumo-triados-mes').textContent = d.triados_mes;
     renderFilaClassificar();
     renderBlocos();
   } catch(e) {
