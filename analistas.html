@@ -219,6 +219,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div id="preview-lote" style="display:none;margin-top:14px"></div>
 
       <button class="btn-conf" id="btn-confirmar-lote" onclick="confirmarLote()" style="display:none;margin-top:10px">Confirmar envio</button>
+
+      <div class="cedat-caixa">
+        <div class="cedat-texto">Nenhum processo dessa lista vai para procurador — encaminhar todo o lote à CEDAT e encerrar por lá.</div>
+        <button class="cedat-btn" id="btn-cedat-lote" onclick="encaminharLoteCedat()">Encaminhar lote à CEDAT</button>
+      </div>
     </div>
   </div>
   </div>
@@ -934,6 +939,39 @@ function parseListaLote() {
     .split(/[\n,;]+/)
     .map(function(s){ return s.trim(); })
     .filter(function(s){ return s.length > 0; });
+}
+
+async function encaminharLoteCedat() {
+  const numeros = parseListaLote();
+  if (!numeros.length) { showFbLote('Cole ao menos um número de processo antes de encaminhar à CEDAT.', 'err'); return; }
+  if (numeros.length > 100) { showFbLote('Limite de 100 processos por lote (você colou ' + numeros.length + ').', 'err'); return; }
+
+  const confirma = confirm('Confirma que esses ' + numeros.length + ' processo(s) vão para a CEDAT e NÃO vão para nenhum procurador? Essa ação encerra todos eles aqui no PROFAZ.');
+  if (!confirma) return;
+
+  const btn = document.getElementById('btn-cedat-lote');
+  btn.disabled = true; btn.textContent = 'Encaminhando...';
+  try {
+    const params = new URLSearchParams({
+      acao: 'confirmar_lote_cedat',
+      numeros: JSON.stringify(numeros),
+      analista: analista
+    });
+    const r = await fetch(URL_AS + '?' + params);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+
+    showFbLote('✓ ' + d.mensagem, 'ok');
+    document.getElementById('inp-lote').value = '';
+    document.getElementById('preview-lote').style.display = 'none';
+    document.getElementById('btn-confirmar-lote').style.display = 'none';
+    loteValidos = [];
+    loteDestino = null;
+    document.querySelectorAll('#proc-ops-lote .pop').forEach(function(e){e.classList.remove('sel');});
+  } catch(e) {
+    showFbLote('Erro: ' + e.message, 'err');
+  }
+  btn.disabled = false; btn.textContent = 'Encaminhar lote à CEDAT';
 }
 
 async function conferirLote() {
