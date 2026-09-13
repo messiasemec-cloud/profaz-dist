@@ -992,7 +992,7 @@ function renderOps(nucleo) {
     const numExibido = emModoTemporario
       ? `${p.temporarios_recebidos || 0} temporário(s) recebido(s)`
       : `${p.acervo} processos`;
-    return `<div class="pop" data-idx="${idx}" onclick="selProcIdx(${idx})">
+    return `<div class="pop" data-idx="${idx}" onclick="selProcNome('${p.nome.replace(/'/g,"\\'")}')">
       <div class="pop-nome">${p.nome}${analLabel}</div>
       <div class="pop-ac">${numExibido}</div>
       <span class="badge ${bcls}" style="margin-top:3px;font-size:10px">${btxt}</span>
@@ -1277,13 +1277,32 @@ function selTab(idx) {
   document.querySelector('.card:last-child').scrollIntoView({behavior:'smooth'});
 }
 
+// usada só internamente (auto-seleção logo após calcular a posição na
+// lista recém-carregada, sem intervalo de tempo — segura por índice).
+// Cliques do usuário usam selProcNome, que busca por nome.
 function selProcIdx(idx) {
   const p = procs[idx];
-  if (!p || !p.ativo) return;
+  if (p && p.ativo) selProcNome(p.nome);
+}
+
+function selProcNome(nome) {
+  // busca por NOME, não por posição no array — se a lista tiver sido
+  // recarregada entre a tela mostrar a pessoa e o clique acontecer, isso
+  // garante que a pessoa clicada é sempre quem estava visualmente ali,
+  // nunca outra pessoa que passou a ocupar aquela posição por acaso.
+  const p = procs.find(x => x.nome === nome);
+  if (!p || !p.ativo) {
+    // a pessoa que estava ali não existe mais na lista atual (ficou
+    // inativa, ou a lista mudou) — avisa em vez de selecionar errado
+    const box = document.getElementById('resultado');
+    if (box) box.innerHTML = '⚠ A lista mudou — atualize e escolha de novo pra garantir que está selecionando a pessoa certa.';
+    return;
+  }
   procSel = p.nome;
   document.querySelectorAll('.pop').forEach(e => e.classList.remove('sel'));
-  const el = document.querySelector(`.pop[data-idx="${idx}"]`);
-  if (el) el.classList.add('sel');
+  document.querySelectorAll('.pop').forEach(e => {
+    if (e.querySelector('.pop-nome') && e.querySelector('.pop-nome').textContent.trim().startsWith(p.nome)) e.classList.add('sel');
+  });
   document.getElementById('btn-dist').disabled = false;
 }
 
