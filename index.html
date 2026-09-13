@@ -369,10 +369,25 @@ function login(nome) {
 }
 
 // ── PIN — pede/cadastra o PIN antes de liberar o login de verdade ──
+function mostrarAguarde() {
+  if (document.getElementById('aguarde-overlay')) return;
+  const div = document.createElement('div');
+  div.id = 'aguarde-overlay';
+  div.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#1a3a5c;color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;box-shadow:0 2px 12px rgba(0,0,0,.25)';
+  div.textContent = '⏳ Aguarde, carregando...';
+  document.body.appendChild(div);
+}
+function esconderAguarde() {
+  const div = document.getElementById('aguarde-overlay');
+  if (div) div.remove();
+}
+
 async function pedirPin(nome, callback) {
+  mostrarAguarde(); // feedback instantâneo — sem isso, quem clica pensa que não registrou e clica de novo
   try {
     const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'status_pin', nome }));
     const d = await r.json();
+    esconderAguarde();
     if (!d.ok) { alert('Erro: ' + (d.erro || 'falha ao checar PIN')); return; }
     if (d.bloqueado) {
       modalPin(nome, callback, 'bloqueado', d.minutos_restantes);
@@ -381,7 +396,7 @@ async function pedirPin(nome, callback) {
     } else {
       modalPin(nome, callback, 'verificar');
     }
-  } catch(e) { alert('Erro ao checar PIN: ' + e.message); }
+  } catch(e) { esconderAguarde(); alert('Erro ao checar PIN: ' + e.message); }
 }
 
 function modalPin(nome, callback, modo, minutos) {
