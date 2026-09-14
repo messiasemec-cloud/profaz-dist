@@ -441,12 +441,14 @@ function modalPin(nome, callback, modo, minutos) {
       if (!/^\d{4}$/.test(p1)) { erroEl.textContent = 'PIN precisa ter exatamente 4 dígitos.'; return; }
       if (p1 !== p2) { erroEl.textContent = 'Os dois PINs não são iguais.'; return; }
       try {
+        mostrarAguarde();
         const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'definir_pin', nome, pin: p1 }));
         const d = await r.json();
+        esconderAguarde();
         if (!d.ok) { erroEl.textContent = d.erro || 'Erro ao criar PIN.'; return; }
         bg.remove();
         callback(nome);
-      } catch(e) { erroEl.textContent = 'Erro: ' + e.message; }
+      } catch(e) { esconderAguarde(); erroEl.textContent = 'Erro: ' + e.message; }
     };
     return;
   }
@@ -468,14 +470,16 @@ function modalPin(nome, callback, modo, minutos) {
     const erroEl = bg.querySelector('#pin-erro');
     if (!/^\d{4}$/.test(pin) && !/^\d{6}$/.test(pin)) { erroEl.textContent = 'Digite os 4 dígitos.'; return; }
     try {
+      mostrarAguarde();
       const r = await fetch(URL_AS + '?' + new URLSearchParams({ acao: 'verificar_pin', nome, pin }));
       const d = await r.json();
+      esconderAguarde();
       if (!d.ok) { erroEl.textContent = d.erro || 'Erro ao verificar PIN.'; return; }
       if (d.bloqueado) { bg.remove(); modalPin(nome, callback, 'bloqueado', d.minutos_restantes); return; }
       if (!d.correto) { erroEl.textContent = 'PIN incorreto.' + (d.tentativas_restantes ? ' (' + d.tentativas_restantes + ' tentativa' + (d.tentativas_restantes>1?'s':'') + ' restante' + (d.tentativas_restantes>1?'s':'') + ')' : ''); return; }
       bg.remove();
       callback(nome);
-    } catch(e) { erroEl.textContent = 'Erro: ' + e.message; }
+    } catch(e) { esconderAguarde(); erroEl.textContent = 'Erro: ' + e.message; }
   };
   bg.querySelector('#btn-ok-pin').onclick = tentarEntrar;
   bg.querySelector('#pin-digitado').addEventListener('keydown', e => { if (e.key === 'Enter') tentarEntrar(); });
