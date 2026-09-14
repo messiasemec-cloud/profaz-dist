@@ -98,6 +98,17 @@ tr:hover td{background:#fafaf8}
     </div>
   </div>
 
+  <!-- CEDAT (encaminhados pelos analistas) -->
+  <div class="card">
+    <div class="ch" style="border-left:4px solid #a6334c"><span style="display:flex;align-items:center;gap:8px;color:#a6334c"><span style="width:8px;height:8px;border-radius:50%;background:#a6334c;display:inline-block;flex-shrink:0"></span>Enviados para CEDAT via Analistas</span></div>
+    <div class="cb">
+      <table>
+        <thead><tr><th>Nome</th><th class="num">Nº de processos enviados à CEDAT</th></tr></thead>
+        <tbody id="tab-cedat"><tr><td colspan="2" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- GRUPO EF -->
   <div class="card">
     <div class="ch" style="border-left:4px solid #e07020"><span style="display:flex;align-items:center;gap:8px;color:#e07020"><span style="width:8px;height:8px;border-radius:50%;background:#e07020;display:inline-block;flex-shrink:0"></span>Grupo Execução Fiscal</span><input class="busca" placeholder="Buscar nome..." oninput="filtrar('tab-ef', this.value)"></div>
@@ -293,6 +304,10 @@ function renderTudo(d) {
 
   document.getElementById('tab-analistas').innerHTML =
     analistas.length ? analistas.map(n => linhaSimples(n, d.contagem[n].total, d.contagem[n].ativo)).join('')
+    : '<tr><td colspan="2" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
+
+  document.getElementById('tab-cedat').innerHTML =
+    analistas.length ? analistas.map(n => linhaSimples(n, d.contagem[n].cedat, d.contagem[n].ativo)).join('')
     : '<tr><td colspan="2" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
 
   document.getElementById('tab-ef').innerHTML =
