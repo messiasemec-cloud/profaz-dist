@@ -120,8 +120,8 @@ tr:hover td{background:#fafaf8}
           <th class="num" style="color:#4a3aa7">Redistrib.</th>
           <th class="num" style="color:#898781">Preventos</th>
           <th class="num" style="color:#a6334c">Temporários</th>
-          <th class="num">Total recebido</th>
           <th class="num">Acervo ↑</th>
+          <th class="num">Total recebido</th>
         </tr></thead>
         <tbody id="tab-ef"><tr><td colspan="7" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
       </table>
@@ -139,8 +139,8 @@ tr:hover td{background:#fafaf8}
           <th class="num" style="color:#4a3aa7">Redistrib.</th>
           <th class="num" style="color:#898781">Preventos</th>
           <th class="num" style="color:#a6334c">Temporários</th>
-          <th class="num">Total recebido</th>
           <th class="num">Acervo ↑</th>
+          <th class="num">Total recebido</th>
         </tr></thead>
         <tbody id="tab-con"><tr><td colspan="7" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
       </table>
@@ -154,7 +154,7 @@ tr:hover td{background:#fafaf8}
       <table>
         <thead><tr>
           <th>Nome</th><th class="num">Novos</th><th class="num">Redistrib. (EF avocadas)</th>
-          <th class="num">Total recebido</th><th class="num">Acervo ↑</th>
+          <th class="num">Acervo ↑</th><th class="num">Total recebido</th>
         </tr></thead>
         <tbody id="tab-adm"><tr><td colspan="5" class="loading"><span class="spin"></span>Carregando...</td></tr></tbody>
       </table>
@@ -268,8 +268,18 @@ function linhaCompleta(c, nome, ativo) {
     '<td class="num">' + (c.redistrib||0) + '</td>' +
     '<td class="num">' + (c.preventos||0) + '</td>' +
     '<td class="num">' + (c.temporarios||0) + '</td>' +
-    '<td class="num" style="font-weight:600">' + (c.total||0) + '</td>' +
-    '<td class="num" style="color:' + acervoCor + ';font-weight:600">' + acervoTxt + '</td></tr>';
+    '<td class="num" style="color:' + acervoCor + ';font-weight:600">' + acervoTxt + '</td>' +
+    '<td class="num" style="font-weight:600">' + (c.total||0) + '</td></tr>';
+}
+
+// Linha de fechamento do grupo — soma o "Total recebido" de todo mundo do
+// grupo, só chamada quando o grupo realmente tem gente (evita mostrar
+// "Total: 0" pra um grupo vazio).
+function linhaTotalGrupo(nomes, contagem, colspanAntes) {
+  const soma = nomes.reduce((s, n) => s + (contagem[n].total || 0), 0);
+  return '<tr style="border-top:2px solid #1a3a5c;font-weight:700;background:#f7f6f2">' +
+    '<td colspan="' + colspanAntes + '" style="text-align:right;padding-right:10px">Total do grupo</td>' +
+    '<td class="num">' + soma + '</td></tr>';
 }
 
 // Administrativo: "Novos" = processos nativos (P/GR), "Redistrib." = EF
@@ -285,8 +295,8 @@ function linhaAdm(c, nome, ativo) {
     '<td>' + nome + (ativo ? '' : ' <span style="font-size:10px;color:#b5b4ad">(inativo)</span>') + '</td>' +
     '<td class="num">' + novos + '</td>' +
     '<td class="num">' + redistrib + '</td>' +
-    '<td class="num" style="font-weight:600">' + totalRecebido + '</td>' +
-    '<td class="num" style="color:' + acervoCor + ';font-weight:600">' + acervoTxt + '</td></tr>';
+    '<td class="num" style="color:' + acervoCor + ';font-weight:600">' + acervoTxt + '</td>' +
+    '<td class="num" style="font-weight:600">' + totalRecebido + '</td></tr>';
 }
 
 function renderTudo(d) {
@@ -311,15 +321,15 @@ function renderTudo(d) {
     : '<tr><td colspan="2" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
 
   document.getElementById('tab-ef').innerHTML =
-    efGrupo.length ? efGrupo.map(n => linhaCompleta(d.contagem[n], n, d.contagem[n].ativo)).join('')
+    efGrupo.length ? efGrupo.map(n => linhaCompleta(d.contagem[n], n, d.contagem[n].ativo)).join('') + linhaTotalGrupo(efGrupo, d.contagem, 6)
     : '<tr><td colspan="7" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
 
   document.getElementById('tab-con').innerHTML =
-    conGrupo.length ? conGrupo.map(n => linhaCompleta(d.contagem[n], n, d.contagem[n].ativo)).join('')
+    conGrupo.length ? conGrupo.map(n => linhaCompleta(d.contagem[n], n, d.contagem[n].ativo)).join('') + linhaTotalGrupo(conGrupo, d.contagem, 6)
     : '<tr><td colspan="7" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
 
   document.getElementById('tab-adm').innerHTML =
-    admGrupo.length ? admGrupo.map(n => linhaAdm(d.contagem[n], n, d.contagem[n].ativo)).join('')
+    admGrupo.length ? admGrupo.map(n => linhaAdm(d.contagem[n], n, d.contagem[n].ativo)).join('') + linhaTotalGrupo(admGrupo, d.contagem, 4)
     : '<tr><td colspan="5" style="padding:16px;text-align:center;color:#898781">Nenhum dado no período.</td></tr>';
 
   // total de titularizações: soma de novos+redistrib de EF/Conhecimento/Administrativo
