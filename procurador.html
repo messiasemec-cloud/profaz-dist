@@ -117,18 +117,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="font-size:15px;font-weight:600;color:#1a3a5c;margin-bottom:14px">Relatório geral — escolha o período</div>
 
       <div style="display:flex;gap:8px;margin-bottom:14px">
-        <button class="btn-toggle-periodo ativo" data-tipo="semana" onclick="mudarTipoPeriodoRelatorio('semana')" style="flex:1;font-size:12px;padding:8px;border-radius:8px;border:0.5px solid #c3c2b7;background:#0a8a7a;color:#fff;cursor:pointer">Por semana</button>
-        <button class="btn-toggle-periodo" data-tipo="mes" onclick="mudarTipoPeriodoRelatorio('mes')" style="flex:1;font-size:12px;padding:8px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;color:#52514e;cursor:pointer">Por mês</button>
+        <label style="font-size:12px;color:#898781;display:block;width:100%">Mês de referência</label>
       </div>
+      <select id="sel-mes-relatorio" onchange="atualizarSemanasDoMes()" style="width:100%;padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:13px;margin-bottom:14px"></select>
 
-      <div id="campo-semana-relatorio">
-        <label style="font-size:12px;color:#898781">Semana</label>
-        <input type="week" id="inp-semana-relatorio" style="width:100%;padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:13px;margin-top:4px">
-      </div>
-      <div id="campo-mes-relatorio" style="display:none">
-        <label style="font-size:12px;color:#898781">Mês</label>
-        <input type="month" id="inp-mes-relatorio" style="width:100%;padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:13px;margin-top:4px">
-      </div>
+      <div style="font-size:12px;color:#898781;margin-bottom:6px">Semanas desse mês</div>
+      <div id="lista-semanas-mes" style="max-height:180px;overflow-y:auto;border:0.5px solid #e0ddd4;border-radius:8px"></div>
 
       <div style="margin-top:14px">
         <label style="font-size:12px;color:#898781">Quem incluir</label>
@@ -142,7 +136,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
       <div style="display:flex;gap:8px;margin-top:18px">
         <button onclick="fecharModalRelatorioGeral()" style="flex:1;font-size:13px;padding:10px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;color:#52514e;cursor:pointer">Cancelar</button>
-        <button onclick="gerarRelatorioGeral()" style="flex:1;font-size:13px;padding:10px;border-radius:8px;border:none;background:#0a8a7a;color:#fff;cursor:pointer;font-weight:600">Gerar e imprimir</button>
+        <button id="btn-gerar-mes-inteiro" onclick="gerarRelatorioGeral('mes')" style="flex:1;font-size:13px;padding:10px;border-radius:8px;border:none;background:#0a8a7a;color:#fff;cursor:pointer;font-weight:600">Relatório Mensal</button>
       </div>
     </div>
   </div>
@@ -758,40 +752,33 @@ function renderTimeline(historico) {
 // ============================================================
 // RELATÓRIO GERAL (todos os procuradores, período escolhido)
 // ============================================================
-let tipoPeriodoRelatorio = 'semana';
 let filtroRelatorio = 'todos';
+let semanaSelecionada = null; // { inicio, fim } ou null (= mês inteiro)
 
 function abrirModalRelatorioGeral() {
   document.getElementById('modal-relatorio-bg').style.display = 'flex';
   document.getElementById('fb-modal-relatorio').style.display = 'none';
-  // pré-preenche com a semana/mês atual, pra não abrir vazio
-  const hoje = new Date();
-  if (!document.getElementById('inp-mes-relatorio').value) {
-    document.getElementById('inp-mes-relatorio').value = hoje.getFullYear() + '-' + String(hoje.getMonth()+1).padStart(2,'0');
+  semanaSelecionada = null;
+
+  const sel = document.getElementById('sel-mes-relatorio');
+  if (!sel.options.length) {
+    const hoje = new Date();
+    // últimos 12 meses, do mais recente pro mais antigo
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+      const valor = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+      const label = d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      const opt = document.createElement('option');
+      opt.value = valor;
+      opt.textContent = label.charAt(0).toUpperCase() + label.slice(1);
+      sel.appendChild(opt);
+    }
   }
-  if (!document.getElementById('inp-semana-relatorio').value) {
-    const d = new Date(hoje);
-    d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7)); // quinta-feira da semana ISO atual
-    const semana1 = new Date(d.getFullYear(), 0, 4);
-    const numSemana = 1 + Math.round(((d - semana1) / 86400000 - 3 + ((semana1.getDay() + 6) % 7)) / 7);
-    document.getElementById('inp-semana-relatorio').value = d.getFullYear() + '-W' + String(numSemana).padStart(2,'0');
-  }
+  atualizarSemanasDoMes();
 }
 
 function fecharModalRelatorioGeral() {
   document.getElementById('modal-relatorio-bg').style.display = 'none';
-}
-
-function mudarTipoPeriodoRelatorio(tipo) {
-  tipoPeriodoRelatorio = tipo;
-  document.querySelectorAll('.btn-toggle-periodo').forEach(b => {
-    const ativo = b.dataset.tipo === tipo;
-    b.classList.toggle('ativo', ativo);
-    b.style.background = ativo ? '#0a8a7a' : '#fff';
-    b.style.color = ativo ? '#fff' : '#52514e';
-  });
-  document.getElementById('campo-semana-relatorio').style.display = tipo === 'semana' ? 'block' : 'none';
-  document.getElementById('campo-mes-relatorio').style.display = tipo === 'mes' ? 'block' : 'none';
 }
 
 function mudarFiltroRelatorio(filtro) {
@@ -804,20 +791,53 @@ function mudarFiltroRelatorio(filtro) {
   });
 }
 
-// Converte o valor de <input type="week"> ("2026-W38") em segunda e
-// domingo daquela semana ISO.
-function semanaParaIntervalo(valorSemana) {
-  const [anoStr, semStr] = valorSemana.split('-W');
-  const ano = Number(anoStr), semana = Number(semStr);
-  const dia4Jan = new Date(ano, 0, 4);
-  const diaSemanaISO = (dia4Jan.getDay() + 6) % 7; // 0=segunda
-  const segundaSemana1 = new Date(dia4Jan);
-  segundaSemana1.setDate(dia4Jan.getDate() - diaSemanaISO);
-  const inicio = new Date(segundaSemana1);
-  inicio.setDate(segundaSemana1.getDate() + (semana - 1) * 7);
-  const fim = new Date(inicio);
-  fim.setDate(inicio.getDate() + 6);
-  return { inicio, fim };
+// Monta a lista de semanas (segunda a domingo) que tocam o mês
+// escolhido — sem número de semana nenhum, só o intervalo de data, do
+// jeito que faz sentido pra quem não é programador.
+function atualizarSemanasDoMes() {
+  semanaSelecionada = null;
+  const selMes = document.getElementById('sel-mes-relatorio');
+  const [ano, mes] = selMes.value.split('-').map(Number);
+  const labelMes = selMes.options[selMes.selectedIndex].textContent;
+  document.getElementById('btn-gerar-mes-inteiro').textContent = 'Relatório Mensal — ' + labelMes;
+
+  const primeiroDia = new Date(ano, mes - 1, 1);
+  const ultimoDia = new Date(ano, mes, 0);
+
+  // acha a segunda-feira da semana que contém o primeiro dia do mês
+  const primeiraSegunda = new Date(primeiroDia);
+  primeiraSegunda.setDate(primeiroDia.getDate() - ((primeiroDia.getDay() + 6) % 7));
+
+  const semanas = [];
+  let cursor = new Date(primeiraSegunda);
+  while (cursor <= ultimoDia) {
+    const fimSemana = new Date(cursor);
+    fimSemana.setDate(cursor.getDate() + 6);
+    semanas.push({ inicio: new Date(cursor), fim: fimSemana });
+    cursor.setDate(cursor.getDate() + 7);
+  }
+
+  const lista = document.getElementById('lista-semanas-mes');
+  lista.innerHTML = semanas.map(function(s, idx) {
+    return '<div class="item-semana-relatorio" data-idx="' + idx + '" onclick="selecionarSemanaRelatorio(' + idx + ')" ' +
+      'style="padding:10px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid #eee" ' +
+      'onmouseover="this.style.background=\'#f7f6f2\'" onmouseout="this.style.background=(this.classList.contains(\'sel\')?\'#e1f5ee\':\'#fff\')">' +
+      formatarBR(s.inicio) + ' → ' + formatarBR(s.fim) +
+    '</div>';
+  }).join('');
+  window._semanasDoMesAtual = semanas;
+}
+
+function selecionarSemanaRelatorio(idx) {
+  const s = window._semanasDoMesAtual[idx];
+  semanaSelecionada = s;
+  document.querySelectorAll('.item-semana-relatorio').forEach(function(el) {
+    const sel = Number(el.dataset.idx) === idx;
+    el.classList.toggle('sel', sel);
+    el.style.background = sel ? '#e1f5ee' : '#fff';
+    el.style.fontWeight = sel ? '600' : '400';
+  });
+  gerarRelatorioGeral('semana');
 }
 
 function formatarYMD(d) {
@@ -827,19 +847,16 @@ function formatarBR(d) {
   return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
 }
 
-async function gerarRelatorioGeral() {
+async function gerarRelatorioGeral(modo) {
   const fb = document.getElementById('fb-modal-relatorio');
   let inicio, fim, labelPeriodo;
 
-  if (tipoPeriodoRelatorio === 'semana') {
-    const valor = document.getElementById('inp-semana-relatorio').value;
-    if (!valor) { fb.textContent = 'Escolha uma semana.'; fb.style.display = 'block'; return; }
-    const iv = semanaParaIntervalo(valor);
-    inicio = iv.inicio; fim = iv.fim;
+  if (modo === 'semana') {
+    if (!semanaSelecionada) { fb.textContent = 'Escolha uma semana da lista.'; fb.style.display = 'block'; return; }
+    inicio = semanaSelecionada.inicio; fim = semanaSelecionada.fim;
     labelPeriodo = formatarBR(inicio) + ' a ' + formatarBR(fim);
   } else {
-    const valor = document.getElementById('inp-mes-relatorio').value; // "2026-09"
-    if (!valor) { fb.textContent = 'Escolha um mês.'; fb.style.display = 'block'; return; }
+    const valor = document.getElementById('sel-mes-relatorio').value; // "2026-09"
     const [ano, mes] = valor.split('-').map(Number);
     inicio = new Date(ano, mes - 1, 1);
     fim = new Date(ano, mes, 0); // último dia do mês
