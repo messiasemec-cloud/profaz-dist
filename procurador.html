@@ -130,6 +130,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <input type="month" id="inp-mes-relatorio" style="width:100%;padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:13px;margin-top:4px">
       </div>
 
+      <div style="margin-top:14px">
+        <label style="font-size:12px;color:#898781">Quem incluir</label>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn-toggle-filtro ativo" data-filtro="todos" onclick="mudarFiltroRelatorio('todos')" style="flex:1;font-size:12px;padding:8px;border-radius:8px;border:0.5px solid #c3c2b7;background:#0a8a7a;color:#fff;cursor:pointer">Todos</button>
+          <button class="btn-toggle-filtro" data-filtro="procuradores" onclick="mudarFiltroRelatorio('procuradores')" style="flex:1;font-size:12px;padding:8px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;color:#52514e;cursor:pointer">Só procuradores</button>
+        </div>
+      </div>
+
       <div id="fb-modal-relatorio" style="display:none;margin-top:10px;padding:8px 10px;border-radius:8px;font-size:12px;background:#fcebeb;color:#791f1f"></div>
 
       <div style="display:flex;gap:8px;margin-top:18px">
@@ -751,6 +759,7 @@ function renderTimeline(historico) {
 // RELATÓRIO GERAL (todos os procuradores, período escolhido)
 // ============================================================
 let tipoPeriodoRelatorio = 'semana';
+let filtroRelatorio = 'todos';
 
 function abrirModalRelatorioGeral() {
   document.getElementById('modal-relatorio-bg').style.display = 'flex';
@@ -783,6 +792,16 @@ function mudarTipoPeriodoRelatorio(tipo) {
   });
   document.getElementById('campo-semana-relatorio').style.display = tipo === 'semana' ? 'block' : 'none';
   document.getElementById('campo-mes-relatorio').style.display = tipo === 'mes' ? 'block' : 'none';
+}
+
+function mudarFiltroRelatorio(filtro) {
+  filtroRelatorio = filtro;
+  document.querySelectorAll('.btn-toggle-filtro').forEach(b => {
+    const ativo = b.dataset.filtro === filtro;
+    b.classList.toggle('ativo', ativo);
+    b.style.background = ativo ? '#0a8a7a' : '#fff';
+    b.style.color = ativo ? '#fff' : '#52514e';
+  });
 }
 
 // Converte o valor de <input type="week"> ("2026-W38") em segunda e
@@ -830,12 +849,12 @@ async function gerarRelatorioGeral() {
   fb.style.display = 'none';
   mostrarAguarde();
   try {
-    const params = new URLSearchParams({ acao: 'relatorio_geral_periodo', inicio: formatarYMD(inicio), fim: formatarYMD(fim) });
+    const params = new URLSearchParams({ acao: 'relatorio_geral_periodo', inicio: formatarYMD(inicio), fim: formatarYMD(fim), filtro: filtroRelatorio });
     const r = await fetch(URL_AS + '?' + params);
     const d = await r.json();
     esconderAguarde();
     if (!d.ok) throw new Error(d.erro);
-    imprimirRelatorioGeral(d.procuradores, labelPeriodo);
+    imprimirRelatorioGeral(d.procuradores, labelPeriodo, filtroRelatorio);
     fecharModalRelatorioGeral();
   } catch (e) {
     esconderAguarde();
@@ -844,9 +863,10 @@ async function gerarRelatorioGeral() {
   }
 }
 
-function imprimirRelatorioGeral(procuradores, labelPeriodo) {
+function imprimirRelatorioGeral(procuradores, labelPeriodo, filtro) {
   const hoje = new Date();
   const dataGeracao = formatarBR(hoje);
+  const labelFiltro = filtro === 'procuradores' ? 'Só procuradores' : 'Todos (procuradores, analistas e distribuidores)';
 
   const totalGeral = procuradores.reduce((s, p) => s + p.total, 0);
 
@@ -883,7 +903,7 @@ function imprimirRelatorioGeral(procuradores, labelPeriodo) {
     '.sub{color:#898781;font-size:12px;margin-bottom:20px}' +
     '@media print{body{margin:12mm}}</style></head><body>' +
     '<h1>Relatório geral de processos — ' + labelPeriodo + '</h1>' +
-    '<div class="sub">Gerado em ' + dataGeracao + ' — PROFAZ/PGM Fortaleza — ' + procuradores.length + ' procurador(es), ' + totalGeral + ' processo(s) no total</div>' +
+    '<div class="sub">Gerado em ' + dataGeracao + ' — PROFAZ/PGM Fortaleza — ' + labelFiltro + ' — ' + procuradores.length + ' pessoa(s), ' + totalGeral + ' processo(s) no total</div>' +
     secoes +
     '</body></html>';
 
