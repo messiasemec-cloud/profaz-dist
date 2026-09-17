@@ -100,10 +100,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <!-- LOGIN -->
   <div id="tela-login" class="card">
-    <div class="ch">Selecione seu nome</div>
+    <div class="ch" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <span>Selecione seu nome</span>
+      <button onclick="abrirModalRelatorioGeral()" style="font-size:12px;padding:8px 14px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;cursor:pointer">🖨 Imprimir relatório geral</button>
+    </div>
     <div class="cb">
       <div class="proc-grid" id="proc-grid">
         <div class="loading"><span class="spin"></span>Carregando...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: relatório geral por período -->
+  <div id="modal-relatorio-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9998;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;padding:24px;max-width:400px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,.25)">
+      <div style="font-size:15px;font-weight:600;color:#1a3a5c;margin-bottom:14px">Relatório geral — escolha o período</div>
+
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="btn-toggle-periodo ativo" data-tipo="semana" onclick="mudarTipoPeriodoRelatorio('semana')" style="flex:1;font-size:12px;padding:8px;border-radius:8px;border:0.5px solid #c3c2b7;background:#0a8a7a;color:#fff;cursor:pointer">Por semana</button>
+        <button class="btn-toggle-periodo" data-tipo="mes" onclick="mudarTipoPeriodoRelatorio('mes')" style="flex:1;font-size:12px;padding:8px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;color:#52514e;cursor:pointer">Por mês</button>
+      </div>
+
+      <div id="campo-semana-relatorio">
+        <label style="font-size:12px;color:#898781">Semana</label>
+        <input type="week" id="inp-semana-relatorio" style="width:100%;padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:13px;margin-top:4px">
+      </div>
+      <div id="campo-mes-relatorio" style="display:none">
+        <label style="font-size:12px;color:#898781">Mês</label>
+        <input type="month" id="inp-mes-relatorio" style="width:100%;padding:8px 10px;border:0.5px solid #c3c2b7;border-radius:8px;font-size:13px;margin-top:4px">
+      </div>
+
+      <div id="fb-modal-relatorio" style="display:none;margin-top:10px;padding:8px 10px;border-radius:8px;font-size:12px;background:#fcebeb;color:#791f1f"></div>
+
+      <div style="display:flex;gap:8px;margin-top:18px">
+        <button onclick="fecharModalRelatorioGeral()" style="flex:1;font-size:13px;padding:10px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;color:#52514e;cursor:pointer">Cancelar</button>
+        <button onclick="gerarRelatorioGeral()" style="flex:1;font-size:13px;padding:10px;border-radius:8px;border:none;background:#0a8a7a;color:#fff;cursor:pointer;font-weight:600">Gerar e imprimir</button>
       </div>
     </div>
   </div>
@@ -503,6 +534,15 @@ async function carregarHistorico(nome, mesAtual) {
   try {
     const r = await fetch(URL_AS + '?acao=historico&nome=' + encodeURIComponent(nome));
     const d = await r.json();
+
+    // Se a pessoa já trocou de procurador enquanto essa resposta ainda
+    // estava a caminho (clique rápido entre um e outro), essa resposta
+    // está desatualizada — descarta, sem renderizar nada com ela. Sem
+    // essa checagem, uma resposta mais lenta de um clique anterior podia
+    // chegar DEPOIS da resposta mais rápida do clique seguinte, e acabar
+    // mostrando o histórico de uma pessoa com o nome de outra no topo.
+    if (nome !== procAtual) return;
+
     if (!d.ok) throw new Error(d.erro);
 
     // Conta tudo que é efetivamente "recebido" (passou pela mesa da pessoa).
@@ -520,6 +560,7 @@ async function carregarHistorico(nome, mesAtual) {
     renderGrafico(d.historico);
     renderTimeline(d.historico);
   } catch(e) {
+    if (nome !== procAtual) return; // idem — não sobrescreve tela de outra pessoa nem com mensagem de erro
     document.getElementById('chart-bars').innerHTML = '<div style="color:#e34948;font-size:13px">Erro ao carregar histórico.</div>';
   }
 }
@@ -704,6 +745,153 @@ function renderTimeline(historico) {
       '<div style="text-align:right"><span class="tl-badge ' + c.bcls + '">' + c.btxt + '</span></div>' +
     '</div>';
   }).join('');
+}
+
+// ============================================================
+// RELATÓRIO GERAL (todos os procuradores, período escolhido)
+// ============================================================
+let tipoPeriodoRelatorio = 'semana';
+
+function abrirModalRelatorioGeral() {
+  document.getElementById('modal-relatorio-bg').style.display = 'flex';
+  document.getElementById('fb-modal-relatorio').style.display = 'none';
+  // pré-preenche com a semana/mês atual, pra não abrir vazio
+  const hoje = new Date();
+  if (!document.getElementById('inp-mes-relatorio').value) {
+    document.getElementById('inp-mes-relatorio').value = hoje.getFullYear() + '-' + String(hoje.getMonth()+1).padStart(2,'0');
+  }
+  if (!document.getElementById('inp-semana-relatorio').value) {
+    const d = new Date(hoje);
+    d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7)); // quinta-feira da semana ISO atual
+    const semana1 = new Date(d.getFullYear(), 0, 4);
+    const numSemana = 1 + Math.round(((d - semana1) / 86400000 - 3 + ((semana1.getDay() + 6) % 7)) / 7);
+    document.getElementById('inp-semana-relatorio').value = d.getFullYear() + '-W' + String(numSemana).padStart(2,'0');
+  }
+}
+
+function fecharModalRelatorioGeral() {
+  document.getElementById('modal-relatorio-bg').style.display = 'none';
+}
+
+function mudarTipoPeriodoRelatorio(tipo) {
+  tipoPeriodoRelatorio = tipo;
+  document.querySelectorAll('.btn-toggle-periodo').forEach(b => {
+    const ativo = b.dataset.tipo === tipo;
+    b.classList.toggle('ativo', ativo);
+    b.style.background = ativo ? '#0a8a7a' : '#fff';
+    b.style.color = ativo ? '#fff' : '#52514e';
+  });
+  document.getElementById('campo-semana-relatorio').style.display = tipo === 'semana' ? 'block' : 'none';
+  document.getElementById('campo-mes-relatorio').style.display = tipo === 'mes' ? 'block' : 'none';
+}
+
+// Converte o valor de <input type="week"> ("2026-W38") em segunda e
+// domingo daquela semana ISO.
+function semanaParaIntervalo(valorSemana) {
+  const [anoStr, semStr] = valorSemana.split('-W');
+  const ano = Number(anoStr), semana = Number(semStr);
+  const dia4Jan = new Date(ano, 0, 4);
+  const diaSemanaISO = (dia4Jan.getDay() + 6) % 7; // 0=segunda
+  const segundaSemana1 = new Date(dia4Jan);
+  segundaSemana1.setDate(dia4Jan.getDate() - diaSemanaISO);
+  const inicio = new Date(segundaSemana1);
+  inicio.setDate(segundaSemana1.getDate() + (semana - 1) * 7);
+  const fim = new Date(inicio);
+  fim.setDate(inicio.getDate() + 6);
+  return { inicio, fim };
+}
+
+function formatarYMD(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function formatarBR(d) {
+  return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+}
+
+async function gerarRelatorioGeral() {
+  const fb = document.getElementById('fb-modal-relatorio');
+  let inicio, fim, labelPeriodo;
+
+  if (tipoPeriodoRelatorio === 'semana') {
+    const valor = document.getElementById('inp-semana-relatorio').value;
+    if (!valor) { fb.textContent = 'Escolha uma semana.'; fb.style.display = 'block'; return; }
+    const iv = semanaParaIntervalo(valor);
+    inicio = iv.inicio; fim = iv.fim;
+    labelPeriodo = formatarBR(inicio) + ' a ' + formatarBR(fim);
+  } else {
+    const valor = document.getElementById('inp-mes-relatorio').value; // "2026-09"
+    if (!valor) { fb.textContent = 'Escolha um mês.'; fb.style.display = 'block'; return; }
+    const [ano, mes] = valor.split('-').map(Number);
+    inicio = new Date(ano, mes - 1, 1);
+    fim = new Date(ano, mes, 0); // último dia do mês
+    labelPeriodo = inicio.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  }
+
+  fb.style.display = 'none';
+  mostrarAguarde();
+  try {
+    const params = new URLSearchParams({ acao: 'relatorio_geral_periodo', inicio: formatarYMD(inicio), fim: formatarYMD(fim) });
+    const r = await fetch(URL_AS + '?' + params);
+    const d = await r.json();
+    esconderAguarde();
+    if (!d.ok) throw new Error(d.erro);
+    imprimirRelatorioGeral(d.procuradores, labelPeriodo);
+    fecharModalRelatorioGeral();
+  } catch (e) {
+    esconderAguarde();
+    fb.textContent = 'Erro: ' + e.message;
+    fb.style.display = 'block';
+  }
+}
+
+function imprimirRelatorioGeral(procuradores, labelPeriodo) {
+  const hoje = new Date();
+  const dataGeracao = formatarBR(hoje);
+
+  const totalGeral = procuradores.reduce((s, p) => s + p.total, 0);
+
+  const secoes = procuradores.map(function(p) {
+    const linhas = p.itens.map(function(h) {
+      const c = classificarItemHistorico(h);
+      const cor = CORES_SELO[c.bcls] || '#0a8a7a';
+      return '<tr>' +
+        '<td style="padding:5px 8px;border-bottom:1px solid #e5e3da;font-size:11px;white-space:nowrap">' + c.dataFmt + '</td>' +
+        '<td style="padding:5px 8px;border-bottom:1px solid #e5e3da;font-size:11px">' +
+          '<div style="font-weight:600">' + c.numProcesso + '</div>' +
+          '<div style="color:#898781;font-size:10px">' + c.fluxoTxt + '</div>' +
+        '</td>' +
+        '<td style="padding:5px 8px;border-bottom:1px solid #e5e3da;text-align:right">' +
+          '<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;color:#fff;background:' + cor + '">' + c.btxt + '</span>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+
+    return '<div style="margin-bottom:22px;page-break-inside:avoid">' +
+      '<h2 style="font-size:14px;color:#1a3a5c;border-bottom:2px solid #1a3a5c;padding-bottom:4px;margin-bottom:6px">' + p.nome + ' <span style="font-weight:400;color:#898781;font-size:12px">(' + p.total + ' processo' + (p.total !== 1 ? 's' : '') + ')</span></h2>' +
+      '<table style="width:100%;border-collapse:collapse"><thead><tr>' +
+        '<th style="text-align:left;font-size:10px;color:#898781;text-transform:uppercase;padding:4px 8px;border-bottom:2px solid #ddd">Data</th>' +
+        '<th style="text-align:left;font-size:10px;color:#898781;text-transform:uppercase;padding:4px 8px;border-bottom:2px solid #ddd">Processo</th>' +
+        '<th style="text-align:right;font-size:10px;color:#898781;text-transform:uppercase;padding:4px 8px;border-bottom:2px solid #ddd">Tipo</th>' +
+      '</tr></thead><tbody>' + linhas + '</tbody></table>' +
+    '</div>';
+  }).join('');
+
+  const html = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+    '<title>Relatório geral — ' + labelPeriodo + '</title>' +
+    '<style>body{font-family:Arial,Helvetica,sans-serif;margin:24px;color:#1a1a1a}' +
+    'h1{font-size:18px;margin-bottom:2px}' +
+    '.sub{color:#898781;font-size:12px;margin-bottom:20px}' +
+    '@media print{body{margin:12mm}}</style></head><body>' +
+    '<h1>Relatório geral de processos — ' + labelPeriodo + '</h1>' +
+    '<div class="sub">Gerado em ' + dataGeracao + ' — PROFAZ/PGM Fortaleza — ' + procuradores.length + ' procurador(es), ' + totalGeral + ' processo(s) no total</div>' +
+    secoes +
+    '</body></html>';
+
+  const janela = window.open('', '_blank');
+  janela.document.write(html);
+  janela.document.close();
+  janela.onload = function() { janela.print(); };
+  setTimeout(function() { janela.print(); }, 400);
 }
 
 function imprimirUltimosProcessos() {
