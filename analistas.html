@@ -337,18 +337,30 @@ function jaClassificado(num) {
   return null;
 }
 
+function mostrarToastCopiado(texto) {
+  let toast = document.getElementById('toast-copiado');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast-copiado';
+    toast.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#0a8a7a;color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 2px 12px rgba(0,0,0,.25);transition:opacity .3s';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = texto;
+  toast.style.opacity = '1';
+  toast.style.display = 'block';
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.style.display = 'none', 300); }, 2000);
+}
+
 async function copiarListaEmTriagem() {
-  const fb = document.getElementById('fb-classificar');
   if (!filaClassificar.length) {
-    fb.textContent = 'Nenhum processo em triagem no momento pra copiar.';
-    fb.className = 'fb err';
+    mostrarToastCopiado('Nenhum processo em triagem no momento.');
     return;
   }
   const texto = filaClassificar.map(p => p.num_processo).join('\n');
   try {
     await navigator.clipboard.writeText(texto);
-    fb.textContent = `✓ ${filaClassificar.length} processo(s) copiado(s) — cola onde precisar.`;
-    fb.className = 'fb ok';
+    mostrarToastCopiado(`✓ Copiado! ${filaClassificar.length} processo(s)`);
   } catch (e) {
     // fallback: navegador bloqueou o clipboard — baixa como .txt
     const blob = new Blob([texto], { type: 'text/plain' });
@@ -357,8 +369,7 @@ async function copiarListaEmTriagem() {
     a.href = url; a.download = 'processos_em_triagem.txt';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    fb.textContent = `Não deu pra copiar direto — baixei um arquivo .txt com os ${filaClassificar.length} processo(s) no lugar.`;
-    fb.className = 'fb ok';
+    mostrarToastCopiado(`Baixado como .txt (${filaClassificar.length} processos)`);
   }
 }
 
