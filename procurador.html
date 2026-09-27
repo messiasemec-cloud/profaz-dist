@@ -128,6 +128,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <label style="font-size:12px;color:#898781">Quem incluir</label>
         <div style="display:flex;gap:8px;margin-top:4px">
           <button class="btn-toggle-filtro ativo" data-filtro="todos" onclick="mudarFiltroRelatorio('todos')" style="flex:1;font-size:12px;padding:8px;border-radius:8px;border:0.5px solid #c3c2b7;background:#0a8a7a;color:#fff;cursor:pointer">Todos</button>
+          <button class="btn-toggle-filtro" data-filtro="analistas" onclick="mudarFiltroRelatorio('analistas')" style="flex:1;font-size:12px;padding:8px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;color:#52514e;cursor:pointer">Só analistas</button>
           <button class="btn-toggle-filtro" data-filtro="procuradores" onclick="mudarFiltroRelatorio('procuradores')" style="flex:1;font-size:12px;padding:8px;border-radius:8px;border:0.5px solid #c3c2b7;background:#fff;color:#52514e;cursor:pointer">Só procuradores</button>
         </div>
       </div>
@@ -883,7 +884,7 @@ async function gerarRelatorioGeral(modo) {
 function imprimirRelatorioGeral(procuradores, labelPeriodo, filtro) {
   const hoje = new Date();
   const dataGeracao = formatarBR(hoje);
-  const labelFiltro = filtro === 'procuradores' ? 'Só procuradores' : 'Todos (procuradores, analistas e distribuidores)';
+  const labelFiltro = filtro === 'procuradores' ? 'Só procuradores' : (filtro === 'analistas' ? 'Só analistas' : 'Todos (procuradores, analistas e distribuidores)');
 
   const totalGeral = procuradores.reduce((s, p) => s + p.total, 0);
 
@@ -913,15 +914,41 @@ function imprimirRelatorioGeral(procuradores, labelPeriodo, filtro) {
     '</div>';
   }).join('');
 
+  // texto simples (nome + total, um por linha) — pronto pra colar em
+  // qualquer lugar (planilha, e-mail, chat), sem depender da tabela
+  const textoResumo = 'Relatório geral — ' + labelPeriodo + ' — ' + labelFiltro + '\n' +
+    procuradores.map(function(p) { return p.nome + '\t' + p.total; }).join('\n');
+  const textoResumoEscapado = JSON.stringify(textoResumo);
+
   const html = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
     '<title>Relatório geral — ' + labelPeriodo + '</title>' +
     '<style>body{font-family:Arial,Helvetica,sans-serif;margin:24px;color:#1a1a1a}' +
     'h1{font-size:18px;margin-bottom:2px}' +
-    '.sub{color:#898781;font-size:12px;margin-bottom:20px}' +
+    '.sub{color:#898781;font-size:12px;margin-bottom:12px}' +
+    '#btn-copiar-resumo{font-family:Arial,sans-serif;font-size:12px;font-weight:600;padding:8px 16px;border-radius:20px;border:none;background:#0a8a7a;color:#fff;cursor:pointer;margin-bottom:16px}' +
+    '#toast-copiado-relatorio{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#0a8a7a;color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;display:none}' +
+    '@media print{#btn-copiar-resumo,#toast-copiado-relatorio{display:none!important}}' +
     '@media print{body{margin:12mm}}</style></head><body>' +
     '<h1>Relatório geral de processos — ' + labelPeriodo + '</h1>' +
     '<div class="sub">Gerado em ' + dataGeracao + ' — PROFAZ/PGM Fortaleza — ' + labelFiltro + ' — ' + procuradores.length + ' pessoa(s), ' + totalGeral + ' processo(s) no total</div>' +
+    '<button id="btn-copiar-resumo" onclick="copiarResumoRelatorio()">📋 Copiar resumo (nome + total)</button>' +
+    '<div id="toast-copiado-relatorio">✓ Copiado!</div>' +
     secoes +
+    '<' + 'script>' +
+      'var __textoResumo = ' + textoResumoEscapado + ';' +
+      'function copiarResumoRelatorio() {' +
+        'var mostrar = function(msg) {' +
+          'var t = document.getElementById("toast-copiado-relatorio");' +
+          't.textContent = msg; t.style.display = "block";' +
+          'setTimeout(function(){ t.style.display = "none"; }, 2000);' +
+        '};' +
+        'if (navigator.clipboard && navigator.clipboard.writeText) {' +
+          'navigator.clipboard.writeText(__textoResumo).then(function(){ mostrar("✓ Copiado!"); }).catch(function(){ mostrar("Não foi possível copiar — copie manualmente."); });' +
+        '} else {' +
+          'mostrar("Não foi possível copiar — copie manualmente.");' +
+        '}' +
+      '}' +
+    '<' + '/script>' +
     '</body></html>';
 
   const janela = window.open('', '_blank');
