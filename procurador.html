@@ -920,34 +920,49 @@ function imprimirRelatorioGeral(procuradores, labelPeriodo, filtro) {
     procuradores.map(function(p) { return p.nome + '\t' + p.total; }).join('\n');
   const textoResumoEscapado = JSON.stringify(textoResumo);
 
+  // texto DETALHADO: uma linha por processo, com a pessoa na frente —
+  // pra jogar numa planilha e caçar repetido/comparar com o dashboard
+  const linhasDetalhado = ['Pessoa\tProcesso\tData\tTipo'];
+  procuradores.forEach(function(p) {
+    p.itens.forEach(function(h) {
+      const c = classificarItemHistorico(h);
+      linhasDetalhado.push(p.nome + '\t' + c.numProcesso + '\t' + c.dataFmt + '\t' + c.btxt);
+    });
+  });
+  const textoDetalhadoEscapado = JSON.stringify(linhasDetalhado.join('\n'));
+
   const html = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
     '<title>Relatório geral — ' + labelPeriodo + '</title>' +
     '<style>body{font-family:Arial,Helvetica,sans-serif;margin:24px;color:#1a1a1a}' +
     'h1{font-size:18px;margin-bottom:2px}' +
     '.sub{color:#898781;font-size:12px;margin-bottom:12px}' +
-    '#btn-copiar-resumo{font-family:Arial,sans-serif;font-size:12px;font-weight:600;padding:8px 16px;border-radius:20px;border:none;background:#0a8a7a;color:#fff;cursor:pointer;margin-bottom:16px}' +
+    '#btn-copiar-resumo,#btn-copiar-detalhado{font-family:Arial,sans-serif;font-size:12px;font-weight:600;padding:8px 16px;border-radius:20px;border:none;background:#0a8a7a;color:#fff;cursor:pointer;margin-bottom:16px}' +
     '#toast-copiado-relatorio{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#0a8a7a;color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;display:none}' +
-    '@media print{#btn-copiar-resumo,#toast-copiado-relatorio{display:none!important}}' +
+    '@media print{#btn-copiar-resumo,#btn-copiar-detalhado,#toast-copiado-relatorio{display:none!important}}' +
     '@media print{body{margin:12mm}}</style></head><body>' +
     '<h1>Relatório geral de processos — ' + labelPeriodo + '</h1>' +
     '<div class="sub">Gerado em ' + dataGeracao + ' — PROFAZ/PGM Fortaleza — ' + labelFiltro + ' — ' + procuradores.length + ' pessoa(s), ' + totalGeral + ' processo(s) no total</div>' +
     '<button id="btn-copiar-resumo" onclick="copiarResumoRelatorio()">📋 Copiar resumo (nome + total)</button>' +
+    '<button id="btn-copiar-detalhado" onclick="copiarDetalhadoRelatorio()" style="margin-left:8px">📋 Copiar lista completa (processo por processo)</button>' +
     '<div id="toast-copiado-relatorio">✓ Copiado!</div>' +
     secoes +
     '<' + 'script>' +
       'var __textoResumo = ' + textoResumoEscapado + ';' +
-      'function copiarResumoRelatorio() {' +
-        'var mostrar = function(msg) {' +
-          'var t = document.getElementById("toast-copiado-relatorio");' +
-          't.textContent = msg; t.style.display = "block";' +
-          'setTimeout(function(){ t.style.display = "none"; }, 2000);' +
-        '};' +
+      'var __textoDetalhado = ' + textoDetalhadoEscapado + ';' +
+      'function __mostrarToastRel(msg) {' +
+        'var t = document.getElementById("toast-copiado-relatorio");' +
+        't.textContent = msg; t.style.display = "block";' +
+        'setTimeout(function(){ t.style.display = "none"; }, 2000);' +
+      '}' +
+      'function __copiar(texto, msgOk) {' +
         'if (navigator.clipboard && navigator.clipboard.writeText) {' +
-          'navigator.clipboard.writeText(__textoResumo).then(function(){ mostrar("✓ Copiado!"); }).catch(function(){ mostrar("Não foi possível copiar — copie manualmente."); });' +
+          'navigator.clipboard.writeText(texto).then(function(){ __mostrarToastRel(msgOk); }).catch(function(){ __mostrarToastRel("Não foi possível copiar — copie manualmente."); });' +
         '} else {' +
-          'mostrar("Não foi possível copiar — copie manualmente.");' +
+          '__mostrarToastRel("Não foi possível copiar — copie manualmente.");' +
         '}' +
       '}' +
+      'function copiarResumoRelatorio() { __copiar(__textoResumo, "✓ Copiado!"); }' +
+      'function copiarDetalhadoRelatorio() { __copiar(__textoDetalhado, "✓ Lista completa copiada!"); }' +
     '<' + '/script>' +
     '</body></html>';
 
