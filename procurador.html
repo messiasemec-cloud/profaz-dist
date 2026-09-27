@@ -936,14 +936,15 @@ function imprimirRelatorioGeral(procuradores, labelPeriodo, filtro) {
     '<style>body{font-family:Arial,Helvetica,sans-serif;margin:24px;color:#1a1a1a}' +
     'h1{font-size:18px;margin-bottom:2px}' +
     '.sub{color:#898781;font-size:12px;margin-bottom:12px}' +
-    '#btn-copiar-resumo,#btn-copiar-detalhado{font-family:Arial,sans-serif;font-size:12px;font-weight:600;padding:8px 16px;border-radius:20px;border:none;background:#0a8a7a;color:#fff;cursor:pointer;margin-bottom:16px}' +
+    '#btn-copiar-resumo,#btn-copiar-detalhado,#btn-imprimir-relatorio{font-family:Arial,sans-serif;font-size:12px;font-weight:600;padding:8px 16px;border-radius:20px;border:none;background:#0a8a7a;color:#fff;cursor:pointer;margin-bottom:16px}' +
     '#toast-copiado-relatorio{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#0a8a7a;color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;display:none}' +
-    '@media print{#btn-copiar-resumo,#btn-copiar-detalhado,#toast-copiado-relatorio{display:none!important}}' +
+    '@media print{#btn-copiar-resumo,#btn-copiar-detalhado,#btn-imprimir-relatorio,#toast-copiado-relatorio{display:none!important}}' +
     '@media print{body{margin:12mm}}</style></head><body>' +
     '<h1>Relatório geral de processos — ' + labelPeriodo + '</h1>' +
     '<div class="sub">Gerado em ' + dataGeracao + ' — PROFAZ/PGM Fortaleza — ' + labelFiltro + ' — ' + procuradores.length + ' pessoa(s), ' + totalGeral + ' processo(s) no total</div>' +
     '<button id="btn-copiar-resumo" onclick="copiarResumoRelatorio()">📋 Copiar resumo (nome + total)</button>' +
     '<button id="btn-copiar-detalhado" onclick="copiarDetalhadoRelatorio()" style="margin-left:8px">📋 Copiar lista completa (processo por processo)</button>' +
+    '<button id="btn-imprimir-relatorio" onclick="window.print()" style="margin-left:8px">🖨 Imprimir / salvar PDF</button>' +
     '<div id="toast-copiado-relatorio">✓ Copiado!</div>' +
     secoes +
     '<' + 'script>' +
@@ -969,8 +970,9 @@ function imprimirRelatorioGeral(procuradores, labelPeriodo, filtro) {
   const janela = window.open('', '_blank');
   janela.document.write(html);
   janela.document.close();
-  janela.onload = function() { janela.print(); };
-  setTimeout(function() { janela.print(); }, 400);
+  // sem impressão automática aqui — a janela tem botões de copiar
+  // (resumo e lista completa) que precisam ficar visíveis; imprimir
+  // continua disponível pelo Ctrl+P do navegador quando quiser
 }
 
 function imprimirUltimosProcessos() {
