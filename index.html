@@ -358,7 +358,7 @@ function chaveOrdem(p) {
 }
 
 // ── LOGIN ─────────────────────────────────────────────────────────
-const cargos = {"Gerliane Martins": "Serviço de Apoio Administrativo", "Célia Gonçalves": "Assistente de Apoio à Gestão", "José Erisvaldo": "Assistente de Apoio à Gestão", "David Bruno": "Analista da PGM", "João Pedro": "Analista da PGM"};
+const cargos = {"Gerliane Martins": "Serviço de Apoio Administrativo", "Célia Gonçalves": "Assistente de Apoio à Gestão", "José Erisvaldo": "Assistente de Apoio à Gestão", "David Bruno": "Analista da PGM", "João Pedro": "Analista da PGM", "Gabriel Feitosa": "Assistente de Apoio à Gestão"};
 function login(nome) {
   dist = nome;
   const cargo = cargos[nome] || '';
@@ -666,7 +666,7 @@ function setAba(nucleo, btn) {
 
   // atualiza título formulário info
   const infos = {
-    EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',
+    EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno, João Pedro e Gabriel Feitosa), depois vão ao procurador com menor acervo.',
     Conhecimento: 'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',
     Administrativo: 'Administrativo — processos tipo PXXXXXXX. Distribuído entre os procuradores fixos do núcleo.',
     PTAC: 'PTAC — Projeto especial. Titular: Raimundo Gomes de Almeida Neto.'
@@ -692,7 +692,7 @@ function renderAba(nucleo, d) {
   renderOps(nucleo);
   // info box
   const infos = {
-    EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',
+    EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno, João Pedro e Gabriel Feitosa), depois vão ao procurador com menor acervo.',
     Conhecimento: 'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',
     Administrativo: 'Administrativo — processos tipo PXXXXXXX. Distribuído entre os procuradores fixos do núcleo.',
     PTAC: 'PTAC — Projeto especial. Titular: Raimundo Gomes de Almeida Neto.'
@@ -1085,7 +1085,7 @@ function processarEF(d) {
   document.querySelectorAll('.aba-btn').forEach(function(b){
     b.textContent.trim().startsWith('Execução')?b.classList.add('ativa'):b.classList.remove('ativa');
   });
-  document.getElementById('info-nucleo').textContent = 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.';
+  document.getElementById('info-nucleo').textContent = 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno, João Pedro e Gabriel Feitosa), depois vão ao procurador com menor acervo.';
   document.getElementById('info-nucleo').style.display = 'block';
   document.getElementById('fg-motivo').style.display = 'none';
   procSel = null;
@@ -1339,7 +1339,7 @@ function onFluxoChange() {
       ativo ? b.classList.add('ativa') : b.classList.remove('ativa');
     });
     const infos = {
-      EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',
+      EF: 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno, João Pedro e Gabriel Feitosa), depois vão ao procurador com menor acervo.',
       Conhecimento: 'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',
       Administrativo: 'Administrativo — processos tipo PXXXXXXX. Distribuído entre os procuradores fixos do núcleo.',
       PTAC: 'PTAC — Projeto especial. Titular: Raimundo Gomes de Almeida Neto.'
@@ -1494,7 +1494,7 @@ async function buscarProcesso() {
         document.querySelectorAll('.aba-btn').forEach(b => {
           b.textContent.trim().startsWith('Execução') ? b.classList.add('ativa') : b.classList.remove('ativa');
         });
-        document.getElementById('info-nucleo').textContent = 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.';
+        document.getElementById('info-nucleo').textContent = 'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno, João Pedro e Gabriel Feitosa), depois vão ao procurador com menor acervo.';
         document.getElementById('info-nucleo').style.display = 'block';
         document.getElementById('fg-motivo').style.display = 'none';
         renderKPIs('EF', null);
@@ -1685,7 +1685,7 @@ async function buscarProcesso() {
                             (nucleoTit==='Administrativo'&&txt.startsWith('Administrativo'));
               ativo ? b.classList.add('ativa') : b.classList.remove('ativa');
             });
-            const infos = {EF:'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno e João Pedro), depois vão ao procurador com menor acervo.',Conhecimento:'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',Administrativo:'Administrativo — processos tipo PXXXXXXX. Distribuído entre os procuradores fixos do núcleo.'};
+            const infos = {EF:'Núcleo Execução Fiscal — processos novos passam primeiro pelos analistas (David Bruno, João Pedro e Gabriel Feitosa), depois vão ao procurador com menor acervo.',Conhecimento:'Núcleo Conhecimento — processos mais complexos. Preventos vão direto ao titular.',Administrativo:'Administrativo — processos tipo PXXXXXXX. Distribuído entre os procuradores fixos do núcleo.'};
             document.getElementById('info-nucleo').textContent = infos[nucleoTit]||'';
             document.getElementById('info-nucleo').style.display = 'block';
             document.getElementById('fg-etapa').style.display = 'none';

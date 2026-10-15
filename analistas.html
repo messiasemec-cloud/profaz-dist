@@ -119,6 +119,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div style="font-weight:500">João Pedro</div>
           <div style="font-size:11px;color:#898781;margin-top:2px">Analista da PGM</div>
         </button>
+        <button class="bsel" onclick="pedirPin('Gabriel Feitosa', login)" style="text-align:left">
+          <div style="font-weight:500">Gabriel Feitosa</div>
+          <div style="font-size:11px;color:#898781;margin-top:2px">Assistente de Apoio à Gestão</div>
+        </button>
       </div>
     </div>
   </div>
@@ -552,7 +556,7 @@ function enviarBlocoEmLote(id) {
   }
 }
 
-const cargosAn = {'David Bruno':'Analista da PGM','João Pedro':'Analista da PGM'};
+const cargosAn = {'David Bruno':'Analista da PGM','João Pedro':'Analista da PGM','Gabriel Feitosa':'Assistente de Apoio à Gestão'};
 function login(nome) {
   analista = nome;
   carregarBlocosStorage();
