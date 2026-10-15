@@ -978,7 +978,7 @@ function renderOps(nucleo) {
       const info = infoFerias(p);
       return `<div class="pop pop-inativo">
         <div class="pop-nome" style="color:#898781">${p.nome}</div>
-        <div class="pop-ac">${p.acervo} processos</div>
+        <div class="pop-ac">${p.nucleo==='Analista' ? p.mes + ' triados no mês' : p.acervo + ' processos'}</div>
         <span class="badge ${info.classe}" style="margin-top:3px;font-size:10px"${info.tooltip?` title="${info.tooltip.replace(/"/g,'&quot;')}"`:''}>${info.texto}</span>
       </div>`;
     }
@@ -995,7 +995,7 @@ function renderOps(nucleo) {
     const emModoTemporario = document.getElementById('inp-tipo').value === 'Tramitação temporária';
     const numExibido = emModoTemporario
       ? `${p.temporarios_recebidos || 0} temporário(s) recebido(s)`
-      : `${p.acervo} processos`;
+      : (p.nucleo === 'Analista' ? `${p.mes} triados no mês` : `${p.acervo} processos`);
     return `<div class="pop" data-idx="${idx}" onclick="selProcNome('${p.nome.replace(/'/g,"\\'")}')">
       <div class="pop-nome">${p.nome}${analLabel}</div>
       <div class="pop-ac">${numExibido}</div>
