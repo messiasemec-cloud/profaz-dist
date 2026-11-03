@@ -182,7 +182,8 @@ tr:hover td{background:#fafaf8}
   <!-- TENDÊNCIA DIÁRIA (últimos 20 dias úteis) -->
   <div class="card">
     <div class="ch" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-      <span>Tendência diária — mês corrente (seg-sex)</span>
+      <span>Tendência diária (seg-sex)</span>
+      <select id="mes-tendencia" onchange="mudarMesTendencia(this.value)" style="padding:5px 8px;border:1px solid #d8d5cc;border-radius:6px;font-size:12px;font-family:inherit;background:#fff"></select>
       <div id="filtro-nucleo-tendencia" style="display:flex;gap:6px">
         <button class="btn-toggle ativo" data-nucleo="EF" onclick="mudarNucleoTendencia('EF')">EF</button>
         <button class="btn-toggle" data-nucleo="Conhecimento" onclick="mudarNucleoTendencia('Conhecimento')">Conhecimento</button>
@@ -375,6 +376,26 @@ function filtrar(tabelaId, termo) {
 }
 
 let nucleoTendenciaAtivo = 'EF';
+let mesTendenciaAtivo = ''; // '' = mês corrente
+
+function montarSeletorMes() {
+  const sel = document.getElementById('mes-tendencia');
+  if (!sel) return;
+  const nomes = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const hoje = new Date();
+  let html = '';
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    const val = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    html += '<option value="' + (i === 0 ? '' : val) + '">' + nomes[d.getMonth()] + ' ' + d.getFullYear() + (i === 0 ? ' (atual)' : '') + '</option>';
+  }
+  sel.innerHTML = html;
+}
+
+function mudarMesTendencia(v) {
+  mesTendenciaAtivo = v;
+  carregarTendencia();
+}
 
 function mudarNucleoTendencia(nucleo) {
   nucleoTendenciaAtivo = nucleo;
@@ -387,6 +408,7 @@ async function carregarTendencia() {
   el.innerHTML = '<div class="loading"><span class="spin"></span>Carregando...</div>';
   try {
     const params = new URLSearchParams({ acao: 'tendencia_diaria', nucleo: nucleoTendenciaAtivo });
+    if (mesTendenciaAtivo) params.set('mes', mesTendenciaAtivo);
     const r = await fetch(URL_AS + '?' + params);
     const d = await r.json();
     if (!d.ok) throw new Error(d.erro);
@@ -447,6 +469,7 @@ function renderTendencia(dias, semanas) {
   document.getElementById('grafico-tendencia').innerHTML = svg;
 }
 
+montarSeletorMes();
 carregar();
 carregarTendencia();
 </script>
